@@ -1,0 +1,26 @@
+using Microsoft.EntityFrameworkCore;
+using PermisosPuestosApi.Models;
+
+namespace PermisosPuestosApi.Data
+{
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        public DbSet<UsuarioDto> UsuariosDto { get; set; }
+        public DbSet<Puesto> Puestos { get; set; }
+        public DbSet<EmpleadoDto> EmpleadosDto { get; set; }
+        public DbSet<Empleado> Empleados { get; set; }
+        public DbSet<HardwareIdeal> HardwareIdeales { get; set; }
+        public DbSet<HardwareAsignado> HardwareAsignados { get; set; }
+        public DbSet<SoftwareLocal> SoftwareLocales { get; set; }
+        public DbSet<PermisosSitio> PermisosSitios { get; set; }
+        public DbSet<Plataforma> Plataformas { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UsuarioDto>().HasNoKey();
+            modelBuilder.Entity<EmpleadoDto>().HasNoKey();
+        }
+    }
+}

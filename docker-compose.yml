@@ -1,0 +1,20 @@
+
+services:
+  api:
+    build:
+      context: ./PermisosPuestosApi
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=172.29.99.8;Database=ProyectoPermisos;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=False;
+      - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
+
+  frontend:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
