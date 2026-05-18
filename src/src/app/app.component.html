@@ -1,9 +1,16 @@
 <div class="min-h-screen dark bg-gray-900 text-white">
   <nav class="bg-gray-800 p-4 shadow-md flex justify-between items-center">
-    <div class="text-xl font-bold">Proyecto Permisos XPuesto</div>
+    <div class="text-xl font-bold text-blue-400">Proyecto Permisos XPuesto</div>
+    <div class="space-x-4">
+      <a routerLink="/dashboard" routerLinkActive="text-blue-400" class="hover:text-blue-300">Dashboard</a>
+      <a routerLink="/colaboradores" routerLinkActive="text-blue-400" class="hover:text-blue-300">Colaboradores</a>
+      <a routerLink="/hardware" routerLinkActive="text-blue-400" class="hover:text-blue-300">Hardware</a>
+      <a routerLink="/software" routerLinkActive="text-blue-400" class="hover:text-blue-300">Software</a>
+    </div>
   </nav>
 
   <div class="container mx-auto p-4">
+    <!-- El router-outlet es OBLIGATORIO para renderizar las vistas hijas dinámicas -->
     <router-outlet></router-outlet>
   </div>
 </div>
