@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { HardwareAsignado, Empleado } from '../../models/models';
+import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 
 @Component({
   selector: 'app-hardware',
@@ -10,71 +10,105 @@ import { HardwareAsignado, Empleado } from '../../models/models';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Gestión de Hardware Asignado</h2>
+      <h2 class="text-2xl font-bold mb-4">Gestión de Hardware e Inventario</h2>
 
       <form [formGroup]="hwForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <select formControlName="empleadoId" class="p-2 rounded bg-gray-700 text-white">
-            <option value="">Seleccione Empleado</option>
-            <option *ngFor="let emp of empleados" [value]="emp.id">{{emp.nombreCompleto}}</option>
-          </select>
-          <input formControlName="placa" placeholder="Placa de Activo" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="tipoEquipo" placeholder="Tipo Equipo (ej. Laptop)" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="procesador" placeholder="Procesador" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="memoria" placeholder="Memoria RAM" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="marcaPC" placeholder="Marca" class="p-2 rounded bg-gray-700 text-white">
-          <label class="flex items-center text-white">
-            <input type="checkbox" formControlName="tecladoNumerico" class="mr-2"> Teclado Numérico
+          <div class="flex flex-col">
+            <select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option [ngValue]="null">Seleccione Persona</option>
+              @for(emp of empleados; track emp.id) {
+                <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
+              }
+            </select>
+            <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
+          </div>
+
+          <input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <input formControlName="procesador" placeholder="Procesador" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <input formControlName="memoria" placeholder="Memoria RAM" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <input formControlName="marcaPC" placeholder="Marca de PC" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <input formControlName="placa" placeholder="Placa de Activo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+
+          <label class="flex items-center text-white cursor-pointer select-none">
+            <input type="checkbox" formControlName="tecladoNumerico" class="mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
+            Teclado Numérico
           </label>
-          <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="p-2 rounded bg-gray-700 text-white lg:col-span-3">
+          <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 lg:col-span-3">
         </div>
-        <button type="submit" [disabled]="hwForm.invalid" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          {{ isEditing ? 'Actualizar' : 'Agregar' }}
-        </button>
-        <button type="button" *ngIf="isEditing" (click)="resetForm()" class="mt-4 ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
-          Cancelar
-        </button>
+
+        <div class="mt-4">
+          <button type="submit" [disabled]="hwForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+            @if(isEditing) {
+              Actualizar
+            } @else {
+              Agregar
+            }
+          </button>
+
+          @if(isEditing) {
+            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+              Cancelar
+            </button>
+          }
+        </div>
       </form>
 
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-700">
-            <th class="p-2 border border-gray-600">Placa</th>
-            <th class="p-2 border border-gray-600">Empleado</th>
-            <th class="p-2 border border-gray-600">Equipo</th>
-            <th class="p-2 border border-gray-600">Marca</th>
-            <th class="p-2 border border-gray-600">Specs</th>
-            <th class="p-2 border border-gray-600">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let hw of equipos" class="bg-gray-800 hover:bg-gray-700">
-            <td class="p-2 border border-gray-600">{{hw.placa}}</td>
-            <td class="p-2 border border-gray-600">{{getEmpleadoName(hw.empleadoId)}}</td>
-            <td class="p-2 border border-gray-600">{{hw.tipoEquipo}}</td>
-            <td class="p-2 border border-gray-600">{{hw.marcaPC}}</td>
-            <td class="p-2 border border-gray-600">{{hw.procesador}}, {{hw.memoria}}, {{hw.disco}}</td>
-            <td class="p-2 border border-gray-600">
-              <button (click)="edit(hw)" class="text-blue-400 mr-2 hover:text-blue-300">Editar</button>
-              <button (click)="delete(hw.id)" class="text-red-400 hover:text-red-300">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+          <thead>
+            <tr class="bg-gray-700 text-gray-200">
+              <th class="p-3 border-b border-gray-600 font-semibold">Puesto</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Nombre de persona</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Equipo</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Marca</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Placa</th>
+              <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(hw of equipos; track hw.id) {
+              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
+                <td class="p-3">{{getPuestoByEmpleado(hw.empleadoId)}}</td>
+                <td class="p-3">{{getEmpleadoName(hw.empleadoId)}}</td>
+                <td class="p-3">{{hw.tipoEquipo}}</td>
+                <td class="p-3">{{hw.marcaPC}}</td>
+                <td class="p-3">{{hw.placa}}</td>
+                <td class="p-3 text-center">
+                  <button (click)="edit(hw)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+                    Editar
+                  </button>
+                  <button (click)="delete(hw.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="p-6 text-center text-gray-400 bg-gray-800">
+                  No hay hardware registrado en el sistema.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   `
 })
 export class HardwareComponent implements OnInit {
   equipos: HardwareAsignado[] = [];
   empleados: Empleado[] = [];
+  puestos: Puesto[] = [];
   hwForm: FormGroup;
   isEditing = false;
   currentId: number | null = null;
+  selectedEmpleadoPuestoId: number | undefined | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.hwForm = this.fb.group({
-      empleadoId: ['', Validators.required],
+      empleadoId: [null, Validators.required],
       tipoEquipo: ['', Validators.required],
       procesador: ['', Validators.required],
       memoria: ['', Validators.required],
@@ -93,10 +127,32 @@ export class HardwareComponent implements OnInit {
   loadData() {
     this.api.getHardwareAsignado().subscribe(res => this.equipos = res);
     this.api.getEmpleados().subscribe(res => this.empleados = res);
+    this.api.getPuestos().subscribe(res => this.puestos = res);
+  }
+
+  onEmpleadoChange(event: any) {
+    const empId = this.hwForm.get('empleadoId')?.value;
+    if (empId) {
+      const emp = this.empleados.find(e => e.id === Number(empId));
+      this.selectedEmpleadoPuestoId = emp?.puestoId;
+    } else {
+      this.selectedEmpleadoPuestoId = null;
+    }
   }
 
   getEmpleadoName(id: number): string {
     return this.empleados.find(e => e.id === id)?.nombreCompleto || 'Desconocido';
+  }
+
+  getPuestoByEmpleado(empleadoId: number): string {
+    const emp = this.empleados.find(e => e.id === empleadoId);
+    if (!emp || !emp.puestoId) return 'No Asignado';
+    return this.puestos.find(p => p.id === emp.puestoId)?.nombrePuesto || 'Desconocido';
+  }
+
+  getPuestoName(puestoId: number | undefined | null): string {
+    if (!puestoId) return 'No Asignado';
+    return this.puestos.find(p => p.id === puestoId)?.nombrePuesto || 'Desconocido';
   }
 
   onSubmit() {
@@ -106,14 +162,20 @@ export class HardwareComponent implements OnInit {
     data.empleadoId = Number(data.empleadoId);
 
     if (this.isEditing && this.currentId) {
-      this.api.updateHardwareAsignado(this.currentId, { ...data, id: this.currentId }).subscribe(() => {
-        this.loadData();
-        this.resetForm();
+      this.api.updateHardwareAsignado(this.currentId, { ...data, id: this.currentId }).subscribe({
+        next: () => {
+          this.loadData();
+          this.resetForm();
+        },
+        error: (err) => alert('Error al actualizar registro.')
       });
     } else {
-      this.api.createHardwareAsignado(data).subscribe(() => {
-        this.loadData();
-        this.resetForm();
+      this.api.createHardwareAsignado(data).subscribe({
+        next: () => {
+          this.loadData();
+          this.resetForm();
+        },
+        error: (err) => alert('Error al crear registro.')
       });
     }
   }
@@ -122,17 +184,32 @@ export class HardwareComponent implements OnInit {
     this.isEditing = true;
     this.currentId = hw.id;
     this.hwForm.patchValue(hw);
+    this.onEmpleadoChange(null);
   }
 
   delete(id: number) {
-    if(confirm('¿Eliminar equipo asignado?')) {
-      this.api.deleteHardwareAsignado(id).subscribe(() => this.loadData());
+    if(confirm('¿Está seguro de que desea eliminar este equipo asignado?')) {
+      this.api.deleteHardwareAsignado(id).subscribe({
+        next: () => this.loadData(),
+        error: (err) => alert('No se pudo eliminar el registro.')
+      });
     }
   }
 
   resetForm() {
     this.isEditing = false;
     this.currentId = null;
-    this.hwForm.reset();
+    this.selectedEmpleadoPuestoId = null;
+    this.hwForm.reset({
+      empleadoId: null,
+      tipoEquipo: '',
+      procesador: '',
+      memoria: '',
+      disco: '',
+      marcaPC: '',
+      tecladoNumerico: false,
+      otrasConsideraciones: '',
+      placa: ''
+    });
   }
 }

@@ -5,6 +5,8 @@ import { PuestosComponent } from './components/puestos/puestos.component';
 import { ColaboradoresComponent } from './components/colaboradores/colaboradores.component';
 import { HardwareComponent } from './components/hardware/hardware.component';
 import { SoftwareComponent } from './components/software/software.component';
+import { SitiosComponent } from './components/sitios/sitios.component';
+import { PlataformasComponent } from './components/plataformas/plataformas.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,6 +16,8 @@ export const routes: Routes = [
   { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard] },
   { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard] },
   { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard] },
+  { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
+  { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },
 
   // Ruta por defecto explícita
   { path: '', redirectTo: 'login', pathMatch: 'full' },
