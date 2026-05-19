@@ -104,3 +104,13 @@ namespace PermisosPuestosApi.Models
         public string Password { get; set; } = string.Empty;
     }
 }
+
+    public class CatalogoBase
+    {
+        [Key] public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+    }
+
+    public class Cat_Ambiente : CatalogoBase { }
+    public class Cat_Sitio : CatalogoBase { }
+    public class Cat_Plataforma : CatalogoBase { }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { PermisosSitio, Empleado, Puesto } from '../../models/models';
+import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-sitios',
@@ -28,7 +28,12 @@ import { PermisosSitio, Empleado, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="sitio" placeholder="Sitio (ej. Avatar, Intranet)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <select formControlName="sitio" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option value="">Seleccione Sitio</option>
+              @for(sitio of sitiosOpciones; track sitio.id) {
+                <option [value]="sitio.nombre">{{sitio.nombre}}</option>
+              }
+            </select>
             @if(sitioForm.get('sitio')?.invalid && sitioForm.get('sitio')?.touched) {
               <span class="text-red-400 text-xs mt-1">El sitio es requerido.</span>
             }
@@ -37,8 +42,8 @@ import { PermisosSitio, Empleado, Puesto } from '../../models/models';
           <div class="flex flex-col">
             <select formControlName="ambiente" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
               <option value="">Seleccione Ambiente</option>
-              @for(amb of ambientesOpciones; track amb) {
-                <option [value]="amb">{{amb}}</option>
+              @for(amb of ambientesOpciones; track amb.id) {
+                <option [value]="amb.nombre">{{amb.nombre}}</option>
               }
             </select>
             @if(sitioForm.get('ambiente')?.invalid && sitioForm.get('ambiente')?.touched) {
@@ -132,7 +137,8 @@ export class SitiosComponent implements OnInit {
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
   // Catálogos dinámicos
-  ambientesOpciones: string[] = ['Producción', 'Pruebas', 'Desarrollo'];
+  ambientesOpciones: Catalogo[] = [];
+  sitiosOpciones: Catalogo[] = [];
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.sitioForm = this.fb.group({
@@ -151,6 +157,8 @@ export class SitiosComponent implements OnInit {
     this.api.getPermisosSitios().subscribe(res => this.permisosSitios = res);
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
+    this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);
+    this.api.getSitiosCat().subscribe(res => this.sitiosOpciones = res);
   }
 
   onEmpleadoChange(event: any) {

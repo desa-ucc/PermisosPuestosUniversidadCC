@@ -8,11 +8,13 @@ import { HardwareIdealComponent } from './components/hardware-ideal/hardware-ide
 import { SoftwareComponent } from './components/software/software.component';
 import { SitiosComponent } from './components/sitios/sitios.component';
 import { PlataformasComponent } from './components/plataformas/plataformas.component';
+import { CatalogosComponent } from './components/catalogos/catalogos.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'catalogos', component: CatalogosComponent, canActivate: [AuthGuard] },
   { path: 'puestos', component: PuestosComponent, canActivate: [AuthGuard] },
   { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard] },
   { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard] },

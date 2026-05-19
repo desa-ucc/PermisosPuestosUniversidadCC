@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma } from '../models/models';
+import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -34,10 +34,10 @@ export class ApiService {
   deleteEmpleado(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Empleados/${id}`, { headers: this.getHeaders() }); }
 
   // --- Equipos Ideales ---
-  getHardwareIdeal(): Observable<HardwareIdeal[]> { return this.http.get<HardwareIdeal[]>(`${this.apiUrl}/Equipos/Ideal`, { headers: this.getHeaders() }); }
-  createHardwareIdeal(data: Partial<HardwareIdeal>): Observable<HardwareIdeal> { return this.http.post<HardwareIdeal>(`${this.apiUrl}/Equipos/Ideal`, data, { headers: this.getHeaders() }); }
-  updateHardwareIdeal(id: number, data: Partial<HardwareIdeal>): Observable<any> { return this.http.put(`${this.apiUrl}/Equipos/Ideal/${id}`, data, { headers: this.getHeaders() }); }
-  deleteHardwareIdeal(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Equipos/Ideal/${id}`, { headers: this.getHeaders() }); }
+  getHardwareIdeal(): Observable<HardwareIdeal[]> { return this.http.get<HardwareIdeal[]>(`${this.apiUrl}/HardwareIdeal`, { headers: this.getHeaders() }); }
+  createHardwareIdeal(data: Partial<HardwareIdeal>): Observable<HardwareIdeal> { return this.http.post<HardwareIdeal>(`${this.apiUrl}/HardwareIdeal`, data, { headers: this.getHeaders() }); }
+  updateHardwareIdeal(id: number, data: Partial<HardwareIdeal>): Observable<any> { return this.http.put(`${this.apiUrl}/HardwareIdeal/${id}`, data, { headers: this.getHeaders() }); }
+  deleteHardwareIdeal(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/HardwareIdeal/${id}`, { headers: this.getHeaders() }); }
 
   // --- Equipos Asignados ---
   getHardwareAsignado(): Observable<HardwareAsignado[]> { return this.http.get<HardwareAsignado[]>(`${this.apiUrl}/Equipos/Asignado`, { headers: this.getHeaders() }); }
@@ -62,4 +62,17 @@ export class ApiService {
   createPlataforma(data: Partial<Plataforma>): Observable<Plataforma> { return this.http.post<Plataforma>(`${this.apiUrl}/Plataformas`, data, { headers: this.getHeaders() }); }
   updatePlataforma(id: number, data: Partial<Plataforma>): Observable<any> { return this.http.put(`${this.apiUrl}/Plataformas/${id}`, data, { headers: this.getHeaders() }); }
   deletePlataforma(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Plataformas/${id}`, { headers: this.getHeaders() }); }
+
+  // --- Catalogos ---
+  getAmbientes(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Ambientes`, { headers: this.getHeaders() }); }
+  createAmbiente(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Ambientes`, data, { headers: this.getHeaders() }); }
+  deleteAmbiente(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Ambientes/${id}`, { headers: this.getHeaders() }); }
+
+  getSitiosCat(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Sitios`, { headers: this.getHeaders() }); }
+  createSitioCat(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Sitios`, data, { headers: this.getHeaders() }); }
+  deleteSitioCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Sitios/${id}`, { headers: this.getHeaders() }); }
+
+  getPlataformasCat(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Plataformas`, { headers: this.getHeaders() }); }
+  createPlataformaCat(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Plataformas`, data, { headers: this.getHeaders() }); }
+  deletePlataformaCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Plataformas/${id}`, { headers: this.getHeaders() }); }
 }

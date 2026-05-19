@@ -73,3 +73,8 @@ export interface Plataforma {
   accesosPermisos: string;
   nivelAcceso: string;
 }
+
+export interface Catalogo {
+  id: number;
+  nombre: string;
+}

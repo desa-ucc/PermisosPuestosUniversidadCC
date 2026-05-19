@@ -229,9 +229,9 @@ GO
 CREATE PROCEDURE sp_GetHardwareIdeal AS BEGIN SELECT * FROM HardwareIdeal END;
 GO
 
-IF OBJECT_ID('sp_CreateHardwareIdeal', 'P') IS NOT NULL DROP PROCEDURE sp_CreateHardwareIdeal;
+IF OBJECT_ID('sp_InsertHardwareIdeal', 'P') IS NOT NULL DROP PROCEDURE sp_InsertHardwareIdeal;
 GO
-CREATE PROCEDURE sp_CreateHardwareIdeal @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX) AS
+CREATE PROCEDURE sp_InsertHardwareIdeal @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX) AS
 BEGIN
     INSERT INTO HardwareIdeal (PuestoId, TipoEquipo, Procesador, Memoria, Disco, MarcaPC, TecladoNumerico, OtrasConsideraciones)
     VALUES (@PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones);
@@ -358,4 +358,88 @@ GO
 IF OBJECT_ID('sp_DeletePlataforma', 'P') IS NOT NULL DROP PROCEDURE sp_DeletePlataforma;
 GO
 CREATE PROCEDURE sp_DeletePlataforma @Id INT AS BEGIN DELETE FROM Plataformas WHERE Id = @Id; END;
+GO
+
+-- E. CATÁLOGOS BASE
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_Ambientes')
+BEGIN
+    CREATE TABLE Cat_Ambientes (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(100) NOT NULL UNIQUE
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_Sitios')
+BEGIN
+    CREATE TABLE Cat_Sitios (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(150) NOT NULL UNIQUE
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_Plataformas')
+BEGIN
+    CREATE TABLE Cat_Plataformas (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(150) NOT NULL UNIQUE
+    );
+END
+
+-- DATOS SEMILLA PARA CATÁLOGOS
+IF NOT EXISTS (SELECT * FROM Cat_Ambientes)
+BEGIN
+    INSERT INTO Cat_Ambientes (Nombre) VALUES ('Producción'), ('Pruebas'), ('Desarrollo');
+END
+
+IF NOT EXISTS (SELECT * FROM Cat_Sitios)
+BEGIN
+    INSERT INTO Cat_Sitios (Nombre) VALUES ('Avatar'), ('Intranet'), ('SharePoint');
+END
+
+IF NOT EXISTS (SELECT * FROM Cat_Plataformas)
+BEGIN
+    INSERT INTO Cat_Plataformas (Nombre) VALUES ('Moodle'), ('Office 365'), ('Azure'), ('AWS');
+END
+
+-- SPs PARA CATÁLOGOS
+-- Cat_Ambientes
+IF OBJECT_ID('sp_GetCatAmbientes', 'P') IS NOT NULL DROP PROCEDURE sp_GetCatAmbientes;
+GO
+CREATE PROCEDURE sp_GetCatAmbientes AS BEGIN SELECT * FROM Cat_Ambientes END;
+GO
+IF OBJECT_ID('sp_CreateCatAmbiente', 'P') IS NOT NULL DROP PROCEDURE sp_CreateCatAmbiente;
+GO
+CREATE PROCEDURE sp_CreateCatAmbiente @Nombre NVARCHAR(100) AS BEGIN INSERT INTO Cat_Ambientes (Nombre) VALUES (@Nombre); END;
+GO
+IF OBJECT_ID('sp_DeleteCatAmbiente', 'P') IS NOT NULL DROP PROCEDURE sp_DeleteCatAmbiente;
+GO
+CREATE PROCEDURE sp_DeleteCatAmbiente @Id INT AS BEGIN DELETE FROM Cat_Ambientes WHERE Id = @Id; END;
+GO
+
+-- Cat_Sitios
+IF OBJECT_ID('sp_GetCatSitios', 'P') IS NOT NULL DROP PROCEDURE sp_GetCatSitios;
+GO
+CREATE PROCEDURE sp_GetCatSitios AS BEGIN SELECT * FROM Cat_Sitios END;
+GO
+IF OBJECT_ID('sp_CreateCatSitio', 'P') IS NOT NULL DROP PROCEDURE sp_CreateCatSitio;
+GO
+CREATE PROCEDURE sp_CreateCatSitio @Nombre NVARCHAR(150) AS BEGIN INSERT INTO Cat_Sitios (Nombre) VALUES (@Nombre); END;
+GO
+IF OBJECT_ID('sp_DeleteCatSitio', 'P') IS NOT NULL DROP PROCEDURE sp_DeleteCatSitio;
+GO
+CREATE PROCEDURE sp_DeleteCatSitio @Id INT AS BEGIN DELETE FROM Cat_Sitios WHERE Id = @Id; END;
+GO
+
+-- Cat_Plataformas
+IF OBJECT_ID('sp_GetCatPlataformas', 'P') IS NOT NULL DROP PROCEDURE sp_GetCatPlataformas;
+GO
+CREATE PROCEDURE sp_GetCatPlataformas AS BEGIN SELECT * FROM Cat_Plataformas END;
+GO
+IF OBJECT_ID('sp_CreateCatPlataforma', 'P') IS NOT NULL DROP PROCEDURE sp_CreateCatPlataforma;
+GO
+CREATE PROCEDURE sp_CreateCatPlataforma @Nombre NVARCHAR(150) AS BEGIN INSERT INTO Cat_Plataformas (Nombre) VALUES (@Nombre); END;
+GO
+IF OBJECT_ID('sp_DeleteCatPlataforma', 'P') IS NOT NULL DROP PROCEDURE sp_DeleteCatPlataforma;
+GO
+CREATE PROCEDURE sp_DeleteCatPlataforma @Id INT AS BEGIN DELETE FROM Cat_Plataformas WHERE Id = @Id; END;
 GO

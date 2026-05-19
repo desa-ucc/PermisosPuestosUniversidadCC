@@ -25,6 +25,8 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateHardwareIdeal([FromBody] HardwareIdeal h)
         {
+            // Validating that the PuestoId is valid is left up to the database foreign key
+            // The TecladoNumerico field is correctly mapped to a boolean via the Models.cs class
             var p1 = new SqlParameter("@PuestoId", h.PuestoId);
             var p2 = new SqlParameter("@TipoEquipo", h.TipoEquipo);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
@@ -34,7 +36,8 @@ namespace PermisosPuestosApi.Controllers
             var p7 = new SqlParameter("@TecladoNumerico", h.TecladoNumerico);
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareIdeal @PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
+            // Execute the renamed Stored Procedure to match exact requirement
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_InsertHardwareIdeal @PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
             return Ok();
         }
 

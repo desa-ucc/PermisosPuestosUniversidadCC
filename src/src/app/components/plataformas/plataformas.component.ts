@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { Plataforma, Empleado, Puesto } from '../../models/models';
+import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-plataformas',
@@ -40,7 +40,12 @@ import { Plataforma, Empleado, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="nombrePlataforma" placeholder="Plataforma (ej. Moodle, O365)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <select formControlName="nombrePlataforma" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option value="">Seleccione Plataforma</option>
+              @for(plat of plataformasOpciones; track plat.id) {
+                <option [value]="plat.nombre">{{plat.nombre}}</option>
+              }
+            </select>
             @if(plataformaForm.get('nombrePlataforma')?.invalid && plataformaForm.get('nombrePlataforma')?.touched) {
               <span class="text-red-400 text-xs mt-1">La plataforma es requerida.</span>
             }
@@ -155,6 +160,7 @@ export class PlataformasComponent implements OnInit {
 
   // Catálogos dinámicos
   licenciasOpciones: string[] = ['Posee', 'No tiene'];
+  plataformasOpciones: Catalogo[] = [];
   nivelesAccesoOpciones: string[] = ['Administrador', 'Usuario', 'Solo Lectura'];
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -176,6 +182,7 @@ export class PlataformasComponent implements OnInit {
     this.api.getPlataformas().subscribe(res => this.plataformas = res);
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
+    this.api.getPlataformasCat().subscribe(res => this.plataformasOpciones = res);
   }
 
   onEmpleadoChange(event: any) {
