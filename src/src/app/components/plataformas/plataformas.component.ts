@@ -30,8 +30,8 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           <div class="flex flex-col">
             <select formControlName="licencias" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
               <option value="">Posee Licencia?</option>
-              @for(lic of licenciasOpciones; track lic) {
-                <option [value]="lic">{{lic}}</option>
+              @for(lic of tiposLicencia; track lic.id) {
+                <option [value]="lic.nombre">{{lic.nombre}}</option>
               }
             </select>
             @if(plataformaForm.get('licencias')?.invalid && plataformaForm.get('licencias')?.touched) {
@@ -42,7 +42,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           <div class="flex flex-col">
             <select formControlName="nombrePlataforma" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
               <option value="">Seleccione Plataforma</option>
-              @for(plat of plataformasOpciones; track plat.id) {
+              @for(plat of plataformasNombres; track plat.id) {
                 <option [value]="plat.nombre">{{plat.nombre}}</option>
               }
             </select>
@@ -68,8 +68,8 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           <div class="flex flex-col">
             <select formControlName="nivelAcceso" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
               <option value="">Nivel de Acceso</option>
-              @for(nivel of nivelesAccesoOpciones; track nivel) {
-                <option [value]="nivel">{{nivel}}</option>
+              @for(nivel of nivelesAcceso; track nivel.id) {
+                <option [value]="nivel.nombre">{{nivel.nombre}}</option>
               }
             </select>
             @if(plataformaForm.get('nivelAcceso')?.invalid && plataformaForm.get('nivelAcceso')?.touched) {
@@ -159,9 +159,9 @@ export class PlataformasComponent implements OnInit {
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
   // Catálogos dinámicos
-  licenciasOpciones: string[] = ['Posee', 'No tiene'];
-  plataformasOpciones: Catalogo[] = [];
-  nivelesAccesoOpciones: string[] = ['Administrador', 'Usuario', 'Solo Lectura'];
+  nivelesAcceso: Catalogo[] = [];
+  plataformasNombres: Catalogo[] = [];
+  tiposLicencia: Catalogo[] = [];
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.plataformaForm = this.fb.group({
@@ -176,13 +176,19 @@ export class PlataformasComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.loadCatalogos();
   }
 
   loadData() {
     this.api.getPlataformas().subscribe(res => this.plataformas = res);
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
-    this.api.getPlataformasCat().subscribe(res => this.plataformasOpciones = res);
+  }
+
+  loadCatalogos() {
+    this.api.getNivelesAcceso().subscribe(res => this.nivelesAcceso = res);
+    this.api.getPlataformasNombres().subscribe(res => this.plataformasNombres = res);
+    this.api.getTiposLicencia().subscribe(res => this.tiposLicencia = res);
   }
 
   onEmpleadoChange(event: any) {

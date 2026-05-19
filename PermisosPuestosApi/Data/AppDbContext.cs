@@ -19,6 +19,9 @@ namespace PermisosPuestosApi.Data
         public DbSet<Cat_Ambiente> Cat_Ambientes { get; set; }
         public DbSet<Cat_Sitio> Cat_Sitios { get; set; }
         public DbSet<Cat_Plataforma> Cat_Plataformas { get; set; }
+        public DbSet<Cat_NivelesAcceso> Cat_NivelesAccesos { get; set; }
+        public DbSet<Cat_PlataformasNombres> Cat_PlataformasNombres { get; set; }
+        public DbSet<Cat_TiposLicencia> Cat_TiposLicencias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -75,4 +75,8 @@ export class ApiService {
   getPlataformasCat(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Plataformas`, { headers: this.getHeaders() }); }
   createPlataformaCat(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Plataformas`, data, { headers: this.getHeaders() }); }
   deletePlataformaCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Plataformas/${id}`, { headers: this.getHeaders() }); }
+
+  getNivelesAcceso(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/NivelesAcceso`, { headers: this.getHeaders() }); }
+  getPlataformasNombres(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/PlataformasNombres`, { headers: this.getHeaders() }); }
+  getTiposLicencia(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/TiposLicencia`, { headers: this.getHeaders() }); }
 }

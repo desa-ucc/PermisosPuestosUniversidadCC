@@ -443,3 +443,61 @@ IF OBJECT_ID('sp_DeleteCatPlataforma', 'P') IS NOT NULL DROP PROCEDURE sp_Delete
 GO
 CREATE PROCEDURE sp_DeleteCatPlataforma @Id INT AS BEGIN DELETE FROM Cat_Plataformas WHERE Id = @Id; END;
 GO
+
+
+-- NUEVOS CATÁLOGOS BASE SOLICITADOS
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_NivelesAcceso')
+BEGIN
+    CREATE TABLE Cat_NivelesAcceso (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(100) NOT NULL UNIQUE
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_PlataformasNombres')
+BEGIN
+    CREATE TABLE Cat_PlataformasNombres (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(150) NOT NULL UNIQUE
+    );
+END
+
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Cat_TiposLicencia')
+BEGIN
+    CREATE TABLE Cat_TiposLicencia (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Nombre NVARCHAR(100) NOT NULL UNIQUE
+    );
+END
+
+-- DATOS SEMILLA
+IF NOT EXISTS (SELECT * FROM Cat_NivelesAcceso)
+BEGIN
+    INSERT INTO Cat_NivelesAcceso (Nombre) VALUES ('Administrador'), ('Usuario'), ('Consulta');
+END
+
+IF NOT EXISTS (SELECT * FROM Cat_PlataformasNombres)
+BEGIN
+    INSERT INTO Cat_PlataformasNombres (Nombre) VALUES ('Microsoft Visual Studio'), ('SQL Server Management Studio'), ('Office 365'), ('Moodle'), ('Avatar Producción');
+END
+
+IF NOT EXISTS (SELECT * FROM Cat_TiposLicencia)
+BEGIN
+    INSERT INTO Cat_TiposLicencia (Nombre) VALUES ('Posee'), ('No tiene');
+END
+
+-- STORED PROCEDURES (SOLO LECTURA SOLICITADA)
+IF OBJECT_ID('sp_GetNivelesAcceso', 'P') IS NOT NULL DROP PROCEDURE sp_GetNivelesAcceso;
+GO
+CREATE PROCEDURE sp_GetNivelesAcceso AS BEGIN SELECT * FROM Cat_NivelesAcceso END;
+GO
+
+IF OBJECT_ID('sp_GetPlataformasNombres', 'P') IS NOT NULL DROP PROCEDURE sp_GetPlataformasNombres;
+GO
+CREATE PROCEDURE sp_GetPlataformasNombres AS BEGIN SELECT * FROM Cat_PlataformasNombres END;
+GO
+
+IF OBJECT_ID('sp_GetTiposLicencia', 'P') IS NOT NULL DROP PROCEDURE sp_GetTiposLicencia;
+GO
+CREATE PROCEDURE sp_GetTiposLicencia AS BEGIN SELECT * FROM Cat_TiposLicencia END;
+GO
