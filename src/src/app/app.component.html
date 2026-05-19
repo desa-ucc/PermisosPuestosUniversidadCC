@@ -1,23 +1,84 @@
-<div class="min-h-screen dark bg-gray-900 text-white">
-  @if (isLoggedIn) {
-    <nav class="bg-gray-800 p-4 shadow-md flex justify-between items-center flex-wrap gap-4">
-      <div class="text-xl font-bold text-blue-400">Proyecto Permisos XPuesto</div>
-      <div class="space-x-4 flex flex-wrap gap-y-2 justify-end text-sm items-center">
-        <a [routerLink]="['/dashboard']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" [routerLinkActiveOptions]="{exact: true}" class="hover:text-blue-300 transition cursor-pointer">Dashboard</a>
-        <a [routerLink]="['/catalogos']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Catálogos Base</a>
-        <a [routerLink]="['/puestos']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Puestos</a>
-        <a [routerLink]="['/colaboradores']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Colaboradores</a>
-        <a [routerLink]="['/hardware-ideal']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Equipo Ideal</a>
-        <a [routerLink]="['/hardware']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Hardware Asignado</a>
-        <a [routerLink]="['/software']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Software Local</a>
-        <a [routerLink]="['/sitios']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Permisos Sitios</a>
-        <a [routerLink]="['/plataformas']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Plataformas</a>
-        <button (click)="logout()" class="ml-4 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs transition duration-200">Salir</button>
-      </div>
+@if (isLoggedIn) {
+  <!-- Sidebar -->
+  <aside class="fixed left-0 top-0 h-full w-[280px] flex flex-col z-50 overflow-y-auto bg-secondary dark:bg-on-secondary-fixed">
+    <div class="p-6 flex flex-col gap-1">
+      <h1 class="font-headline-md text-headline-md font-bold text-on-secondary">Permisos XPuesto</h1>
+      <p class="text-label-md font-label-md text-on-secondary/60 uppercase tracking-widest">Admin System</p>
+    </div>
+    <nav class="flex-1 mt-4">
+      <a [routerLink]="['/dashboard']" routerLinkActive="sidebar-active" [routerLinkActiveOptions]="{exact: true}" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-all">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-label-md text-label-md">Dashboard</span>
+      </a>
+      <a [routerLink]="['/catalogos']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">folder_shared</span>
+        <span class="font-label-md text-label-md">Catálogos Base</span>
+      </a>
+      <a [routerLink]="['/puestos']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">badge</span>
+        <span class="font-label-md text-label-md">Puestos</span>
+      </a>
+      <a [routerLink]="['/colaboradores']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">group</span>
+        <span class="font-label-md text-label-md">Colaboradores</span>
+      </a>
+      <a [routerLink]="['/hardware-ideal']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">verified_user</span>
+        <span class="font-label-md text-label-md">Equipo Ideal</span>
+      </a>
+      <a [routerLink]="['/hardware']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">computer</span>
+        <span class="font-label-md text-label-md">Hardware Asignado</span>
+      </a>
+      <a [routerLink]="['/software']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">terminal</span>
+        <span class="font-label-md text-label-md">Software Local</span>
+      </a>
+      <a [routerLink]="['/sitios']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">location_on</span>
+        <span class="font-label-md text-label-md">Permisos Sitios</span>
+      </a>
+      <a [routerLink]="['/plataformas']" routerLinkActive="sidebar-active" class="flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary hover:bg-on-secondary-fixed-variant/30 py-3 px-6 transition-colors">
+        <span class="material-symbols-outlined">cloud_done</span>
+        <span class="font-label-md text-label-md">Plataformas</span>
+      </a>
     </nav>
-  }
+    <div class="mt-auto border-t border-on-secondary/10 p-4 flex flex-col gap-2">
+      <button (click)="logout()" class="w-full flex items-center gap-4 text-on-secondary/70 hover:text-on-secondary py-2 px-4 transition-colors">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="font-label-md text-label-md">Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
 
-  <div class="container mx-auto p-4">
-    <router-outlet></router-outlet>
-  </div>
-</div>
+  <!-- Header -->
+  <header class="fixed top-0 right-0 left-[280px] h-16 flex justify-between items-center px-gutter z-40 bg-surface border-b border-outline-variant shadow-sm">
+    <div class="flex items-center flex-1 max-w-xl">
+      <div class="relative w-full">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+        <input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary-container text-body-md font-body-md transition-all" placeholder="Buscar puestos, software o usuarios..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-4">
+        <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-all">notifications</button>
+        <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-full transition-all">help_outline</button>
+      </div>
+      <div class="h-8 w-px bg-outline-variant"></div>
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <p class="text-label-md font-label-md text-on-surface leading-none">Admin Usuario</p>
+          <p class="text-[10px] text-on-surface-variant">Global Admin</p>
+        </div>
+        <div class="w-10 h-10 rounded-full border-2 border-primary-container bg-primary flex items-center justify-center text-white">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+      </div>
+    </div>
+  </header>
+}
+
+<!-- Main Content -->
+<main [ngClass]="isLoggedIn ? 'ml-[280px] pt-24 px-md pb-md' : ''">
+  <router-outlet></router-outlet>
+</main>
