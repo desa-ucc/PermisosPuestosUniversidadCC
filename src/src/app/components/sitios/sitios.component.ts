@@ -21,23 +21,41 @@ import { PermisosSitio, Empleado, Puesto } from '../../models/models';
                 <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
               }
             </select>
+            @if(sitioForm.get('empleadoId')?.invalid && sitioForm.get('empleadoId')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
+            }
             <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
           </div>
 
-          <input formControlName="sitio" placeholder="Sitio (ej. Avatar, Intranet)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="sitio" placeholder="Sitio (ej. Avatar, Intranet)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(sitioForm.get('sitio')?.invalid && sitioForm.get('sitio')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El sitio es requerido.</span>
+            }
+          </div>
 
-          <select formControlName="ambiente" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            <option value="">Seleccione Ambiente</option>
-            <option value="Producción">Producción</option>
-            <option value="Pruebas">Pruebas</option>
-            <option value="Desarrollo">Desarrollo</option>
-          </select>
+          <div class="flex flex-col">
+            <select formControlName="ambiente" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option value="">Seleccione Ambiente</option>
+              @for(amb of ambientesOpciones; track amb) {
+                <option [value]="amb">{{amb}}</option>
+              }
+            </select>
+            @if(sitioForm.get('ambiente')?.invalid && sitioForm.get('ambiente')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El ambiente es requerido.</span>
+            }
+          </div>
 
-          <input formControlName="gruposPermisos" placeholder="Grupos de Permisos (ej. Soporte-Consulta)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 lg:col-span-3">
+          <div class="flex flex-col lg:col-span-3">
+            <input formControlName="gruposPermisos" placeholder="Grupos de Permisos (ej. Soporte-Consulta)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+            @if(sitioForm.get('gruposPermisos')?.invalid && sitioForm.get('gruposPermisos')?.touched) {
+              <span class="text-red-400 text-xs mt-1">Los grupos son requeridos.</span>
+            }
+          </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="sitioForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+          <button type="submit" [disabled]="sitioForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -113,6 +131,9 @@ export class SitiosComponent implements OnInit {
   currentId: number | null = null;
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
+  // Catálogos dinámicos
+  ambientesOpciones: string[] = ['Producción', 'Pruebas', 'Desarrollo'];
+
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.sitioForm = this.fb.group({
       empleadoId: [null, Validators.required],
@@ -158,6 +179,7 @@ export class SitiosComponent implements OnInit {
   }
 
   onSubmit() {
+    this.sitioForm.markAllAsTouched();
     if (this.sitioForm.invalid) return;
 
     const data = this.sitioForm.value;

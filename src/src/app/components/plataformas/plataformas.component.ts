@@ -21,31 +21,60 @@ import { Plataforma, Empleado, Puesto } from '../../models/models';
                 <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
               }
             </select>
+            @if(plataformaForm.get('empleadoId')?.invalid && plataformaForm.get('empleadoId')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
+            }
             <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
           </div>
 
-          <select formControlName="licencias" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            <option value="">Posee Licencia?</option>
-            <option value="Posee">Posee</option>
-            <option value="No tiene">No tiene</option>
-          </select>
+          <div class="flex flex-col">
+            <select formControlName="licencias" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option value="">Posee Licencia?</option>
+              @for(lic of licenciasOpciones; track lic) {
+                <option [value]="lic">{{lic}}</option>
+              }
+            </select>
+            @if(plataformaForm.get('licencias')?.invalid && plataformaForm.get('licencias')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La licencia es requerida.</span>
+            }
+          </div>
 
-          <input formControlName="nombrePlataforma" placeholder="Plataforma (ej. Moodle, O365)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="nombrePlataforma" placeholder="Plataforma (ej. Moodle, O365)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(plataformaForm.get('nombrePlataforma')?.invalid && plataformaForm.get('nombrePlataforma')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La plataforma es requerida.</span>
+            }
+          </div>
 
-          <input formControlName="modulos" placeholder="Módulos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="modulos" placeholder="Módulos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(plataformaForm.get('modulos')?.invalid && plataformaForm.get('modulos')?.touched) {
+              <span class="text-red-400 text-xs mt-1">Los módulos son requeridos.</span>
+            }
+          </div>
 
-          <input formControlName="accesosPermisos" placeholder="Accesos y Permisos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="accesosPermisos" placeholder="Accesos y Permisos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(plataformaForm.get('accesosPermisos')?.invalid && plataformaForm.get('accesosPermisos')?.touched) {
+              <span class="text-red-400 text-xs mt-1">Los accesos son requeridos.</span>
+            }
+          </div>
 
-          <select formControlName="nivelAcceso" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            <option value="">Nivel de Acceso</option>
-            <option value="Administrador">Administrador</option>
-            <option value="Usuario">Usuario</option>
-            <option value="Solo Lectura">Solo Lectura</option>
-          </select>
+          <div class="flex flex-col">
+            <select formControlName="nivelAcceso" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option value="">Nivel de Acceso</option>
+              @for(nivel of nivelesAccesoOpciones; track nivel) {
+                <option [value]="nivel">{{nivel}}</option>
+              }
+            </select>
+            @if(plataformaForm.get('nivelAcceso')?.invalid && plataformaForm.get('nivelAcceso')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El nivel de acceso es requerido.</span>
+            }
+          </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="plataformaForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+          <button type="submit" [disabled]="plataformaForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -124,6 +153,10 @@ export class PlataformasComponent implements OnInit {
   currentId: number | null = null;
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
+  // Catálogos dinámicos
+  licenciasOpciones: string[] = ['Posee', 'No tiene'];
+  nivelesAccesoOpciones: string[] = ['Administrador', 'Usuario', 'Solo Lectura'];
+
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.plataformaForm = this.fb.group({
       empleadoId: [null, Validators.required],
@@ -171,6 +204,7 @@ export class PlataformasComponent implements OnInit {
   }
 
   onSubmit() {
+    this.plataformaForm.markAllAsTouched();
     if (this.plataformaForm.invalid) return;
 
     const data = this.plataformaForm.value;

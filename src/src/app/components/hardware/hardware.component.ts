@@ -10,7 +10,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Gestión de Hardware e Inventario</h2>
+      <h2 class="text-2xl font-bold mb-4">Gestión de Hardware Asignado</h2>
 
       <form [formGroup]="hwForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -21,25 +21,68 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
                 <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
               }
             </select>
+            @if(hwForm.get('empleadoId')?.invalid && hwForm.get('empleadoId')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
+            }
             <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
           </div>
 
-          <input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="procesador" placeholder="Procesador" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="memoria" placeholder="Memoria RAM" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="marcaPC" placeholder="Marca de PC" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="placa" placeholder="Placa de Activo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('tipoEquipo')?.invalid && hwForm.get('tipoEquipo')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
+            }
+          </div>
 
-          <label class="flex items-center text-white cursor-pointer select-none">
-            <input type="checkbox" formControlName="tecladoNumerico" class="mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
-            Teclado Numérico
-          </label>
-          <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 lg:col-span-3">
+          <div class="flex flex-col">
+            <input formControlName="procesador" placeholder="Procesador" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('procesador')?.invalid && hwForm.get('procesador')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El procesador es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="memoria" placeholder="Memoria RAM" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('memoria')?.invalid && hwForm.get('memoria')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La memoria es requerida.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('disco')?.invalid && hwForm.get('disco')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El disco es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="marcaPC" placeholder="Marca de PC" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('marcaPC')?.invalid && hwForm.get('marcaPC')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="placa" placeholder="Placa de Activo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(hwForm.get('placa')?.invalid && hwForm.get('placa')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La placa es requerida.</span>
+            }
+          </div>
+
+          <div class="flex items-center pt-2">
+            <label class="flex items-center text-white cursor-pointer select-none">
+              <input type="checkbox" formControlName="tecladoNumerico" class="mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
+              Teclado Numérico
+            </label>
+          </div>
+
+          <div class="flex flex-col lg:col-span-3">
+            <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+          </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="hwForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+          <button type="submit" [disabled]="hwForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -156,6 +199,7 @@ export class HardwareComponent implements OnInit {
   }
 
   onSubmit() {
+    this.hwForm.markAllAsTouched();
     if (this.hwForm.invalid) return;
 
     const data = this.hwForm.value;

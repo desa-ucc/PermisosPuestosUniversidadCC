@@ -10,22 +10,22 @@ namespace PermisosPuestosApi.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class EquiposController : ControllerBase
+    public class HardwareIdealController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public EquiposController(AppDbContext context) { _context = context; }
+        public HardwareIdealController(AppDbContext context) { _context = context; }
 
-        [HttpGet("Asignado")]
-        public async Task<IActionResult> GetHardwareAsignado()
+        [HttpGet]
+        public async Task<IActionResult> GetHardwareIdeal()
         {
-            var data = await _context.HardwareAsignados.FromSqlRaw("EXEC sp_GetHardwareAsignado").ToListAsync();
+            var data = await _context.HardwareIdeales.FromSqlRaw("EXEC sp_GetHardwareIdeal").ToListAsync();
             return Ok(data);
         }
 
-        [HttpPost("Asignado")]
-        public async Task<IActionResult> CreateHardwareAsignado([FromBody] HardwareAsignado h)
+        [HttpPost]
+        public async Task<IActionResult> CreateHardwareIdeal([FromBody] HardwareIdeal h)
         {
-            var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
+            var p1 = new SqlParameter("@PuestoId", h.PuestoId);
             var p2 = new SqlParameter("@TipoEquipo", h.TipoEquipo);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
             var p4 = new SqlParameter("@Memoria", h.Memoria);
@@ -33,18 +33,17 @@ namespace PermisosPuestosApi.Controllers
             var p6 = new SqlParameter("@MarcaPC", h.MarcaPC);
             var p7 = new SqlParameter("@TecladoNumerico", h.TecladoNumerico);
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
-            var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareIdeal @PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
             return Ok();
         }
 
-        [HttpPut("Asignado/{id}")]
-        public async Task<IActionResult> UpdateHardwareAsignado(int id, [FromBody] HardwareAsignado h)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateHardwareIdeal(int id, [FromBody] HardwareIdeal h)
         {
             if (id != h.Id) return BadRequest();
             var pId = new SqlParameter("@Id", id);
-            var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
+            var p1 = new SqlParameter("@PuestoId", h.PuestoId);
             var p2 = new SqlParameter("@TipoEquipo", h.TipoEquipo);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
             var p4 = new SqlParameter("@Memoria", h.Memoria);
@@ -52,17 +51,16 @@ namespace PermisosPuestosApi.Controllers
             var p6 = new SqlParameter("@MarcaPC", h.MarcaPC);
             var p7 = new SqlParameter("@TecladoNumerico", h.TecladoNumerico);
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
-            var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareAsignado @Id, @EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", pId, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareIdeal @Id, @PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", pId, p1, p2, p3, p4, p5, p6, p7, p8);
             return NoContent();
         }
 
-        [HttpDelete("Asignado/{id}")]
-        public async Task<IActionResult> DeleteHardwareAsignado(int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteHardwareIdeal(int id)
         {
             var pId = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteHardwareAsignado @Id", pId);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteHardwareIdeal @Id", pId);
             return NoContent();
         }
     }

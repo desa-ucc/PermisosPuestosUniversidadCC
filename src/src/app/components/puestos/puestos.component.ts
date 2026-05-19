@@ -14,13 +14,27 @@ import { Puesto } from '../../models/models';
 
       <form [formGroup]="puestoForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input formControlName="codigoPuesto" placeholder="Código (ej. IT-01)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="nombrePuesto" placeholder="Nombre del Puesto" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="descripcion" placeholder="Descripción" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="flex flex-col">
+            <input formControlName="codigoPuesto" placeholder="Código (ej. IT-01)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(puestoForm.get('codigoPuesto')?.invalid && puestoForm.get('codigoPuesto')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El código es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="nombrePuesto" placeholder="Nombre del Puesto" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(puestoForm.get('nombrePuesto')?.invalid && puestoForm.get('nombrePuesto')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El nombre es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="descripcion" placeholder="Descripción" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="puestoForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+          <button type="submit" [disabled]="puestoForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -100,6 +114,7 @@ export class PuestosComponent implements OnInit {
   }
 
   onSubmit() {
+    this.puestoForm.markAllAsTouched();
     if (this.puestoForm.invalid) return;
 
     const data = this.puestoForm.value;

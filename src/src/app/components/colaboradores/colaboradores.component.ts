@@ -14,19 +14,39 @@ import { Empleado, Puesto } from '../../models/models';
 
       <form [formGroup]="empleadoForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input formControlName="codigoEmpleado" placeholder="Código Empleado" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="nombreCompleto" placeholder="Nombre Completo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <input formControlName="correoInstitucional" placeholder="Correo Institucional" type="email" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-          <select formControlName="puestoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            <option [ngValue]="null">Seleccione un Puesto</option>
-            @for(puesto of puestos; track puesto.id) {
-              <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
+          <div class="flex flex-col">
+            <input formControlName="codigoEmpleado" placeholder="Código Empleado" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(empleadoForm.get('codigoEmpleado')?.invalid && empleadoForm.get('codigoEmpleado')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El código es requerido.</span>
             }
-          </select>
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="nombreCompleto" placeholder="Nombre Completo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(empleadoForm.get('nombreCompleto')?.invalid && empleadoForm.get('nombreCompleto')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El nombre completo es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="correoInstitucional" placeholder="Correo Institucional" type="email" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(empleadoForm.get('correoInstitucional')?.invalid && empleadoForm.get('correoInstitucional')?.touched) {
+              <span class="text-red-400 text-xs mt-1">Un correo válido es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <select formControlName="puestoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option [ngValue]="null">Seleccione un Puesto</option>
+              @for(puesto of puestos; track puesto.id) {
+                <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
+              }
+            </select>
+          </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="empleadoForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50">
+          <button type="submit" [disabled]="empleadoForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -115,6 +135,7 @@ export class ColaboradoresComponent implements OnInit {
   }
 
   onSubmit() {
+    this.empleadoForm.markAllAsTouched();
     if (this.empleadoForm.invalid) return;
 
     const data = this.empleadoForm.value;

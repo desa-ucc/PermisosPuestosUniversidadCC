@@ -4,6 +4,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PuestosComponent } from './components/puestos/puestos.component';
 import { ColaboradoresComponent } from './components/colaboradores/colaboradores.component';
 import { HardwareComponent } from './components/hardware/hardware.component';
+import { HardwareIdealComponent } from './components/hardware-ideal/hardware-ideal.component';
 import { SoftwareComponent } from './components/software/software.component';
 import { SitiosComponent } from './components/sitios/sitios.component';
 import { PlataformasComponent } from './components/plataformas/plataformas.component';
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'puestos', component: PuestosComponent, canActivate: [AuthGuard] },
   { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard] },
   { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard] },
+  { path: 'hardware-ideal', component: HardwareIdealComponent, canActivate: [AuthGuard] },
   { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard] },
   { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
   { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },

@@ -14,47 +14,108 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 
       <form [formGroup]="swForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <select formControlName="empleadoId" class="p-2 rounded bg-gray-700 text-white">
-            <option value="">Seleccione Equipo/Empleado</option>
-            <option *ngFor="let eq of equipos" [value]="eq.empleadoId">{{eq.placa}} - {{eq.marcaPC}}</option>
-          </select>
-          <input formControlName="equipo" placeholder="Nombre Equipo en Red" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="gruposAD" placeholder="Grupos AD" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="nombreSoftware" placeholder="Nombre Software" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="version" placeholder="Versión" class="p-2 rounded bg-gray-700 text-white">
-          <input formControlName="fabricante" placeholder="Fabricante" class="p-2 rounded bg-gray-700 text-white">
+          <div class="flex flex-col">
+            <select formControlName="empleadoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+              <option [ngValue]="null">Seleccione Equipo/Empleado</option>
+              @for(eq of equipos; track eq.id) {
+                <option [ngValue]="eq.empleadoId">{{eq.placa}} - {{eq.marcaPC}}</option>
+              }
+            </select>
+            @if(swForm.get('empleadoId')?.invalid && swForm.get('empleadoId')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El equipo/empleado es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="equipo" placeholder="Nombre Equipo en Red" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(swForm.get('equipo')?.invalid && swForm.get('equipo')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El equipo en red es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="gruposAD" placeholder="Grupos AD" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(swForm.get('gruposAD')?.invalid && swForm.get('gruposAD')?.touched) {
+              <span class="text-red-400 text-xs mt-1">Los grupos AD son requeridos.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="nombreSoftware" placeholder="Nombre Software" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(swForm.get('nombreSoftware')?.invalid && swForm.get('nombreSoftware')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El nombre de software es requerido.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="version" placeholder="Versión" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(swForm.get('version')?.invalid && swForm.get('version')?.touched) {
+              <span class="text-red-400 text-xs mt-1">La versión es requerida.</span>
+            }
+          </div>
+
+          <div class="flex flex-col">
+            <input formControlName="fabricante" placeholder="Fabricante" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            @if(swForm.get('fabricante')?.invalid && swForm.get('fabricante')?.touched) {
+              <span class="text-red-400 text-xs mt-1">El fabricante es requerido.</span>
+            }
+          </div>
         </div>
-        <button type="submit" [disabled]="swForm.invalid" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          {{ isEditing ? 'Actualizar' : 'Agregar' }}
-        </button>
-        <button type="button" *ngIf="isEditing" (click)="resetForm()" class="mt-4 ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
-          Cancelar
-        </button>
+
+        <div class="mt-4">
+          <button type="submit" [disabled]="swForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            @if(isEditing) {
+              Actualizar
+            } @else {
+              Agregar
+            }
+          </button>
+
+          @if(isEditing) {
+            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+              Cancelar
+            </button>
+          }
+        </div>
       </form>
 
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-700">
-            <th class="p-2 border border-gray-600">Empleado/Equipo</th>
-            <th class="p-2 border border-gray-600">Software</th>
-            <th class="p-2 border border-gray-600">Versión</th>
-            <th class="p-2 border border-gray-600">Fabricante</th>
-            <th class="p-2 border border-gray-600">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let sw of softwareList" class="bg-gray-800 hover:bg-gray-700">
-            <td class="p-2 border border-gray-600">{{getEquipoPlaca(sw.empleadoId)}}</td>
-            <td class="p-2 border border-gray-600">{{sw.nombreSoftware}}</td>
-            <td class="p-2 border border-gray-600">{{sw.version}}</td>
-            <td class="p-2 border border-gray-600">{{sw.fabricante}}</td>
-            <td class="p-2 border border-gray-600">
-              <button (click)="edit(sw)" class="text-blue-400 mr-2 hover:text-blue-300">Editar</button>
-              <button (click)="delete(sw.id)" class="text-red-400 hover:text-red-300">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+          <thead>
+            <tr class="bg-gray-700 text-gray-200">
+              <th class="p-3 border-b border-gray-600 font-semibold">Equipo Asignado</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Software</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Versión</th>
+              <th class="p-3 border-b border-gray-600 font-semibold">Fabricante</th>
+              <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(sw of softwareList; track sw.id) {
+              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
+                <td class="p-3">{{getEquipoPlaca(sw.empleadoId)}}</td>
+                <td class="p-3">{{sw.nombreSoftware}}</td>
+                <td class="p-3">{{sw.version}}</td>
+                <td class="p-3">{{sw.fabricante}}</td>
+                <td class="p-3 text-center">
+                  <button (click)="edit(sw)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+                    Editar
+                  </button>
+                  <button (click)="delete(sw.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="p-6 text-center text-gray-400 bg-gray-800">
+                  No hay registros de software local.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   `
 })
@@ -67,7 +128,7 @@ export class SoftwareComponent implements OnInit {
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.swForm = this.fb.group({
-      empleadoId: ['', Validators.required],
+      empleadoId: [null, Validators.required],
       equipo: ['', Validators.required],
       gruposAD: ['', Validators.required],
       nombreSoftware: ['', Validators.required],
@@ -90,20 +151,27 @@ export class SoftwareComponent implements OnInit {
   }
 
   onSubmit() {
+    this.swForm.markAllAsTouched();
     if (this.swForm.invalid) return;
 
     const data = this.swForm.value;
     data.empleadoId = Number(data.empleadoId);
 
     if (this.isEditing && this.currentId) {
-      this.api.updateSoftwareLocal(this.currentId, { ...data, id: this.currentId }).subscribe(() => {
-        this.loadData();
-        this.resetForm();
+      this.api.updateSoftwareLocal(this.currentId, { ...data, id: this.currentId }).subscribe({
+        next: () => {
+          this.loadData();
+          this.resetForm();
+        },
+        error: (err) => alert('Error al actualizar registro de software.')
       });
     } else {
-      this.api.createSoftwareLocal(data).subscribe(() => {
-        this.loadData();
-        this.resetForm();
+      this.api.createSoftwareLocal(data).subscribe({
+        next: () => {
+          this.loadData();
+          this.resetForm();
+        },
+        error: (err) => alert('Error al crear registro de software.')
       });
     }
   }
@@ -115,14 +183,24 @@ export class SoftwareComponent implements OnInit {
   }
 
   delete(id: number) {
-    if(confirm('¿Eliminar registro de software?')) {
-      this.api.deleteSoftwareLocal(id).subscribe(() => this.loadData());
+    if(confirm('¿Está seguro de que desea eliminar este registro de software?')) {
+      this.api.deleteSoftwareLocal(id).subscribe({
+        next: () => this.loadData(),
+        error: (err) => alert('No se pudo eliminar el registro.')
+      });
     }
   }
 
   resetForm() {
     this.isEditing = false;
     this.currentId = null;
-    this.swForm.reset();
+    this.swForm.reset({
+      empleadoId: null,
+      equipo: '',
+      gruposAD: '',
+      nombreSoftware: '',
+      version: '',
+      fabricante: ''
+    });
   }
 }

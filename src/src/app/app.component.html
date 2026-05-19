@@ -1,11 +1,12 @@
 <div class="min-h-screen dark bg-gray-900 text-white">
   <nav class="bg-gray-800 p-4 shadow-md flex justify-between items-center">
     <div class="text-xl font-bold text-blue-400">Proyecto Permisos XPuesto</div>
-    <div class="space-x-4 flex flex-wrap gap-y-2 justify-end">
+    <div class="space-x-4 flex flex-wrap gap-y-2 justify-end text-sm">
       <a [routerLink]="['/dashboard']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" [routerLinkActiveOptions]="{exact: true}" class="hover:text-blue-300 transition cursor-pointer">Dashboard</a>
       <a [routerLink]="['/puestos']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Puestos</a>
       <a [routerLink]="['/colaboradores']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Colaboradores</a>
-      <a [routerLink]="['/hardware']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Hardware</a>
+      <a [routerLink]="['/hardware-ideal']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Equipo Ideal</a>
+      <a [routerLink]="['/hardware']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Hardware Asignado</a>
       <a [routerLink]="['/software']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Software Local</a>
       <a [routerLink]="['/sitios']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Permisos Sitios</a>
       <a [routerLink]="['/plataformas']" routerLinkActive="text-blue-400 border-b-2 border-blue-400 pb-1" class="hover:text-blue-300 transition cursor-pointer">Plataformas</a>
