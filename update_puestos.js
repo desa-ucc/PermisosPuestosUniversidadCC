@@ -1,15 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
-import { Puesto } from '../../models/models';
+const fs = require('fs');
 
-@Component({
-  selector: 'app-puestos',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  template: `
+let content = fs.readFileSync('src/src/app/components/puestos/puestos.component.ts', 'utf8');
 
+const newTemplate = `
 <main class="p-gutter max-w-container-max-width mx-auto space-y-8">
 <!-- Heading -->
 <div class="mb-8">
@@ -170,81 +163,8 @@ import { Puesto } from '../../models/models';
 </div>
 </div>
 </main>
+`;
 
-`
-})
-export class PuestosComponent implements OnInit {
-  puestos: Puesto[] = [];
-  puestoForm: FormGroup;
-  isEditing = false;
-  currentId: number | null = null;
+const updatedContent = content.replace(/template: `[\s\S]*?`\n}\)/, `template: \`\n${newTemplate}\n\`\n})`);
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
-    this.puestoForm = this.fb.group({
-      codigoPuesto: ['', Validators.required],
-      nombrePuesto: ['', Validators.required],
-      descripcion: ['']
-    });
-  }
-
-  ngOnInit() {
-    this.loadData();
-  }
-
-  loadData() {
-    this.api.getPuestos().subscribe({
-      next: (res) => this.puestos = res,
-      error: (err) => console.error('Error al cargar puestos', err)
-    });
-  }
-
-  onSubmit() {
-    this.puestoForm.markAllAsTouched();
-    if (this.puestoForm.invalid) return;
-
-    const data = this.puestoForm.value;
-
-    if (this.isEditing && this.currentId) {
-      this.api.updatePuesto(this.currentId, { ...data, id: this.currentId }).subscribe({
-        next: () => {
-          this.loadData();
-          this.resetForm();
-        },
-        error: (err) => alert('Error al actualizar el puesto.')
-      });
-    } else {
-      this.api.createPuesto(data).subscribe({
-        next: () => {
-          this.loadData();
-          this.resetForm();
-        },
-        error: (err) => alert('Error al crear el puesto.')
-      });
-    }
-  }
-
-  edit(puesto: Puesto) {
-    this.isEditing = true;
-    this.currentId = puesto.id;
-    this.puestoForm.patchValue({
-      codigoPuesto: puesto.codigoPuesto,
-      nombrePuesto: puesto.nombrePuesto,
-      descripcion: puesto.descripcion
-    });
-  }
-
-  delete(id: number) {
-    if(confirm('¿Está seguro de que desea eliminar este puesto?')) {
-      this.api.deletePuesto(id).subscribe({
-        next: () => this.loadData(),
-        error: (err) => alert('No se pudo eliminar. Verifique que no esté asignado a ningún colaborador o equipo ideal.')
-      });
-    }
-  }
-
-  resetForm() {
-    this.isEditing = false;
-    this.currentId = null;
-    this.puestoForm.reset();
-  }
-}
+fs.writeFileSync('src/src/app/components/puestos/puestos.component.ts', updatedContent);
