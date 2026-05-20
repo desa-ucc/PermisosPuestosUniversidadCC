@@ -9,7 +9,6 @@ import { Catalogo } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-
 <div class="p-gutter max-w-container-max-width mx-auto">
     <!-- Page Header -->
     <div class="flex flex-col gap-1 mb-8 mt-4">
@@ -70,8 +69,8 @@ import { Catalogo } from '../../models/models';
                         {{ getTabNamePlural() }} Registrados
                     </h3>
                     <div class="flex items-center gap-4">
-                        <span class="text-white/70 text-label-md">{{ currentList.length }} REGISTROS EN TOTAL</span>
-                        <button (click)="loadData()" class="p-1 hover:bg-white/10 rounded text-white transition-colors"><span class="material-symbols-outlined">refresh</span></button>
+                        <span class="text-white/70 text-label-md">{{ listaActual.length }} REGISTROS EN TOTAL</span>
+                        <button (click)="loadAllData()" class="p-1 hover:bg-white/10 rounded text-white transition-colors"><span class="material-symbols-outlined">refresh</span></button>
                     </div>
                 </div>
 
@@ -86,20 +85,22 @@ import { Catalogo } from '../../models/models';
                             </tr>
                         </thead>
                         <tbody>
-                            @for(item of currentList; track item.id) {
-                                <tr>
-                                    <td class="font-bold text-ucc-neutral-variant">{{item.id}}</td>
-                                    <td class="font-semibold">{{item.nombre}}</td>
-                                    <td class="text-center">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary-container text-[11px] font-bold uppercase">Activo</span>
-                                    </td>
-                                    <td class="text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <button (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            } @empty {
+                            @if(listaActual.length > 0) {
+                                @for(item of listaActual; track item.id) {
+                                    <tr>
+                                        <td class="font-bold text-ucc-neutral-variant">{{item.id}}</td>
+                                        <td class="font-semibold">{{item.nombre}}</td>
+                                        <td class="text-center">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary-container text-[11px] font-bold uppercase">Activo</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            } @else {
                                 <tr>
                                     <td colspan="4" class="p-6 text-center text-ucc-neutral-variant bg-ucc-surface">
                                         No hay elementos registrados en este catálogo.
@@ -126,21 +127,21 @@ import { Catalogo } from '../../models/models';
                             <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">layers</span>
                             <span class="font-body-md text-ucc-neutral-variant font-semibold">Ambientes</span>
                         </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ totalAmbientes }}</span>
+                        <span class="text-xl font-bold text-ucc-secondary">{{ ambientesList.length || 0 }}</span>
                     </div>
                     <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('sitios')">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">location_on</span>
                             <span class="font-body-md text-ucc-neutral-variant font-semibold">Sitios</span>
                         </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ totalSitios }}</span>
+                        <span class="text-xl font-bold text-ucc-secondary">{{ sitiosList.length || 0 }}</span>
                     </div>
                     <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformas')">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">cloud_done</span>
                             <span class="font-body-md text-ucc-neutral-variant font-semibold">Plataformas</span>
                         </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ totalPlataformas }}</span>
+                        <span class="text-xl font-bold text-ucc-secondary">{{ plataformasList.length || 0 }}</span>
                     </div>
                 </div>
             </div>
@@ -165,18 +166,17 @@ import { Catalogo } from '../../models/models';
         </div>
     </div>
 </div>
-
-`
+  `
 })
 export class CatalogosComponent implements OnInit {
   activeTab: 'ambientes' | 'sitios' | 'plataformas' = 'ambientes';
-  currentList: Catalogo[] = [];
+
+  ambientesList: Catalogo[] = [];
+  sitiosList: Catalogo[] = [];
+  plataformasList: Catalogo[] = [];
+
   catForm: FormGroup;
   isSaving = false;
-
-  totalAmbientes = 0;
-  totalSitios = 0;
-  totalPlataformas = 0;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.catForm = this.fb.group({
@@ -184,15 +184,20 @@ export class CatalogosComponent implements OnInit {
     });
   }
 
+  get listaActual(): Catalogo[] {
+    if (this.activeTab === 'ambientes') return this.ambientesList;
+    if (this.activeTab === 'sitios') return this.sitiosList;
+    if (this.activeTab === 'plataformas') return this.plataformasList;
+    return [];
+  }
+
   ngOnInit() {
-    this.loadAllTotals();
-    this.loadData();
+    this.loadAllData();
   }
 
   setTab(tab: 'ambientes' | 'sitios' | 'plataformas') {
     this.activeTab = tab;
     this.catForm.reset();
-    this.loadData();
   }
 
   getTabName(): string {
@@ -213,19 +218,19 @@ export class CatalogosComponent implements OnInit {
     return 'Ej: Moodle, O365, AWS...';
   }
 
-  loadAllTotals() {
-    this.api.getAmbientes().subscribe(res => this.totalAmbientes = res.length);
-    this.api.getSitiosCat().subscribe(res => this.totalSitios = res.length);
-    this.api.getPlataformasCat().subscribe(res => this.totalPlataformas = res.length);
+  loadAllData() {
+    this.api.getAmbientes().subscribe(res => this.ambientesList = res);
+    this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
+    this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
   }
 
-  loadData() {
+  loadActiveTabData() {
     if (this.activeTab === 'ambientes') {
-      this.api.getAmbientes().subscribe(res => { this.currentList = res; this.totalAmbientes = res.length; });
+      this.api.getAmbientes().subscribe(res => this.ambientesList = res);
     } else if (this.activeTab === 'sitios') {
-      this.api.getSitiosCat().subscribe(res => { this.currentList = res; this.totalSitios = res.length; });
+      this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
     } else if (this.activeTab === 'plataformas') {
-      this.api.getPlataformasCat().subscribe(res => { this.currentList = res; this.totalPlataformas = res.length; });
+      this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
     }
   }
 
@@ -242,11 +247,9 @@ export class CatalogosComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
-        // Simulate a slight delay to show the nice animation for saving
         setTimeout(() => {
           this.isSaving = false;
-          this.loadData();
-          this.loadAllTotals();
+          this.loadActiveTabData();
           this.catForm.reset();
         }, 500);
       },
@@ -265,8 +268,7 @@ export class CatalogosComponent implements OnInit {
 
       request$.subscribe({
         next: () => {
-            this.loadData();
-            this.loadAllTotals();
+            this.loadActiveTabData();
         },
         error: () => alert('Error al eliminar. Verifique dependencias en otros registros.')
       });
