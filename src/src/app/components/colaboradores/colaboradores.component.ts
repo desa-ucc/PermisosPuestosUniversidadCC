@@ -9,96 +9,124 @@ import { Empleado, Puesto } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Gestión de Colaboradores</h2>
+    <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
+      <div class="mb-8">
+        <h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Colaboradores</h2>
+        <p class="font-body-lg text-body-lg text-ucc-neutral-variant max-w-2xl mt-1">
+          Administre la información del personal y asigne los puestos correspondientes dentro de la organización.
+        </p>
+      </div>
 
-      <form [formGroup]="empleadoForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="flex flex-col">
-            <input formControlName="codigoEmpleado" placeholder="Código Empleado" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            @if(empleadoForm.get('codigoEmpleado')?.invalid && empleadoForm.get('codigoEmpleado')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El código es requerido.</span>
-            }
-          </div>
+      <section class="ucc-card">
+        <div class="flex items-center gap-2 mb-6 text-ucc-secondary">
+          <span class="material-symbols-outlined">add_circle</span>
+          <h3 class="text-xl font-bold">Registrar Colaborador</h3>
+        </div>
 
-          <div class="flex flex-col">
-            <input formControlName="nombreCompleto" placeholder="Nombre Completo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            @if(empleadoForm.get('nombreCompleto')?.invalid && empleadoForm.get('nombreCompleto')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El nombre completo es requerido.</span>
-            }
-          </div>
-
-          <div class="flex flex-col">
-            <input formControlName="correoInstitucional" placeholder="Correo Institucional" type="email" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-            @if(empleadoForm.get('correoInstitucional')?.invalid && empleadoForm.get('correoInstitucional')?.touched) {
-              <span class="text-red-400 text-xs mt-1">Un correo válido es requerido.</span>
-            }
-          </div>
-
-          <div class="flex flex-col">
-            <select formControlName="puestoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
-              <option [ngValue]="null">Seleccione un Puesto</option>
-              @for(puesto of puestos; track puesto.id) {
-                <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
+        <form [formGroup]="empleadoForm" (ngSubmit)="onSubmit()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col">
+              <label class="ucc-label">Código Empleado</label>
+              <input formControlName="codigoEmpleado" placeholder="Ej: EMP-001" class="ucc-input">
+              @if(empleadoForm.get('codigoEmpleado')?.invalid && empleadoForm.get('codigoEmpleado')?.touched) {
+                <span class="text-ucc-error text-xs mt-1 block">El código es requerido.</span>
               }
-            </select>
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Nombre Completo</label>
+              <input formControlName="nombreCompleto" placeholder="Nombre completo" class="ucc-input">
+              @if(empleadoForm.get('nombreCompleto')?.invalid && empleadoForm.get('nombreCompleto')?.touched) {
+                <span class="text-ucc-error text-xs mt-1 block">El nombre completo es requerido.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Correo Institucional</label>
+              <input formControlName="correoInstitucional" placeholder="correo@ucc.edu" type="email" class="ucc-input">
+              @if(empleadoForm.get('correoInstitucional')?.invalid && empleadoForm.get('correoInstitucional')?.touched) {
+                <span class="text-ucc-error text-xs mt-1 block">Un correo válido es requerido.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Puesto Asignado</label>
+              <select formControlName="puestoId" class="ucc-select">
+                <option [ngValue]="null">Seleccione un Puesto</option>
+                @for(puesto of puestos; track puesto.id) {
+                  <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
+                }
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div class="mt-4">
-          <button type="submit" [disabled]="empleadoForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-            @if(isEditing) {
-              Actualizar
-            } @else {
-              Agregar
-            }
-          </button>
-
-          @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
-              Cancelar
+          <div class="flex gap-4 mt-6">
+            <button type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
+              @if(isEditing) {
+                <span class="material-symbols-outlined">save</span> Actualizar
+              } @else {
+                <span class="material-symbols-outlined">add</span> Agregar
+              }
             </button>
-          }
-        </div>
-      </form>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+            @if(isEditing) {
+              <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full md:w-auto">
+                Cancelar
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="ucc-table-container">
+        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">group</span> Colaboradores Registrados
+          </h3>
+        </div>
+
+        <table class="ucc-table">
           <thead>
-            <tr class="bg-gray-700 text-gray-200">
-              <th class="p-3 border-b border-gray-600 font-semibold">Código</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Nombre</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Correo</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Puesto</th>
-              <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Puesto</th>
+              <th class="text-center w-32">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(emp of empleados; track emp.id) {
-              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
-                <td class="p-3">{{emp.codigoEmpleado}}</td>
-                <td class="p-3">{{emp.nombreCompleto}}</td>
-                <td class="p-3">{{emp.correoInstitucional}}</td>
-                <td class="p-3">{{emp.nombrePuesto || 'No Asignado'}}</td>
-                <td class="p-3 text-center">
-                  <button (click)="edit(emp)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
-                    Editar
-                  </button>
-                  <button (click)="delete(emp.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
-                    Eliminar
-                  </button>
+              <tr>
+                <td class="font-bold">{{emp.codigoEmpleado}}</td>
+                <td>{{emp.nombreCompleto}}</td>
+                <td>{{emp.correoInstitucional}}</td>
+                <td>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary text-[11px] font-bold">
+                    {{emp.nombrePuesto || 'No Asignado'}}
+                  </span>
+                </td>
+                <td>
+                  <div class="flex justify-center gap-3">
+                    <button (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button (click)="delete(emp.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="p-6 text-center text-gray-400 bg-gray-800">
+                <td colspan="5" class="py-8 px-6 text-center text-ucc-neutral-variant">
                   No hay colaboradores registrados en el sistema.
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+      </section>
     </div>
   `
 })

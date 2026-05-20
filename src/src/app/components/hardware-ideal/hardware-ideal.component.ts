@@ -9,13 +9,16 @@ import { HardwareIdeal, Puesto } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Especificaciones: Equipo Ideal</h2>
+    <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
+      <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Especificaciones: Equipo Ideal</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
-      <form [formGroup]="hwIdealForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
+      <section class="ucc-card mb-8">
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<form [formGroup]="hwIdealForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
-            <select formControlName="puestoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="puestoId" class="ucc-select">
               <option [ngValue]="null">Seleccione Puesto</option>
               @for(puesto of puestos; track puesto.id) {
                 <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
@@ -27,35 +30,40 @@ import { HardwareIdeal, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Desktop)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Equipo (Tipo ej. Desktop)</label>
+<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Desktop)" class="ucc-input">
             @if(hwIdealForm.get('tipoEquipo')?.invalid && hwIdealForm.get('tipoEquipo')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="procesador" placeholder="Procesador (Mínimo recomendado)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Procesador (Mínimo recomendado)</label>
+<input formControlName="procesador" placeholder="Procesador (Mínimo recomendado)" class="ucc-input">
             @if(hwIdealForm.get('procesador')?.invalid && hwIdealForm.get('procesador')?.touched) {
               <span class="text-red-400 text-xs mt-1">El procesador es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="memoria" placeholder="Memoria RAM recomendada" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Memoria RAM recomendada</label>
+<input formControlName="memoria" placeholder="Memoria RAM recomendada" class="ucc-input">
             @if(hwIdealForm.get('memoria')?.invalid && hwIdealForm.get('memoria')?.touched) {
               <span class="text-red-400 text-xs mt-1">La memoria es requerida.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Disco Duro</label>
+<input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
             @if(hwIdealForm.get('disco')?.invalid && hwIdealForm.get('disco')?.touched) {
               <span class="text-red-400 text-xs mt-1">El disco es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="marcaPC" placeholder="Marca de PC Estándar" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Marca de PC Estándar</label>
+<input formControlName="marcaPC" placeholder="Marca de PC Estándar" class="ucc-input">
             @if(hwIdealForm.get('marcaPC')?.invalid && hwIdealForm.get('marcaPC')?.touched) {
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
@@ -69,12 +77,13 @@ import { HardwareIdeal, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col lg:col-span-2">
-            <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones / Periféricos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+            <label class="ucc-label">Otras Consideraciones / Periféricos</label>
+<input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones / Periféricos" class="ucc-input">
           </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="hwIdealForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" [disabled]="hwIdealForm.invalid" class="ucc-btn-primary">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -83,50 +92,52 @@ import { HardwareIdeal, Puesto } from '../../models/models';
           </button>
 
           @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
               Cancelar
             </button>
           }
         </div>
       </form>
+</section>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+      <section class="ucc-table-container">
+<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<table class="ucc-table">
           <thead>
-            <tr class="bg-gray-700 text-gray-200">
-              <th class="p-3 border-b border-gray-600 font-semibold">Puesto Relacionado</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Equipo Base</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Procesador</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Memoria</th>
+            <tr>
+              <th>Puesto Relacionado</th>
+              <th>Equipo Base</th>
+              <th>Procesador</th>
+              <th>Memoria</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(hw of equiposIdeales; track hw.id) {
-              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
-                <td class="p-3">{{getPuestoName(hw.puestoId)}}</td>
-                <td class="p-3">{{hw.tipoEquipo}}</td>
-                <td class="p-3">{{hw.procesador}}</td>
-                <td class="p-3">{{hw.memoria}}</td>
-                <td class="p-3 text-center">
-                  <button (click)="edit(hw)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+              <tr>
+                <td>{{getPuestoName(hw.puestoId)}}</td>
+                <td>{{hw.tipoEquipo}}</td>
+                <td>{{hw.procesador}}</td>
+                <td>{{hw.memoria}}</td>
+                <td>
+                  <button (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                     Editar
                   </button>
-                  <button (click)="delete(hw.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                  <button (click)="delete(hw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
                     Eliminar
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="p-6 text-center text-gray-400 bg-gray-800">
+                <td colspan="5" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay especificaciones de equipo ideal registradas.
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+</section>
     </div>
   `
 })

@@ -10,22 +10,30 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="flex items-center justify-center h-[80vh]">
-      <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
-        <h2 class="text-2xl font-bold mb-6 text-center text-white">Login</h2>
+      <div class="ucc-card w-96 flex flex-col items-center">
+        <div class="w-16 h-16 bg-ucc-primary text-white rounded-full flex items-center justify-center mb-4">
+          <span class="material-symbols-outlined text-3xl">admin_panel_settings</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-2 text-ucc-secondary">Admin Login</h2>
+        <p class="text-sm text-ucc-neutral-variant mb-6">Permisos XPuesto</p>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="mb-4">
-            <label class="block text-gray-300 mb-2">Usuario</label>
-            <input type="text" formControlName="username" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full">
+          <div class="mb-4 w-full">
+            <label class="ucc-label">Usuario</label>
+            <input type="text" formControlName="username" class="ucc-input">
           </div>
 
-          <div class="mb-6">
-            <label class="block text-gray-300 mb-2">Contraseña</label>
-            <input type="password" formControlName="password" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+          <div class="mb-6 w-full">
+            <label class="ucc-label">Contraseña</label>
+            <input type="password" formControlName="password" class="ucc-input">
           </div>
 
-          <button type="submit" [disabled]="loginForm.invalid" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 disabled:opacity-50">
-            Ingresar
+          <button type="submit" [disabled]="loginForm.invalid || isLoading" class="ucc-btn-primary w-full">
+            @if(isLoading) {
+              <span class="material-symbols-outlined animate-spin">sync</span> Validando...
+            } @else {
+              Ingresar al Sistema
+            }
           </button>
         </form>
       </div>
@@ -34,6 +42,7 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -48,12 +57,16 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
+      this.isLoading = true;
       this.api.login(this.loginForm.value).subscribe({
         next: (res) => {
           localStorage.setItem('token', res.token);
           this.router.navigate(['/dashboard']);
         },
-        error: (err) => alert('Login fallido')
+        error: (err) => {
+          this.isLoading = false;
+          alert('Login fallido: Credenciales incorrectas');
+        }
       });
     }
   }

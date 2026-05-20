@@ -22,7 +22,7 @@ import { Puesto } from '../../models/models';
 <!-- Registration & Table Section (Left + Center) -->
 <div class="col-span-12 space-y-gutter">
 <!-- Registration Card -->
-<section class="bg-surface-container-lowest p-md rounded-xl card-shadow border border-outline-variant/20 !bg-white">
+<section class="ucc-card">
 <div class="flex items-center gap-2 mb-6 text-secondary">
 <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
 <h3 class="font-title-lg text-title-lg">Registrar Nuevo Puesto</h3>
@@ -30,24 +30,24 @@ import { Puesto } from '../../models/models';
 <form [formGroup]="puestoForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant block">CÓDIGO</label>
-<input formControlName="codigoPuesto" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:border-secondary focus:ring-1 focus:ring-secondary/10 transition-all" placeholder="Ej: OPS-001" type="text"/>
+<input formControlName="codigoPuesto" class="ucc-input" placeholder="Ej: OPS-001" type="text"/>
 @if(puestoForm.get('codigoPuesto')?.invalid && puestoForm.get('codigoPuesto')?.touched) {
   <span class="text-error text-xs mt-1 block">Requerido.</span>
 }
 </div>
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant block">NOMBRE DEL PUESTO</label>
-<input formControlName="nombrePuesto" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:border-secondary focus:ring-1 focus:ring-secondary/10 transition-all" placeholder="Nombre descriptivo" type="text"/>
+<input formControlName="nombrePuesto" class="ucc-input" placeholder="Nombre descriptivo" type="text"/>
 @if(puestoForm.get('nombrePuesto')?.invalid && puestoForm.get('nombrePuesto')?.touched) {
   <span class="text-error text-xs mt-1 block">Requerido.</span>
 }
 </div>
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant block">DESCRIPCIÓN</label>
-<input formControlName="descripcion" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:border-secondary focus:ring-1 focus:ring-secondary/10 transition-all" placeholder="Breve resumen..." type="text"/>
+<input formControlName="descripcion" class="ucc-input" placeholder="Breve resumen..." type="text"/>
 </div>
 <div class="flex flex-col items-center h-full pt-4 md:pt-0 gap-2">
-<button type="submit" [disabled]="puestoForm.invalid" class="w-full bg-primary-container text-white font-bold px-6 py-3 rounded-lg hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+<button type="submit" [disabled]="puestoForm.invalid" class="w-full ucc-btn-primary w-full">
 @if(isEditing) {
     <span class="material-symbols-outlined" data-icon="save">save</span>
     Actualizar Puesto
@@ -57,7 +57,7 @@ import { Puesto } from '../../models/models';
 }
 </button>
 @if(isEditing) {
-  <button type="button" (click)="resetForm()" class="w-full bg-surface-container-high text-on-surface-variant font-bold px-6 py-2 rounded-lg hover:brightness-105 transition-all">
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full">
     Cancelar
   </button>
 }
@@ -65,7 +65,7 @@ import { Puesto } from '../../models/models';
 </form>
 </section>
 <!-- Data Table -->
-<section class="bg-surface-container-lowest rounded-xl card-shadow border border-outline-variant/20 overflow-hidden !bg-white">
+<section class="ucc-table-container">
 <div class="p-md flex justify-between items-center border-b border-outline-variant/20 bg-secondary">
 <h3 class="font-title-lg text-title-lg text-white">Puestos Registrados</h3>
 <button class="hover:bg-white/10 px-4 py-2 rounded-lg transition-all flex items-center gap-2 border border-white/30 text-white">
@@ -74,9 +74,9 @@ import { Puesto } from '../../models/models';
 </button>
 </div>
 <div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
+<table class="ucc-table">
 <thead>
-<tr class="bg-white border-b border-outline-variant/30 text-on-surface">
+<tr>
 <th class="py-4 px-6 font-label-md text-label-md tracking-wider">ID</th>
 <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Código</th>
 <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Nombre</th>
@@ -84,9 +84,9 @@ import { Puesto } from '../../models/models';
 <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Acciones</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/30">
+<tbody>
 @for(puesto of puestos; track puesto.id) {
-<tr class="hover:bg-surface-container-low transition-colors">
+<tr>
 <td class="py-4 px-6 font-code text-code text-on-surface-variant">{{puesto.id}}</td>
 <td class="py-4 px-6 font-body-md text-body-md font-bold">{{puesto.codigoPuesto}}</td>
 <td class="py-4 px-6 font-body-md text-body-md">{{puesto.nombrePuesto}}</td>

@@ -9,13 +9,16 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Gestión de Software Local</h2>
+    <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
+      <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Software Local</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
-      <form [formGroup]="swForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
+      <section class="ucc-card mb-8">
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<form [formGroup]="swForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col">
-            <select formControlName="empleadoId" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="empleadoId" class="ucc-select">
               <option [ngValue]="null">Seleccione Equipo/Empleado</option>
               @for(eq of equipos; track eq.id) {
                 <option [ngValue]="eq.empleadoId">{{eq.placa}} - {{eq.marcaPC}}</option>
@@ -27,35 +30,40 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="equipo" placeholder="Nombre Equipo en Red" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Nombre Equipo en Red</label>
+<input formControlName="equipo" placeholder="Nombre Equipo en Red" class="ucc-input">
             @if(swForm.get('equipo')?.invalid && swForm.get('equipo')?.touched) {
               <span class="text-red-400 text-xs mt-1">El equipo en red es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="gruposAD" placeholder="Grupos AD" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Grupos AD</label>
+<input formControlName="gruposAD" placeholder="Grupos AD" class="ucc-input">
             @if(swForm.get('gruposAD')?.invalid && swForm.get('gruposAD')?.touched) {
               <span class="text-red-400 text-xs mt-1">Los grupos AD son requeridos.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="nombreSoftware" placeholder="Nombre Software" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Nombre Software</label>
+<input formControlName="nombreSoftware" placeholder="Nombre Software" class="ucc-input">
             @if(swForm.get('nombreSoftware')?.invalid && swForm.get('nombreSoftware')?.touched) {
               <span class="text-red-400 text-xs mt-1">El nombre de software es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="version" placeholder="Versión" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Versión</label>
+<input formControlName="version" placeholder="Versión" class="ucc-input">
             @if(swForm.get('version')?.invalid && swForm.get('version')?.touched) {
               <span class="text-red-400 text-xs mt-1">La versión es requerida.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="fabricante" placeholder="Fabricante" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Fabricante</label>
+<input formControlName="fabricante" placeholder="Fabricante" class="ucc-input">
             @if(swForm.get('fabricante')?.invalid && swForm.get('fabricante')?.touched) {
               <span class="text-red-400 text-xs mt-1">El fabricante es requerido.</span>
             }
@@ -63,7 +71,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="swForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -72,50 +80,52 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
           </button>
 
           @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
               Cancelar
             </button>
           }
         </div>
       </form>
+</section>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+      <section class="ucc-table-container">
+<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<table class="ucc-table">
           <thead>
-            <tr class="bg-gray-700 text-gray-200">
-              <th class="p-3 border-b border-gray-600 font-semibold">Equipo Asignado</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Software</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Versión</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Fabricante</th>
+            <tr>
+              <th>Equipo Asignado</th>
+              <th>Software</th>
+              <th>Versión</th>
+              <th>Fabricante</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(sw of softwareList; track sw.id) {
-              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
-                <td class="p-3">{{getEquipoPlaca(sw.empleadoId)}}</td>
-                <td class="p-3">{{sw.nombreSoftware}}</td>
-                <td class="p-3">{{sw.version}}</td>
-                <td class="p-3">{{sw.fabricante}}</td>
-                <td class="p-3 text-center">
-                  <button (click)="edit(sw)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+              <tr>
+                <td>{{getEquipoPlaca(sw.empleadoId)}}</td>
+                <td>{{sw.nombreSoftware}}</td>
+                <td>{{sw.version}}</td>
+                <td>{{sw.fabricante}}</td>
+                <td>
+                  <button (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                     Editar
                   </button>
-                  <button (click)="delete(sw.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                  <button (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
                     Eliminar
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="p-6 text-center text-gray-400 bg-gray-800">
+                <td colspan="5" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay registros de software local.
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+</section>
     </div>
   `
 })

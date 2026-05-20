@@ -9,13 +9,16 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Gestión de Hardware Asignado</h2>
+    <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
+      <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Hardware Asignado</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
-      <form [formGroup]="hwForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
+      <section class="ucc-card mb-8">
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<form [formGroup]="hwForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
-            <select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="ucc-select">
               <option [ngValue]="null">Seleccione Persona</option>
               @for(emp of empleados; track emp.id) {
                 <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
@@ -28,42 +31,48 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Equipo (Tipo ej. Laptop)</label>
+<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="ucc-input">
             @if(hwForm.get('tipoEquipo')?.invalid && hwForm.get('tipoEquipo')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="procesador" placeholder="Procesador" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Procesador</label>
+<input formControlName="procesador" placeholder="Procesador" class="ucc-input">
             @if(hwForm.get('procesador')?.invalid && hwForm.get('procesador')?.touched) {
               <span class="text-red-400 text-xs mt-1">El procesador es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="memoria" placeholder="Memoria RAM" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Memoria RAM</label>
+<input formControlName="memoria" placeholder="Memoria RAM" class="ucc-input">
             @if(hwForm.get('memoria')?.invalid && hwForm.get('memoria')?.touched) {
               <span class="text-red-400 text-xs mt-1">La memoria es requerida.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="disco" placeholder="Disco Duro" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Disco Duro</label>
+<input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
             @if(hwForm.get('disco')?.invalid && hwForm.get('disco')?.touched) {
               <span class="text-red-400 text-xs mt-1">El disco es requerido.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="marcaPC" placeholder="Marca de PC" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Marca de PC</label>
+<input formControlName="marcaPC" placeholder="Marca de PC" class="ucc-input">
             @if(hwForm.get('marcaPC')?.invalid && hwForm.get('marcaPC')?.touched) {
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="placa" placeholder="Placa de Activo" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Placa de Activo</label>
+<input formControlName="placa" placeholder="Placa de Activo" class="ucc-input">
             @if(hwForm.get('placa')?.invalid && hwForm.get('placa')?.touched) {
               <span class="text-red-400 text-xs mt-1">La placa es requerida.</span>
             }
@@ -77,12 +86,13 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
           </div>
 
           <div class="flex flex-col lg:col-span-3">
-            <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+            <label class="ucc-label">Otras Consideraciones</label>
+<input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="ucc-input">
           </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="hwForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" [disabled]="hwForm.invalid" class="ucc-btn-primary">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -91,52 +101,54 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
           </button>
 
           @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
               Cancelar
             </button>
           }
         </div>
       </form>
+</section>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+      <section class="ucc-table-container">
+<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<table class="ucc-table">
           <thead>
-            <tr class="bg-gray-700 text-gray-200">
-              <th class="p-3 border-b border-gray-600 font-semibold">Puesto</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Nombre de persona</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Equipo</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Marca</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Placa</th>
+            <tr>
+              <th>Puesto</th>
+              <th>Nombre de persona</th>
+              <th>Equipo</th>
+              <th>Marca</th>
+              <th>Placa</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(hw of equipos; track hw.id) {
-              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
-                <td class="p-3">{{getPuestoByEmpleado(hw.empleadoId)}}</td>
-                <td class="p-3">{{getEmpleadoName(hw.empleadoId)}}</td>
-                <td class="p-3">{{hw.tipoEquipo}}</td>
-                <td class="p-3">{{hw.marcaPC}}</td>
-                <td class="p-3">{{hw.placa}}</td>
-                <td class="p-3 text-center">
-                  <button (click)="edit(hw)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+              <tr>
+                <td>{{getPuestoByEmpleado(hw.empleadoId)}}</td>
+                <td>{{getEmpleadoName(hw.empleadoId)}}</td>
+                <td>{{hw.tipoEquipo}}</td>
+                <td>{{hw.marcaPC}}</td>
+                <td>{{hw.placa}}</td>
+                <td>
+                  <button (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                     Editar
                   </button>
-                  <button (click)="delete(hw.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                  <button (click)="delete(hw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
                     Eliminar
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="p-6 text-center text-gray-400 bg-gray-800">
+                <td colspan="6" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay hardware registrado en el sistema.
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+</section>
     </div>
   `
 })

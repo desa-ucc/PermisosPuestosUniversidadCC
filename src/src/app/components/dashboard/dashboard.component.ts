@@ -20,7 +20,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 <!-- 4 Stat Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-8">
-<div class="bg-white p-6 rounded-xl custom-shadow flex flex-col gap-2 border-l-4 border-secondary hover:-translate-y-1 transition-transform duration-300">
+<div class="ucc-card flex flex-col gap-2 border-l-4 border-secondary hover:-translate-y-1 transition-transform duration-300">
 <div class="flex justify-between items-start">
 <span class="material-symbols-outlined text-secondary bg-secondary-container p-2 rounded-lg">badge</span>
 <span class="text-primary font-bold text-label-md flex items-center bg-primary-fixed/30 px-2 py-0.5 rounded-full">+4%</span>
@@ -28,7 +28,7 @@ import { ApiService } from '../../services/api.service';
 <h3 class="text-on-surface-variant font-label-md text-label-md">Puestos Activos</h3>
 <p class="text-headline-md font-headline-md text-secondary">{{ totalPuestos }}</p>
 </div>
-<div class="bg-white p-6 rounded-xl custom-shadow flex flex-col gap-2 border-l-4 border-primary-container hover:-translate-y-1 transition-transform duration-300">
+<div class="ucc-card flex flex-col gap-2 border-l-4 border-primary-container hover:-translate-y-1 transition-transform duration-300">
 <div class="flex justify-between items-start">
 <span class="material-symbols-outlined text-primary-container bg-primary-fixed/30 p-2 rounded-lg">group</span>
 <span class="text-primary font-bold text-label-md flex items-center bg-primary-fixed/30 px-2 py-0.5 rounded-full">+12</span>
@@ -36,7 +36,7 @@ import { ApiService } from '../../services/api.service';
 <h3 class="text-on-surface-variant font-label-md text-label-md">Colaboradores</h3>
 <p class="text-headline-md font-headline-md text-secondary">{{ totalColaboradores }}</p>
 </div>
-<div class="bg-white p-6 rounded-xl custom-shadow flex flex-col gap-2 border-l-4 border-tertiary-container hover:-translate-y-1 transition-transform duration-300">
+<div class="ucc-card flex flex-col gap-2 border-l-4 border-tertiary-container hover:-translate-y-1 transition-transform duration-300">
 <div class="flex justify-between items-start">
 <span class="material-symbols-outlined text-tertiary-container bg-tertiary-fixed/30 p-2 rounded-lg">terminal</span>
 <span class="text-on-surface-variant text-label-md font-label-md italic">Verificado</span>
@@ -44,7 +44,7 @@ import { ApiService } from '../../services/api.service';
 <h3 class="text-on-surface-variant font-label-md text-label-md">Software Licenciado</h3>
 <p class="text-headline-md font-headline-md text-secondary">{{ totalSoftware }}</p>
 </div>
-<div class="bg-white p-6 rounded-xl custom-shadow flex flex-col gap-2 border-l-4 border-error hover:-translate-y-1 transition-transform duration-300">
+<div class="ucc-card flex flex-col gap-2 border-l-4 border-error hover:-translate-y-1 transition-transform duration-300">
 <div class="flex justify-between items-start">
 <span class="material-symbols-outlined text-error bg-error-container p-2 rounded-lg" data-weight="fill">verified_user</span>
 <span class="text-error font-bold text-label-md flex items-center bg-error-container/50 px-2 py-0.5 rounded-full">-2%</span>
@@ -56,7 +56,7 @@ import { ApiService } from '../../services/api.service';
 <!-- Bento Grid Layout -->
 <div class="grid grid-cols-12 gap-gutter">
 <!-- Donut Chart: Equipos por Puesto -->
-<div class="col-span-12 lg:col-span-8 bg-white p-md rounded-xl custom-shadow">
+<div class="col-span-12 lg:col-span-8 ucc-card p-0">
 <div class="flex justify-between items-center mb-6">
 <div>
 <h3 class="font-title-lg text-title-lg text-secondary">Equipos por Puesto</h3>
@@ -111,7 +111,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 </div>
 <!-- Status Indicator: Cumplimiento Total -->
-<div class="col-span-12 lg:col-span-4 bg-primary-fixed/20 p-md rounded-xl border border-primary-container relative overflow-hidden flex flex-col justify-between">
+<div class="col-span-12 lg:col-span-4 bg-ucc-primary-fixed/20 p-md rounded-xl border border-ucc-primary-container relative overflow-hidden flex flex-col justify-between">
 <div class="absolute top-0 right-0 p-4 opacity-10">
 <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">verified</span>
 </div>
@@ -129,7 +129,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 </div>
 <!-- Bar Chart: Software Instalado -->
-<div class="col-span-12 bg-white p-md rounded-xl custom-shadow">
+<div class="col-span-12 ucc-card p-0">
 <div class="flex justify-between items-center mb-8">
 <div>
 <h3 class="font-title-lg text-title-lg text-secondary">Software Instalado vs Catálogo Base</h3>
@@ -205,7 +205,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 <!-- Recent Activity / Floating Data -->
 <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-<div class="lg:col-span-1 bg-white p-6 rounded-xl custom-shadow hover:-translate-y-1 transition-transform duration-300">
+<div class="lg:col-span-1 ucc-card hover:-translate-y-1 transition-transform duration-300">
 <h3 class="font-title-lg text-title-lg text-secondary mb-4">Alertas de Permisos</h3>
 <div class="space-y-4">
 <div class="flex items-start gap-4 p-3 hover:bg-surface-container-low rounded-lg transition-all cursor-pointer">
@@ -224,7 +224,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 </div>
 </div>
-<div class="lg:col-span-2 bg-secondary text-white p-6 rounded-xl relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+<div class="lg:col-span-2 bg-ucc-secondary text-white p-6 rounded-xl relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
 <div class="relative z-10">
 <h3 class="font-title-lg text-title-lg mb-2">Auditoría Semestral</h3>
 <p class="text-body-md opacity-80 mb-6">Faltan 14 días para el próximo cierre de auditoría de seguridad informática y hardware.</p>

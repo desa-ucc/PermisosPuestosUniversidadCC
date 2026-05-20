@@ -1,15 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
-import { Catalogo } from '../../models/models';
+const fs = require('fs');
 
-@Component({
-  selector: 'app-catalogos',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  template: `
+let content = fs.readFileSync('src/src/app/components/catalogos/catalogos.component.ts', 'utf8');
 
+// Due to the regex replacement, the catalogos component got malformed HTML because it didn't match the same exact form structure.
+// I will just restore catalogos.component.ts to its original structure but update the Tailwind classes.
+
+const template = `
 <div class="p-gutter max-w-container-max-width mx-auto">
     <!-- Page Header -->
     <div class="flex flex-col gap-1 mb-8 mt-4">
@@ -165,111 +161,7 @@ import { Catalogo } from '../../models/models';
         </div>
     </div>
 </div>
+`;
 
-`
-})
-export class CatalogosComponent implements OnInit {
-  activeTab: 'ambientes' | 'sitios' | 'plataformas' = 'ambientes';
-  currentList: Catalogo[] = [];
-  catForm: FormGroup;
-  isSaving = false;
-
-  totalAmbientes = 0;
-  totalSitios = 0;
-  totalPlataformas = 0;
-
-  constructor(private api: ApiService, private fb: FormBuilder) {
-    this.catForm = this.fb.group({
-      nombre: ['', Validators.required]
-    });
-  }
-
-  ngOnInit() {
-    this.loadAllTotals();
-    this.loadData();
-  }
-
-  setTab(tab: 'ambientes' | 'sitios' | 'plataformas') {
-    this.activeTab = tab;
-    this.catForm.reset();
-    this.loadData();
-  }
-
-  getTabName(): string {
-    if (this.activeTab === 'ambientes') return 'Ambiente';
-    if (this.activeTab === 'sitios') return 'Sitio';
-    return 'Plataforma';
-  }
-
-  getTabNamePlural(): string {
-    if (this.activeTab === 'ambientes') return 'Ambientes';
-    if (this.activeTab === 'sitios') return 'Sitios';
-    return 'Plataformas';
-  }
-
-  getPlaceholder(): string {
-    if (this.activeTab === 'ambientes') return 'Ej: Producción, Sandbox, QA...';
-    if (this.activeTab === 'sitios') return 'Ej: Avatar, Intranet, SharePoint...';
-    return 'Ej: Moodle, O365, AWS...';
-  }
-
-  loadAllTotals() {
-    this.api.getAmbientes().subscribe(res => this.totalAmbientes = res.length);
-    this.api.getSitiosCat().subscribe(res => this.totalSitios = res.length);
-    this.api.getPlataformasCat().subscribe(res => this.totalPlataformas = res.length);
-  }
-
-  loadData() {
-    if (this.activeTab === 'ambientes') {
-      this.api.getAmbientes().subscribe(res => { this.currentList = res; this.totalAmbientes = res.length; });
-    } else if (this.activeTab === 'sitios') {
-      this.api.getSitiosCat().subscribe(res => { this.currentList = res; this.totalSitios = res.length; });
-    } else if (this.activeTab === 'plataformas') {
-      this.api.getPlataformasCat().subscribe(res => { this.currentList = res; this.totalPlataformas = res.length; });
-    }
-  }
-
-  onSubmit() {
-    this.catForm.markAllAsTouched();
-    if (this.catForm.invalid) return;
-
-    this.isSaving = true;
-    const data = this.catForm.value;
-
-    const request$ = this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
-                     this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
-                     this.api.createPlataformaCat(data);
-
-    request$.subscribe({
-      next: () => {
-        // Simulate a slight delay to show the nice animation for saving
-        setTimeout(() => {
-          this.isSaving = false;
-          this.loadData();
-          this.loadAllTotals();
-          this.catForm.reset();
-        }, 500);
-      },
-      error: () => {
-        this.isSaving = false;
-        alert('Error al guardar el catálogo. El nombre podría estar duplicado.');
-      }
-    });
-  }
-
-  delete(id: number) {
-    if(confirm(`¿Está seguro de eliminar este registro del catálogo de ${this.getTabNamePlural()}?`)) {
-      const request$ = this.activeTab === 'ambientes' ? this.api.deleteAmbiente(id) :
-                       this.activeTab === 'sitios' ? this.api.deleteSitioCat(id) :
-                       this.api.deletePlataformaCat(id);
-
-      request$.subscribe({
-        next: () => {
-            this.loadData();
-            this.loadAllTotals();
-        },
-        error: () => alert('Error al eliminar. Verifique dependencias en otros registros.')
-      });
-    }
-  }
-}
+content = content.replace(/template: `[\s\S]*?`\n}\)/, `template: \`\n${template}\n\`\n})`);
+fs.writeFileSync('src/src/app/components/catalogos/catalogos.component.ts', content);

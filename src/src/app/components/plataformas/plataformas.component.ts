@@ -9,13 +9,16 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-4">Plataformas y Licencias</h2>
+    <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
+      <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Plataformas y Licencias</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
-      <form [formGroup]="plataformaForm" (ngSubmit)="onSubmit()" class="bg-gray-800 p-4 rounded mb-6">
+      <section class="ucc-card mb-8">
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<form [formGroup]="plataformaForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
-            <select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="ucc-select">
               <option [ngValue]="null">Seleccione Empleado</option>
               @for(emp of empleados; track emp.id) {
                 <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
@@ -28,7 +31,8 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <select formControlName="licencias" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="licencias" class="ucc-select">
               <option value="">Posee Licencia?</option>
               @for(lic of tiposLicencia; track lic.id) {
                 <option [value]="lic.nombre">{{lic.nombre}}</option>
@@ -40,7 +44,8 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <select formControlName="nombrePlataforma" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="nombrePlataforma" class="ucc-select">
               <option value="">Seleccione Plataforma</option>
               @for(plat of plataformasNombres; track plat.id) {
                 <option [value]="plat.nombre">{{plat.nombre}}</option>
@@ -52,21 +57,24 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="modulos" placeholder="Módulos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Módulos</label>
+<input formControlName="modulos" placeholder="Módulos" class="ucc-input">
             @if(plataformaForm.get('modulos')?.invalid && plataformaForm.get('modulos')?.touched) {
               <span class="text-red-400 text-xs mt-1">Los módulos son requeridos.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <input formControlName="accesosPermisos" placeholder="Accesos y Permisos" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Accesos y Permisos</label>
+<input formControlName="accesosPermisos" placeholder="Accesos y Permisos" class="ucc-input">
             @if(plataformaForm.get('accesosPermisos')?.invalid && plataformaForm.get('accesosPermisos')?.touched) {
               <span class="text-red-400 text-xs mt-1">Los accesos son requeridos.</span>
             }
           </div>
 
           <div class="flex flex-col">
-            <select formControlName="nivelAcceso" class="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            <label class="ucc-label">Seleccione Opción</label>
+<select formControlName="nivelAcceso" class="ucc-select">
               <option value="">Nivel de Acceso</option>
               @for(nivel of nivelesAcceso; track nivel.id) {
                 <option [value]="nivel.nombre">{{nivel.nombre}}</option>
@@ -79,7 +87,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="plataformaForm.invalid" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" [disabled]="plataformaForm.invalid" class="ucc-btn-primary">
             @if(isEditing) {
               Actualizar
             } @else {
@@ -88,33 +96,35 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           </button>
 
           @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition duration-200">
+            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
               Cancelar
             </button>
           }
         </div>
       </form>
+</section>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
+      <section class="ucc-table-container">
+<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<table class="ucc-table">
           <thead>
-            <tr class="bg-gray-700 text-gray-200">
-              <th class="p-3 border-b border-gray-600 font-semibold">Persona</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Puesto</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Licencia</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Plataforma</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Módulos</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Accesos</th>
-              <th class="p-3 border-b border-gray-600 font-semibold">Nivel</th>
+            <tr>
+              <th>Persona</th>
+              <th>Puesto</th>
+              <th>Licencia</th>
+              <th>Plataforma</th>
+              <th>Módulos</th>
+              <th>Accesos</th>
+              <th>Nivel</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(plat of plataformas; track plat.id) {
-              <tr class="bg-gray-800 hover:bg-gray-700 transition border-b border-gray-700 last:border-0">
-                <td class="p-3">{{ getEmpleadoName(plat.empleadoId) }}</td>
-                <td class="p-3">{{ getPuestoByEmpleado(plat.empleadoId) }}</td>
-                <td class="p-3">
+              <tr>
+                <td>{{ getEmpleadoName(plat.empleadoId) }}</td>
+                <td>{{ getPuestoByEmpleado(plat.empleadoId) }}</td>
+                <td>
                   <span class="px-2 py-1 rounded text-xs font-semibold"
                         [ngClass]="{
                           'bg-green-800 text-green-200': plat.licencias === 'Posee',
@@ -123,29 +133,29 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                     {{ plat.licencias }}
                   </span>
                 </td>
-                <td class="p-3">{{ plat.nombrePlataforma }}</td>
-                <td class="p-3">{{ plat.modulos }}</td>
-                <td class="p-3">{{ plat.accesosPermisos }}</td>
-                <td class="p-3">{{ plat.nivelAcceso }}</td>
-                <td class="p-3 text-center">
-                  <button (click)="edit(plat)" class="text-blue-400 mr-3 hover:text-blue-300 font-medium transition" title="Editar">
+                <td>{{ plat.nombrePlataforma }}</td>
+                <td>{{ plat.modulos }}</td>
+                <td>{{ plat.accesosPermisos }}</td>
+                <td>{{ plat.nivelAcceso }}</td>
+                <td>
+                  <button (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                     Editar
                   </button>
-                  <button (click)="delete(plat.id)" class="text-red-400 hover:text-red-300 font-medium transition" title="Eliminar">
+                  <button (click)="delete(plat.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
                     Eliminar
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="p-6 text-center text-gray-400 bg-gray-800">
+                <td colspan="8" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay plataformas registradas en el sistema.
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      </div>
+</section>
     </div>
   `
 })
