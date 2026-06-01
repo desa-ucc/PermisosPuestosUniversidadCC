@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo } from '../models/models';
+import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -79,4 +79,9 @@ export class ApiService {
   getNivelesAcceso(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/NivelesAcceso`, { headers: this.getHeaders() }); }
   getPlataformasNombres(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/PlataformasNombres`, { headers: this.getHeaders() }); }
   getTiposLicencia(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/TiposLicencia`, { headers: this.getHeaders() }); }
+
+  // --- Reportes ---
+  getReportePerfil(codigo: string): Observable<ReportePerfil[]> {
+    return this.http.get<ReportePerfil[]>(`${this.apiUrl}/Reportes/perfil/${codigo}`, { headers: this.getHeaders() });
+  }
 }

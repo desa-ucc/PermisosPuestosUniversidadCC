@@ -501,3 +501,33 @@ IF OBJECT_ID('sp_GetTiposLicencia', 'P') IS NOT NULL DROP PROCEDURE sp_GetTiposL
 GO
 CREATE PROCEDURE sp_GetTiposLicencia AS BEGIN SELECT * FROM Cat_TiposLicencia END;
 GO
+
+
+-- SP: GENERACIÓN DE REPORTES POR PERFIL (PUESTO)
+IF OBJECT_ID('sp_GetReportePerfilTecnologico', 'P') IS NOT NULL DROP PROCEDURE sp_GetReportePerfilTecnologico;
+GO
+CREATE PROCEDURE sp_GetReportePerfilTecnologico
+    @CodigoPerfil VARCHAR(50)
+AS
+BEGIN
+    SELECT
+        E.CodigoEmpleado,
+        E.NombreCompleto AS Empleado,
+        P.NombrePuesto AS Perfil,
+        ISNULL(H.TipoEquipo, 'N/A') AS Equipo,
+        ISNULL(H.Placa, 'N/A') AS PlacaEquipo,
+        ISNULL(S.NombreSoftware, 'N/A') AS Software,
+        ISNULL(S.Version, '') AS VersionSoftware,
+        ISNULL(Pl.NombrePlataforma, 'N/A') AS Plataforma,
+        ISNULL(Pl.Licencias, 'N/A') AS EstadoLicencia,
+        -- Dummy columns for the exact requirement of demonstrating currency export later in Angular
+        1500.00 AS CostoEstimadoHardware,
+        299.99 AS CostoEstimadoLicencias
+    FROM Empleados E
+    INNER JOIN Puestos P ON E.PuestoId = P.Id
+    LEFT JOIN HardwareAsignado H ON H.EmpleadoId = E.Id
+    LEFT JOIN SoftwareLocal S ON S.EmpleadoId = E.Id
+    LEFT JOIN Plataformas Pl ON Pl.EmpleadoId = E.Id
+    WHERE P.CodigoPuesto = @CodigoPerfil;
+END
+GO

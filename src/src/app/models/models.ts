@@ -78,3 +78,17 @@ export interface Catalogo {
   id: number;
   nombre: string;
 }
+
+export interface ReportePerfil {
+  codigoEmpleado: string;
+  empleado: string;
+  perfil: string;
+  equipo: string;
+  placaEquipo: string;
+  software: string;
+  versionSoftware: string;
+  plataforma: string;
+  estadoLicencia: string;
+  costoEstimadoHardware: number;
+  costoEstimadoLicencias: number;
+}

@@ -117,3 +117,18 @@ namespace PermisosPuestosApi.Models
     public class Cat_NivelesAcceso : CatalogoBase { }
     public class Cat_PlataformasNombres : CatalogoBase { }
     public class Cat_TiposLicencia : CatalogoBase { }
+
+    public class ReportePerfilDto
+    {
+        public string CodigoEmpleado { get; set; } = string.Empty;
+        public string Empleado { get; set; } = string.Empty;
+        public string Perfil { get; set; } = string.Empty;
+        public string Equipo { get; set; } = string.Empty;
+        public string PlacaEquipo { get; set; } = string.Empty;
+        public string Software { get; set; } = string.Empty;
+        public string VersionSoftware { get; set; } = string.Empty;
+        public string Plataforma { get; set; } = string.Empty;
+        public string EstadoLicencia { get; set; } = string.Empty;
+        public decimal CostoEstimadoHardware { get; set; }
+        public decimal CostoEstimadoLicencias { get; set; }
+    }

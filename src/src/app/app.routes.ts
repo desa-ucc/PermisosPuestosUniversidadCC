@@ -8,6 +8,7 @@ import { HardwareIdealComponent } from './components/hardware-ideal/hardware-ide
 import { SoftwareComponent } from './components/software/software.component';
 import { SitiosComponent } from './components/sitios/sitios.component';
 import { PlataformasComponent } from './components/plataformas/plataformas.component';
+import { ReportesComponent } from './components/reportes/reportes.component';
 import { CatalogosComponent } from './components/catalogos/catalogos.component';
 import { AuthGuard } from './guards/auth.guard';
 
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard] },
   { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
   { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },
+  { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard] },
 
   // Ruta por defecto explícita
   { path: '', redirectTo: 'login', pathMatch: 'full' },
