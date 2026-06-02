@@ -671,3 +671,68 @@ BEGIN
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
 END
 GO
+
+-- RECREACIÓN DE STORED PROCEDURES PARA REPORTE INTEGRAL (CON CREATE OR ALTER)
+GO
+CREATE OR ALTER PROCEDURE sp_GetReporteIntegralHardware
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        H.TipoEquipo AS Equipo,
+        H.Procesador,
+        H.Memoria,
+        H.Disco,
+        H.MarcaPC,
+        H.TecladoNumerico,
+        ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN HardwareAsignado H ON H.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetReporteIntegralSitios
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        S.Sitio,
+        S.Ambiente,
+        S.GruposPermisos
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN PermisosSitio S ON S.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetReporteIntegralPlataformas
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        Pl.Licencias,
+        Pl.NombrePlataforma AS Plataformas,
+        Pl.Modulos,
+        Pl.AccesosPermisos AS AccesosYPermisos,
+        Pl.NivelAcceso
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN Plataformas Pl ON Pl.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
