@@ -11,6 +11,9 @@ namespace PermisosPuestosApi.Data
         public DbSet<Puesto> Puestos { get; set; }
         public DbSet<EmpleadoDto> EmpleadosDto { get; set; }
         public DbSet<ReportePerfilDto> ReportesPerfilDto { get; set; }
+        public DbSet<ReporteHardwareDto> ReportesHardwareDto { get; set; }
+        public DbSet<ReporteSitioDto> ReportesSitiosDto { get; set; }
+        public DbSet<ReportePlataformaDto> ReportesPlataformasDto { get; set; }
         public DbSet<Empleado> Empleados { get; set; }
         public DbSet<HardwareIdeal> HardwareIdeales { get; set; }
         public DbSet<HardwareAsignado> HardwareAsignados { get; set; }
@@ -29,6 +32,9 @@ namespace PermisosPuestosApi.Data
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
             modelBuilder.Entity<EmpleadoDto>().HasNoKey();
             modelBuilder.Entity<ReportePerfilDto>().HasNoKey();
+            modelBuilder.Entity<ReporteHardwareDto>().HasNoKey();
+            modelBuilder.Entity<ReporteSitioDto>().HasNoKey();
+            modelBuilder.Entity<ReportePlataformaDto>().HasNoKey();
         }
     }
 }

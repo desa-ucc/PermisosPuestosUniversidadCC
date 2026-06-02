@@ -92,3 +92,39 @@ export interface ReportePerfil {
   costoEstimadoHardware: number;
   costoEstimadoLicencias: number;
 }
+
+export interface ReporteHardware {
+  puesto: string;
+  nombre: string;
+  equipo: string;
+  procesador: string;
+  memoria: string;
+  disco: string;
+  marcaPC: string;
+  tecladoNumerico: boolean;
+  otrasConsideraciones: string;
+}
+
+export interface ReporteSitio {
+  puesto: string;
+  nombre: string;
+  sitio: string;
+  ambiente: string;
+  gruposPermisos: string;
+}
+
+export interface ReportePlataforma {
+  puesto: string;
+  nombre: string;
+  licencias: string;
+  plataformas: string;
+  modulos: string;
+  accesosYPermisos: string;
+  nivelAcceso: string;
+}
+
+export interface ReporteIntegralResponse {
+  hardware: ReporteHardware[];
+  sitios: ReporteSitio[];
+  plataformas: ReportePlataforma[];
+}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil } from '../models/models';
+import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil, ReporteIntegralResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -83,5 +83,8 @@ export class ApiService {
   // --- Reportes ---
   getReportePerfil(codigo: string): Observable<ReportePerfil[]> {
     return this.http.get<ReportePerfil[]>(`${this.apiUrl}/Reportes/perfil/${codigo}`, { headers: this.getHeaders() });
+  }
+  getReporteIntegral(termino: string): Observable<ReporteIntegralResponse> {
+    return this.http.get<ReporteIntegralResponse>(`${this.apiUrl}/Reportes/integral/${termino}`, { headers: this.getHeaders() });
   }
 }

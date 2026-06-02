@@ -132,3 +132,43 @@ namespace PermisosPuestosApi.Models
         public decimal CostoEstimadoHardware { get; set; }
         public decimal CostoEstimadoLicencias { get; set; }
     }
+
+    public class ReporteHardwareDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Equipo { get; set; } = string.Empty;
+        public string Procesador { get; set; } = string.Empty;
+        public string Memoria { get; set; } = string.Empty;
+        public string Disco { get; set; } = string.Empty;
+        public string MarcaPC { get; set; } = string.Empty;
+        public bool TecladoNumerico { get; set; }
+        public string OtrasConsideraciones { get; set; } = string.Empty;
+    }
+
+    public class ReporteSitioDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Sitio { get; set; } = string.Empty;
+        public string Ambiente { get; set; } = string.Empty;
+        public string GruposPermisos { get; set; } = string.Empty;
+    }
+
+    public class ReportePlataformaDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Licencias { get; set; } = string.Empty;
+        public string Plataformas { get; set; } = string.Empty;
+        public string Modulos { get; set; } = string.Empty;
+        public string AccesosYPermisos { get; set; } = string.Empty;
+        public string NivelAcceso { get; set; } = string.Empty;
+    }
+
+    public class ReporteIntegralResponse
+    {
+        public List<ReporteHardwareDto> Hardware { get; set; } = new();
+        public List<ReporteSitioDto> Sitios { get; set; } = new();
+        public List<ReportePlataformaDto> Plataformas { get; set; } = new();
+    }
