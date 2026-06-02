@@ -601,3 +601,73 @@ BEGIN
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%';
 END
 GO
+
+-- CREACIÓN DE STORED PROCEDURES DE REPORTE INTEGRAL
+IF OBJECT_ID('sp_GetReporteIntegralHardware', 'P') IS NOT NULL DROP PROCEDURE sp_GetReporteIntegralHardware;
+GO
+CREATE PROCEDURE sp_GetReporteIntegralHardware
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        H.TipoEquipo AS Equipo,
+        H.Procesador,
+        H.Memoria,
+        H.Disco,
+        H.MarcaPC,
+        H.TecladoNumerico,
+        ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN HardwareAsignado H ON H.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+
+IF OBJECT_ID('sp_GetReporteIntegralSitios', 'P') IS NOT NULL DROP PROCEDURE sp_GetReporteIntegralSitios;
+GO
+CREATE PROCEDURE sp_GetReporteIntegralSitios
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        S.Sitio,
+        S.Ambiente,
+        S.GruposPermisos
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN PermisosSitio S ON S.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+
+IF OBJECT_ID('sp_GetReporteIntegralPlataformas', 'P') IS NOT NULL DROP PROCEDURE sp_GetReporteIntegralPlataformas;
+GO
+CREATE PROCEDURE sp_GetReporteIntegralPlataformas
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        Pl.Licencias,
+        Pl.NombrePlataforma AS Plataformas,
+        Pl.Modulos,
+        Pl.AccesosPermisos AS AccesosYPermisos,
+        Pl.NivelAcceso
+    FROM Empleados E
+    LEFT JOIN Puestos P ON E.PuestoId = P.Id
+    INNER JOIN Plataformas Pl ON Pl.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
