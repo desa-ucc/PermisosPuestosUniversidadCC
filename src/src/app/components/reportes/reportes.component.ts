@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { ReporteIntegralResponse } from '../../models/models';
+import { ReporteIntegralResponse, Puesto, Empleado } from '../../models/models';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -12,24 +12,50 @@ import * as XLSX from 'xlsx';
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8">
-        <h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Generación de Reportes</h2>
+        <h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Generación de Reportes Avanzados</h2>
         <p class="font-body-lg text-body-lg text-ucc-neutral-variant max-w-2xl mt-1">
-          Buscador global integral. Consulte el consolidado de inventario, software y accesos filtrando por código, puesto o empleado.
+          Consulte el consolidado de inventario, software y accesos filtrando a través de los catálogos o mediante búsqueda libre.
         </p>
       </div>
 
       <section class="ucc-card">
         <div class="flex items-center gap-2 mb-6 text-ucc-secondary">
-          <span class="material-symbols-outlined">search</span>
-          <h3 class="text-xl font-bold">Filtro de Búsqueda</h3>
+          <span class="material-symbols-outlined">filter_alt</span>
+          <h3 class="text-xl font-bold">Panel de Filtros Avanzados</h3>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-4 items-end">
-          <div class="flex-1">
-            <label class="ucc-label">Buscar por Código, Puesto o Nombre de Empleado...</label>
-            <input [(ngModel)]="terminoBusqueda" (keyup.enter)="buscar()" class="ucc-input" placeholder="Ej: Juan Pérez, ADM-010, Gerente..." type="text" />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="flex flex-col">
+            <label class="ucc-label">Filtrar por Puesto</label>
+            <select [(ngModel)]="filtroPuesto" (change)="onFilterChange('puesto')" class="ucc-select">
+              <option value="">Todos los puestos</option>
+              @for(puesto of listaPuestos; track puesto.id) {
+                <option [value]="puesto.nombrePuesto">{{puesto.nombrePuesto}}</option>
+              }
+            </select>
           </div>
-          <button (click)="buscar()" [disabled]="!terminoBusqueda || isLoading" class="ucc-btn-primary md:w-auto w-full h-[50px]">
+
+          <div class="flex flex-col">
+            <label class="ucc-label">Filtrar por Colaborador</label>
+            <select [(ngModel)]="filtroEmpleado" (change)="onFilterChange('empleado')" class="ucc-select">
+              <option value="">Todos los colaboradores</option>
+              @for(emp of listaEmpleados; track emp.id) {
+                <option [value]="emp.nombreCompleto">{{emp.nombreCompleto}}</option>
+              }
+            </select>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="ucc-label">Búsqueda Libre</label>
+            <input [(ngModel)]="terminoBusqueda" (keyup)="onFilterChange('texto')" (keyup.enter)="buscar()" class="ucc-input" placeholder="O escriba un término (código, placa...)" type="text" />
+          </div>
+        </div>
+
+        <div class="flex gap-4 justify-end border-t border-ucc-neutral-outline/20 pt-4">
+          <button (click)="limpiarFiltros()" class="ucc-btn-secondary">
+            <span class="material-symbols-outlined">clear_all</span> Limpiar Filtros
+          </button>
+          <button (click)="buscar()" [disabled]="!hasAnyFilter || isLoading" class="ucc-btn-primary">
              @if (isLoading) {
                 <span class="material-symbols-outlined animate-spin">sync</span> Buscando...
              } @else {
@@ -43,18 +69,18 @@ import * as XLSX from 'xlsx';
         @if (hasResults) {
 
           <div class="flex justify-end mb-4">
-            <button (click)="exportarAExcel()" class="ucc-btn-secondary text-ucc-secondary">
+            <button (click)="exportarAExcel()" class="bg-ucc-primary text-white hover:bg-ucc-primary/90 font-bold px-6 py-2 rounded-lg transition-all flex items-center gap-2 shadow-sm">
               <span class="material-symbols-outlined">download</span> Exportar Consolidado a Excel
             </button>
           </div>
 
           <!-- SECTION 1: HARDWARE -->
-          <section class="ucc-card mb-8 p-0 overflow-hidden border-ucc-primary-container/30 border-2">
-            <div class="p-4 bg-ucc-primary-container/10 flex items-center gap-2 border-b border-ucc-primary-container/20">
-               <span class="material-symbols-outlined text-ucc-primary-container">computer</span>
-               <h3 class="font-bold text-ucc-primary">Sección 1: Especificaciones de Equipo</h3>
+          <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-secondary">
+            <div class="p-4 bg-ucc-secondary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-ucc-secondary">computer</span>
+               <h3 class="font-bold text-ucc-secondary">Sección 1: Especificaciones de Equipo</h3>
             </div>
-            <div class="overflow-x-auto p-4">
+            <div class="overflow-x-auto">
               <table class="ucc-table min-w-[1000px]">
                 <thead>
                   <tr>
@@ -83,7 +109,7 @@ import * as XLSX from 'xlsx';
                       <td>{{hw.otrasConsideraciones || 'N/A'}}</td>
                     </tr>
                   } @empty {
-                    <tr><td colspan="9" class="text-center py-4">No hay resultados de hardware.</td></tr>
+                    <tr><td colspan="9" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay resultados de hardware asociados.</td></tr>
                   }
                 </tbody>
               </table>
@@ -91,12 +117,12 @@ import * as XLSX from 'xlsx';
           </section>
 
           <!-- SECTION 2: SITIOS -->
-          <section class="ucc-card mb-8 p-0 overflow-hidden border-ucc-secondary/30 border-2">
-            <div class="p-4 bg-ucc-secondary/10 flex items-center gap-2 border-b border-ucc-secondary/20">
-               <span class="material-symbols-outlined text-ucc-secondary">location_on</span>
-               <h3 class="font-bold text-ucc-secondary">Sección 2: Permisos por Sitio</h3>
+          <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-primary-container">
+            <div class="p-4 bg-ucc-primary-container/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-ucc-primary-container">location_on</span>
+               <h3 class="font-bold text-ucc-primary-container">Sección 2: Permisos por Sitio</h3>
             </div>
-            <div class="overflow-x-auto p-4">
+            <div class="overflow-x-auto">
               <table class="ucc-table">
                 <thead>
                   <tr>
@@ -113,11 +139,16 @@ import * as XLSX from 'xlsx';
                       <td class="font-bold">{{sit.puesto}}</td>
                       <td>{{sit.nombre}}</td>
                       <td>{{sit.sitio}}</td>
-                      <td>{{sit.ambiente}}</td>
+                      <td>
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold"
+                              [ngClass]="sit.ambiente === 'Producción' ? 'bg-ucc-primary-container/20 text-ucc-primary-container' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
+                           {{sit.ambiente}}
+                        </span>
+                      </td>
                       <td>{{sit.gruposPermisos}}</td>
                     </tr>
                   } @empty {
-                    <tr><td colspan="5" class="text-center py-4">No hay resultados de sitios.</td></tr>
+                    <tr><td colspan="5" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay permisos de sitio asociados.</td></tr>
                   }
                 </tbody>
               </table>
@@ -125,12 +156,12 @@ import * as XLSX from 'xlsx';
           </section>
 
           <!-- SECTION 3: PLATAFORMAS -->
-          <section class="ucc-card p-0 overflow-hidden border-ucc-neutral-outline border-2">
-            <div class="p-4 bg-ucc-neutral-outline/10 flex items-center gap-2 border-b border-ucc-neutral-outline/30">
-               <span class="material-symbols-outlined text-ucc-neutral-variant">cloud_done</span>
-               <h3 class="font-bold text-ucc-neutral-variant">Sección 3: Plataformas y Licencias</h3>
+          <section class="ucc-table-container border-l-4 border-l-ucc-primary">
+            <div class="p-4 bg-ucc-primary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-ucc-primary">cloud_done</span>
+               <h3 class="font-bold text-ucc-primary">Sección 3: Plataformas y Licencias</h3>
             </div>
-            <div class="overflow-x-auto p-4">
+            <div class="overflow-x-auto">
               <table class="ucc-table">
                 <thead>
                   <tr>
@@ -148,14 +179,19 @@ import * as XLSX from 'xlsx';
                     <tr>
                       <td class="font-bold">{{plat.puesto}}</td>
                       <td>{{plat.nombre}}</td>
-                      <td>{{plat.licencias}}</td>
+                      <td>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase"
+                            [ngClass]="plat.licencias === 'Posee' ? 'bg-ucc-primary-container/20 text-ucc-primary' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
+                          {{plat.licencias}}
+                        </span>
+                      </td>
                       <td>{{plat.plataformas}}</td>
                       <td>{{plat.modulos}}</td>
                       <td>{{plat.accesosYPermisos}}</td>
                       <td>{{plat.nivelAcceso}}</td>
                     </tr>
                   } @empty {
-                    <tr><td colspan="7" class="text-center py-4">No hay resultados de plataformas.</td></tr>
+                    <tr><td colspan="7" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay plataformas ni licencias asociadas.</td></tr>
                   }
                 </tbody>
               </table>
@@ -166,32 +202,85 @@ import * as XLSX from 'xlsx';
           <section class="ucc-card bg-ucc-background flex flex-col items-center justify-center p-12 text-ucc-neutral-variant shadow-none border-dashed border-2">
              <span class="material-symbols-outlined text-[64px] mb-4 opacity-50">search_off</span>
              <p class="text-lg font-bold">No se encontraron resultados</p>
-             <p class="text-sm text-center max-w-md mt-2">Intente con otro término de búsqueda (código, puesto o empleado).</p>
+             <p class="text-sm text-center max-w-md mt-2">Los filtros aplicados no arrojaron ninguna coincidencia en las asignaciones de Hardware, Sitios o Plataformas.</p>
           </section>
         }
       }
     </div>
   `
 })
-export class ReportesComponent {
+export class ReportesComponent implements OnInit {
+  // Filtros Avanzados
+  filtroPuesto: string = '';
+  filtroEmpleado: string = '';
   terminoBusqueda: string = '';
+
+  // Listas de Catálogos para Filtros
+  listaPuestos: Puesto[] = [];
+  listaEmpleados: Empleado[] = [];
+
+  // Datos del Reporte
   data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [] };
   isLoading = false;
   busquedaRealizada = false;
 
   constructor(private api: ApiService) {}
 
+  ngOnInit() {
+    this.api.getPuestos().subscribe(res => this.listaPuestos = res);
+    this.api.getEmpleados().subscribe(res => this.listaEmpleados = res);
+  }
+
+  get hasAnyFilter(): boolean {
+    return !!this.filtroPuesto || !!this.filtroEmpleado || !!this.terminoBusqueda.trim();
+  }
+
   get hasResults(): boolean {
     return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0;
   }
 
+  onFilterChange(source: 'puesto' | 'empleado' | 'texto') {
+    // Si escribe texto, limpiamos selects para evitar confusión
+    if (source === 'texto' && this.terminoBusqueda.trim() !== '') {
+      this.filtroPuesto = '';
+      this.filtroEmpleado = '';
+    }
+    // Si selecciona un select, limpiamos el texto y el otro select
+    else if (source === 'puesto') {
+      this.filtroEmpleado = '';
+      this.terminoBusqueda = '';
+    }
+    else if (source === 'empleado') {
+      this.filtroPuesto = '';
+      this.terminoBusqueda = '';
+    }
+  }
+
+  limpiarFiltros() {
+    this.filtroPuesto = '';
+    this.filtroEmpleado = '';
+    this.terminoBusqueda = '';
+    this.busquedaRealizada = false;
+    this.data = { hardware: [], sitios: [], plataformas: [] };
+  }
+
   buscar() {
-    if (!this.terminoBusqueda) return;
+    if (!this.hasAnyFilter) return;
+
+    // Determinar qué valor enviar al backend. Prioridad: Texto > Empleado > Puesto
+    let parametroFinal = '';
+    if (this.terminoBusqueda.trim() !== '') {
+      parametroFinal = this.terminoBusqueda.trim();
+    } else if (this.filtroEmpleado !== '') {
+      parametroFinal = this.filtroEmpleado;
+    } else if (this.filtroPuesto !== '') {
+      parametroFinal = this.filtroPuesto;
+    }
 
     this.isLoading = true;
     this.busquedaRealizada = false;
 
-    this.api.getReporteIntegral(this.terminoBusqueda.trim()).subscribe({
+    this.api.getReporteIntegral(parametroFinal).subscribe({
       next: (res) => {
         this.data = res;
         this.isLoading = false;
@@ -256,6 +345,6 @@ export class ReportesComponent {
       XLSX.utils.book_append_sheet(wb, wsPlat, 'Plataformas');
     }
 
-    XLSX.writeFile(wb, `Reporte_Integral_${this.terminoBusqueda}.xlsx`);
+    XLSX.writeFile(wb, `Reporte_Integral.xlsx`);
   }
 }
