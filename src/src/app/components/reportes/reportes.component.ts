@@ -100,12 +100,18 @@ import * as XLSX from 'xlsx';
                     <tr>
                       <td class="font-bold">{{hw.puesto}}</td>
                       <td>{{hw.nombre}}</td>
-                      <td>{{hw.equipo}}</td>
-                      <td>{{hw.procesador}}</td>
-                      <td>{{hw.memoria}}</td>
-                      <td>{{hw.disco}}</td>
-                      <td>{{hw.marcaPC}}</td>
-                      <td>{{hw.tecladoNumerico ? 'Sí' : 'No'}}</td>
+                      <td>{{hw.equipo || 'N/A'}}</td>
+                      <td>{{hw.procesador || 'N/A'}}</td>
+                      <td>{{hw.memoria || 'N/A'}}</td>
+                      <td>{{hw.disco || 'N/A'}}</td>
+                      <td>{{hw.marcaPC || 'N/A'}}</td>
+                      <td>
+                        @if(hw.equipo) {
+                           {{hw.tecladoNumerico ? 'Sí' : 'No'}}
+                        } @else {
+                           N/A
+                        }
+                      </td>
                       <td>{{hw.otrasConsideraciones || 'N/A'}}</td>
                     </tr>
                   } @empty {
@@ -138,14 +144,18 @@ import * as XLSX from 'xlsx';
                     <tr>
                       <td class="font-bold">{{sit.puesto}}</td>
                       <td>{{sit.nombre}}</td>
-                      <td>{{sit.sitio}}</td>
+                      <td>{{sit.sitio || 'N/A'}}</td>
                       <td>
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold"
-                              [ngClass]="sit.ambiente === 'Producción' ? 'bg-ucc-primary-container/20 text-ucc-primary-container' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
-                           {{sit.ambiente}}
-                        </span>
+                        @if(sit.ambiente) {
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold"
+                                  [ngClass]="sit.ambiente === 'Producción' ? 'bg-ucc-primary-container/20 text-ucc-primary-container' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
+                               {{sit.ambiente}}
+                            </span>
+                        } @else {
+                            N/A
+                        }
                       </td>
-                      <td>{{sit.gruposPermisos}}</td>
+                      <td>{{sit.gruposPermisos || 'N/A'}}</td>
                     </tr>
                   } @empty {
                     <tr><td colspan="5" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay permisos de sitio asociados.</td></tr>
@@ -180,15 +190,19 @@ import * as XLSX from 'xlsx';
                       <td class="font-bold">{{plat.puesto}}</td>
                       <td>{{plat.nombre}}</td>
                       <td>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase"
-                            [ngClass]="plat.licencias === 'Posee' ? 'bg-ucc-primary-container/20 text-ucc-primary' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
-                          {{plat.licencias}}
-                        </span>
+                        @if(plat.licencias) {
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold uppercase"
+                                [ngClass]="plat.licencias === 'Posee' ? 'bg-ucc-primary-container/20 text-ucc-primary' : 'bg-ucc-neutral-outline/20 text-ucc-neutral-variant'">
+                              {{plat.licencias}}
+                            </span>
+                        } @else {
+                            N/A
+                        }
                       </td>
-                      <td>{{plat.plataformas}}</td>
-                      <td>{{plat.modulos}}</td>
-                      <td>{{plat.accesosYPermisos}}</td>
-                      <td>{{plat.nivelAcceso}}</td>
+                      <td>{{plat.plataformas || 'N/A'}}</td>
+                      <td>{{plat.modulos || 'N/A'}}</td>
+                      <td>{{plat.accesosYPermisos || 'N/A'}}</td>
+                      <td>{{plat.nivelAcceso || 'N/A'}}</td>
                     </tr>
                   } @empty {
                     <tr><td colspan="7" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay plataformas ni licencias asociadas.</td></tr>
@@ -228,6 +242,7 @@ export class ReportesComponent implements OnInit {
 
   ngOnInit() {
     this.api.getPuestos().subscribe(res => this.listaPuestos = res);
+    // Explicit call to load employees, ensuring the array is populated
     this.api.getEmpleados().subscribe(res => this.listaEmpleados = res);
   }
 
@@ -240,12 +255,10 @@ export class ReportesComponent implements OnInit {
   }
 
   onFilterChange(source: 'puesto' | 'empleado' | 'texto') {
-    // Si escribe texto, limpiamos selects para evitar confusión
     if (source === 'texto' && this.terminoBusqueda.trim() !== '') {
       this.filtroPuesto = '';
       this.filtroEmpleado = '';
     }
-    // Si selecciona un select, limpiamos el texto y el otro select
     else if (source === 'puesto') {
       this.filtroEmpleado = '';
       this.terminoBusqueda = '';
@@ -267,7 +280,6 @@ export class ReportesComponent implements OnInit {
   buscar() {
     if (!this.hasAnyFilter) return;
 
-    // Determinar qué valor enviar al backend. Prioridad: Texto > Empleado > Puesto
     let parametroFinal = '';
     if (this.terminoBusqueda.trim() !== '') {
       parametroFinal = this.terminoBusqueda.trim();
