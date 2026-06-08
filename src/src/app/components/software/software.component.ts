@@ -13,7 +13,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Software Local</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Software Local' : (isEditing ? 'Editar Software Local' : 'Registrar Software Local') }}</h3></div>
 <form [formGroup]="swForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col">
@@ -71,19 +71,21 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
-            @if(isEditing) {
-              Actualizar
-            } @else {
-              Agregar
-            }
-          </button>
+          @if(!isReadOnly) {
+  <button type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
+    @if(isEditing) {
+      Actualizar
+    } @else {
+      Agregar
+    }
+  </button>
+}
 
-          @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-              Cancelar
-            </button>
-          }
+          @if(isEditing || isReadOnly) {
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+  </button>
+}
         </div>
       </form>
 </section>
@@ -108,12 +110,15 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
                 <td>{{sw.version}}</td>
                 <td>{{sw.fabricante}}</td>
                 <td>
-                  <button (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-                    Editar
-                  </button>
+                  <div class="flex justify-center gap-3"><button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+  <span class="material-symbols-outlined">visibility</span>
+</button>
+<button (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+  <span class="material-symbols-outlined">edit</span>
+</button>
                   <button (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-                    Eliminar
-                  </button>
+  <span class="material-symbols-outlined">delete</span>
+</button></div>
                 </td>
               </tr>
             } @empty {
@@ -134,6 +139,7 @@ export class SoftwareComponent implements OnInit {
   equipos: HardwareAsignado[] = [];
   swForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -188,7 +194,9 @@ export class SoftwareComponent implements OnInit {
 
   edit(sw: SoftwareLocal) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = sw.id;
+    this.swForm.enable();
     this.swForm.patchValue(sw);
   }
 
@@ -201,8 +209,17 @@ export class SoftwareComponent implements OnInit {
     }
   }
 
+  verDetalle(sw: SoftwareLocal) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = sw.id;
+    this.swForm.patchValue(sw);
+    this.swForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.swForm.reset({
       empleadoId: null,
@@ -212,5 +229,6 @@ export class SoftwareComponent implements OnInit {
       version: '',
       fabricante: ''
     });
+    this.swForm.enable();
   }
 }

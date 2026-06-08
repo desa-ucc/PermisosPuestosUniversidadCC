@@ -25,7 +25,7 @@ import { Puesto } from '../../models/models';
 <section class="ucc-card">
 <div class="flex items-center gap-2 mb-6 text-secondary">
 <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
-<h3 class="font-title-lg text-title-lg">Registrar Nuevo Puesto</h3>
+<h3 class="font-title-lg text-title-lg">{{ isReadOnly ? 'Detalles del Puesto' : (isEditing ? 'Editar Puesto' : 'Registrar Nuevo Puesto') }}</h3>
 </div>
 <form [formGroup]="puestoForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 <div class="space-y-2">
@@ -47,18 +47,20 @@ import { Puesto } from '../../models/models';
 <input formControlName="descripcion" class="ucc-input" placeholder="Breve resumen..." type="text"/>
 </div>
 <div class="flex flex-col items-center h-full pt-4 md:pt-0 gap-2">
-<button type="submit" [disabled]="puestoForm.invalid" class="w-full ucc-btn-primary w-full">
-@if(isEditing) {
-    <span class="material-symbols-outlined" data-icon="save">save</span>
-    Actualizar Puesto
-} @else {
-    <span class="material-symbols-outlined" data-icon="add">add</span>
-    Agregar Puesto
+@if(!isReadOnly) {
+  <button type="submit" [disabled]="puestoForm.invalid" class="w-full ucc-btn-primary w-full">
+  @if(isEditing) {
+      <span class="material-symbols-outlined" data-icon="save">save</span>
+      Actualizar Puesto
+  } @else {
+      <span class="material-symbols-outlined" data-icon="add">add</span>
+      Agregar Puesto
+  }
+  </button>
 }
-</button>
-@if(isEditing) {
+@if(isEditing || isReadOnly) {
   <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full">
-    Cancelar
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
   </button>
 }
 </div>
@@ -93,6 +95,9 @@ import { Puesto } from '../../models/models';
 <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant truncate max-w-xs">{{puesto.descripcion || 'N/A'}}</td>
 <td class="py-4 px-6">
 <div class="flex justify-center gap-3">
+<button (click)="verDetalle(puesto)" class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all" title="Ver Detalles">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
 <button (click)="edit(puesto)" class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all" title="Editar">
 <span class="material-symbols-outlined" data-icon="edit">edit</span>
 </button>
@@ -177,6 +182,7 @@ export class PuestosComponent implements OnInit {
   puestos: Puesto[] = [];
   puestoForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -225,7 +231,9 @@ export class PuestosComponent implements OnInit {
 
   edit(puesto: Puesto) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = puesto.id;
+    this.puestoForm.enable();
     this.puestoForm.patchValue({
       codigoPuesto: puesto.codigoPuesto,
       nombrePuesto: puesto.nombrePuesto,
@@ -242,9 +250,23 @@ export class PuestosComponent implements OnInit {
     }
   }
 
+  verDetalle(puesto: Puesto) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = puesto.id;
+    this.puestoForm.patchValue({
+      codigoPuesto: puesto.codigoPuesto,
+      nombrePuesto: puesto.nombrePuesto,
+      descripcion: puesto.descripcion
+    });
+    this.puestoForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.puestoForm.reset();
+    this.puestoForm.enable();
   }
 }

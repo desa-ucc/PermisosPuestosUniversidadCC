@@ -13,7 +13,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Permisos por Sitio</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Permisos Sitio' : (isEditing ? 'Editar Permisos Sitio' : 'Registrar Permisos Sitio') }}</h3></div>
 <form [formGroup]="sitioForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
@@ -66,19 +66,21 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
-            @if(isEditing) {
-              Actualizar
-            } @else {
-              Agregar
-            }
-          </button>
+          @if(!isReadOnly) {
+  <button type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
+    @if(isEditing) {
+      Actualizar
+    } @else {
+      Agregar
+    }
+  </button>
+}
 
-          @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-              Cancelar
-            </button>
-          }
+          @if(isEditing || isReadOnly) {
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+  </button>
+}
         </div>
       </form>
 </section>
@@ -114,12 +116,15 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
                 </td>
                 <td>{{ sitio.gruposPermisos }}</td>
                 <td>
-                  <button (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-                    Editar
-                  </button>
+                  <div class="flex justify-center gap-3"><button (click)="verDetalle(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+  <span class="material-symbols-outlined">visibility</span>
+</button>
+<button (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+  <span class="material-symbols-outlined">edit</span>
+</button>
                   <button (click)="delete(sitio.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-                    Eliminar
-                  </button>
+  <span class="material-symbols-outlined">delete</span>
+</button></div>
                 </td>
               </tr>
             } @empty {
@@ -141,6 +146,7 @@ export class SitiosComponent implements OnInit {
   puestos: Puesto[] = [];
   sitioForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
@@ -222,7 +228,9 @@ export class SitiosComponent implements OnInit {
 
   edit(sitio: PermisosSitio) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = sitio.id;
+    this.sitioForm.enable();
     this.sitioForm.patchValue({
       empleadoId: sitio.empleadoId,
       sitio: sitio.sitio,
@@ -241,8 +249,23 @@ export class SitiosComponent implements OnInit {
     }
   }
 
+  verDetalle(sitio: PermisosSitio) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = sitio.id;
+    this.sitioForm.patchValue({
+      empleadoId: sitio.empleadoId,
+      sitio: sitio.sitio,
+      ambiente: sitio.ambiente,
+      gruposPermisos: sitio.gruposPermisos
+    });
+    this.onEmpleadoChange(null);
+    this.sitioForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.selectedEmpleadoPuestoId = null;
     this.sitioForm.reset({
@@ -251,5 +274,6 @@ export class SitiosComponent implements OnInit {
       ambiente: '',
       gruposPermisos: ''
     });
+    this.sitioForm.enable();
   }
 }
