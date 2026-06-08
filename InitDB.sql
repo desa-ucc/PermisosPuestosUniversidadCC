@@ -602,6 +602,7 @@ BEGIN
 END
 GO
 
+<<<<<<< HEAD
 -- CREACIÓN DE STORED PROCEDURES DE REPORTE INTEGRAL
 IF OBJECT_ID('sp_GetReporteIntegralHardware', 'P') IS NOT NULL DROP PROCEDURE sp_GetReporteIntegralHardware;
 GO
@@ -672,6 +673,8 @@ BEGIN
 END
 GO
 
+=======
+>>>>>>> 5f64dc5a85e0eec30291b7c53403116c62d1e048
 -- RECREACIÓN DE STORED PROCEDURES PARA REPORTE INTEGRAL (CON CREATE OR ALTER)
 GO
 CREATE OR ALTER PROCEDURE sp_GetReporteIntegralHardware
@@ -681,6 +684,7 @@ BEGIN
     SELECT
         ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
         E.NombreCompleto AS Nombre,
+<<<<<<< HEAD
         H.TipoEquipo AS Equipo,
         H.Procesador,
         H.Memoria,
@@ -746,6 +750,8 @@ BEGIN
     SELECT
         ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
         E.NombreCompleto AS Nombre,
+=======
+>>>>>>> 5f64dc5a85e0eec30291b7c53403116c62d1e048
         ISNULL(H.TipoEquipo, '') AS Equipo,
         ISNULL(H.Procesador, '') AS Procesador,
         ISNULL(H.Memoria, '') AS Memoria,
