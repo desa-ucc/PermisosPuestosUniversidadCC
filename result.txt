@@ -1,0 +1,60 @@
+### TypeScript (`reportes.component.ts`)
+
+```typescript
+  // Buscador Colaboradores
+  showDropdownColaboradores = false;
+  searchTermColaboradores = '';
+
+  get colaboradoresFiltrados() {
+    return this.listaEmpleados.filter(c => c.nombreCompleto.toLowerCase().includes(this.searchTermColaboradores.toLowerCase()));
+  }
+
+  seleccionarColaborador(colaborador: Empleado | null) {
+    if (colaborador) {
+        this.filtroEmpleado = colaborador.nombreCompleto;
+        this.searchTermColaboradores = colaborador.nombreCompleto;
+    } else {
+        this.filtroEmpleado = '';
+        this.searchTermColaboradores = '';
+    }
+    this.showDropdownColaboradores = false;
+  }
+
+  cerrarDropdownColaboradores() {
+    setTimeout(() => {
+      this.showDropdownColaboradores = false;
+      if(this.filtroEmpleado === '' && this.searchTermColaboradores !== '') {
+          this.searchTermColaboradores = '';
+      }
+    }, 200);
+  }
+```
+
+### HTML (`reportes.component.ts`)
+
+```html
+            <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar colaborador..."
+                     [(ngModel)]="searchTermColaboradores"
+                     (focus)="showDropdownColaboradores = true"
+                     (blur)="cerrarDropdownColaboradores()">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownColaboradores">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarColaborador(null)">
+                  Todos los colaboradores
+                </li>
+                @for(emp of colaboradoresFiltrados; track emp.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarColaborador(emp)">
+                    {{emp.nombreCompleto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
+```

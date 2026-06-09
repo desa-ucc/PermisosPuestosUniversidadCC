@@ -47,3 +47,17 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
 - No modificar el backend ni requerir llamados adicionales a la API, respetando la regla base de Client-Side Pagination al 100%.
 - Mantener la cohesión de nombres de variables en el TypeScript: `currentPage`, `pageSize=20`, `pageSizeOptions`, `paginatedList`, `nextPage`, `prevPage`, `changePageSize`.
 - Mantener diseño Flexbox estándar de UCC en los `.html`.
+
+### 8. Buscador con Autocompletado (Searchable Dropdown)
+- Reemplazar las etiquetas `<select>` nativas para "Puestos" y "Colaboradores" por un buscador con autocompletado en Angular 17.
+- No utilizar librerías de terceros (cero ng-select).
+- Implementar la lógica TypeScript:
+  - Variables de visibilidad (`showDropdownColaboradores`, `showDropdownPuestos`).
+  - Variables de búsqueda (`searchTermColaboradores`, `searchTermPuestos`).
+  - Getters `colaboradoresFiltrados` y `puestosFiltrados` para filtrado en tiempo real usando `.filter()`.
+  - Métodos de selección `seleccionarColaborador` y `seleccionarPuesto`.
+- Implementar la estructura HTML:
+  - Input base (`<input type="text" class="ucc-input">`) enlazado a la variable de búsqueda.
+  - Gestión de eventos `(focus)` para abrir y `(blur)` (con `setTimeout`) para cerrar.
+  - Lista flotante absoluta (`<ul class="absolute z-50 w-full ...">`) anclada bajo el input.
+  - Directivas `@for` para iterar elementos y `@empty` para notificar cuando no hay resultados.

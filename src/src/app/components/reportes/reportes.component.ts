@@ -27,22 +27,58 @@ import * as XLSX from 'xlsx';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Puesto</label>
-            <select [(ngModel)]="filtroPuesto"  class="ucc-select">
-              <option value="">Todos los puestos</option>
-              @for(puesto of listaPuestos; track puesto.id) {
-                <option [value]="puesto.nombrePuesto">{{puesto.nombrePuesto}}</option>
-              }
-            </select>
+            <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar puesto..."
+                     [(ngModel)]="searchTermPuestos"
+                     (focus)="showDropdownPuestos = true"
+                     (blur)="cerrarDropdownPuestos()">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownPuestos">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarPuesto(null)">
+                  Todos los puestos
+                </li>
+                @for(puesto of puestosFiltrados; track puesto.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarPuesto(puesto)">
+                    {{puesto.nombrePuesto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
           </div>
 
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Colaborador</label>
-            <select [(ngModel)]="filtroEmpleado"  class="ucc-select">
-              <option value="">Todos los colaboradores</option>
-              @for(emp of listaEmpleados; track emp.id) {
-                <option [value]="emp.nombreCompleto">{{emp.nombreCompleto}}</option>
-              }
-            </select>
+            <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar colaborador..."
+                     [(ngModel)]="searchTermColaboradores"
+                     (focus)="showDropdownColaboradores = true"
+                     (blur)="cerrarDropdownColaboradores()">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownColaboradores">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarColaborador(null)">
+                  Todos los colaboradores
+                </li>
+                @for(emp of colaboradoresFiltrados; track emp.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarColaborador(emp)">
+                    {{emp.nombreCompleto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
           </div>
 
           <div class="flex flex-col">
@@ -290,6 +326,64 @@ export class ReportesComponent implements OnInit {
   listaPuestos: Puesto[] = [];
   listaEmpleados: Empleado[] = [];
 
+  // Buscador Puestos
+  showDropdownPuestos = false;
+  searchTermPuestos = '';
+
+  get puestosFiltrados() {
+    return this.listaPuestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
+  }
+
+  seleccionarPuesto(puesto: Puesto | null) {
+    if (puesto) {
+        this.filtroPuesto = puesto.nombrePuesto;
+        this.searchTermPuestos = puesto.nombrePuesto;
+    } else {
+        this.filtroPuesto = '';
+        this.searchTermPuestos = '';
+    }
+    this.showDropdownPuestos = false;
+  }
+
+  // Buscador Colaboradores
+  showDropdownColaboradores = false;
+  searchTermColaboradores = '';
+
+  get colaboradoresFiltrados() {
+    return this.listaEmpleados.filter(c => c.nombreCompleto.toLowerCase().includes(this.searchTermColaboradores.toLowerCase()));
+  }
+
+  seleccionarColaborador(colaborador: Empleado | null) {
+    if (colaborador) {
+        this.filtroEmpleado = colaborador.nombreCompleto;
+        this.searchTermColaboradores = colaborador.nombreCompleto;
+    } else {
+        this.filtroEmpleado = '';
+        this.searchTermColaboradores = '';
+    }
+    this.showDropdownColaboradores = false;
+  }
+
+  cerrarDropdownPuestos() {
+    setTimeout(() => {
+      this.showDropdownPuestos = false;
+      if(this.filtroPuesto === '' && this.searchTermPuestos !== '') {
+          this.searchTermPuestos = '';
+      }
+    }, 200);
+  }
+
+  cerrarDropdownColaboradores() {
+    setTimeout(() => {
+      this.showDropdownColaboradores = false;
+      if(this.filtroEmpleado === '' && this.searchTermColaboradores !== '') {
+          this.searchTermColaboradores = '';
+      }
+    }, 200);
+  }
+
+
+
   // Datos del Reporte
   data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [] };
   isLoading = false;
@@ -396,7 +490,9 @@ hardwareCurrentPage: number = 1;
 
   limpiarFiltros() {
     this.filtroPuesto = '';
+    this.searchTermPuestos = '';
     this.filtroEmpleado = '';
+    this.searchTermColaboradores = '';
     this.terminoBusqueda = '';
     this.busquedaRealizada = false;
 
