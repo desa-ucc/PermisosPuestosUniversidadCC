@@ -26,3 +26,11 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
 ### 4. Aseguramiento de Calidad
 - Ejecución de pruebas / `ng build` para confirmar que las variables y plantillas funcionan correctamente sin errores de compilación.
 - Auditar que se envíe un único string al servicio API.
+
+### 5. Paginación del Lado del Cliente (Client-Side Pagination)
+- Implementar paginación en las tablas del componente de Reportes.
+- Variables de paginación para Hardware, Sitios y Plataformas (`currentPage`, `pageSize=10`).
+- Creación de getters `paginatedHardwareList`, `paginatedSitiosList`, `paginatedPlataformasList` usando `.slice()`.
+- Modificación de los bucles `@for` en el template HTML para iterar sobre los getters paginados.
+- Adición de footer para controles de paginación ("Anterior", "Siguiente", y texto "Mostrando página X de Y").
+- Esta modificación no requerirá cambios en el Backend (.NET) ni en Stored Procedures.

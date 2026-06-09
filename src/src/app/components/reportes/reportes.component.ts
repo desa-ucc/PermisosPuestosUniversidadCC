@@ -96,7 +96,7 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(hw of data.hardware; track $index) {
+                  @for(hw of paginatedHardwareList; track $index) {
                     <tr>
                       <td class="font-bold">{{hw.puesto}}</td>
                       <td>{{hw.nombre}}</td>
@@ -120,6 +120,16 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- HARDWARE PAGINATION FOOTER -->
+            @if(data.hardware.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{hardwareCurrentPage}} de {{hardwareTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevHardwarePage()" [disabled]="hardwareCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextHardwarePage()" [disabled]="hardwareCurrentPage === hardwareTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
           <!-- SECTION 2: SITIOS -->
@@ -140,7 +150,7 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(sit of data.sitios; track $index) {
+                  @for(sit of paginatedSitiosList; track $index) {
                     <tr>
                       <td class="font-bold">{{sit.puesto}}</td>
                       <td>{{sit.nombre}}</td>
@@ -163,6 +173,16 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- SITIOS PAGINATION FOOTER -->
+            @if(data.sitios.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{sitiosCurrentPage}} de {{sitiosTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevSitiosPage()" [disabled]="sitiosCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextSitiosPage()" [disabled]="sitiosCurrentPage === sitiosTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
           <!-- SECTION 3: PLATAFORMAS -->
@@ -185,7 +205,7 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(plat of data.plataformas; track $index) {
+                  @for(plat of paginatedPlataformasList; track $index) {
                     <tr>
                       <td class="font-bold">{{plat.puesto}}</td>
                       <td>{{plat.nombre}}</td>
@@ -210,6 +230,16 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- PLATAFORMAS PAGINATION FOOTER -->
+            @if(data.plataformas.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{plataformasCurrentPage}} de {{plataformasTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevPlataformasPage()" [disabled]="plataformasCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextPlataformasPage()" [disabled]="plataformasCurrentPage === plataformasTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
         } @else {
@@ -238,6 +268,77 @@ export class ReportesComponent implements OnInit {
   isLoading = false;
   busquedaRealizada = false;
 
+  // Paginación de Tablas
+  pageSize: number = 10;
+
+  hardwareCurrentPage: number = 1;
+  sitiosCurrentPage: number = 1;
+  plataformasCurrentPage: number = 1;
+
+  get paginatedHardwareList() {
+    const startIndex = (this.hardwareCurrentPage - 1) * this.pageSize;
+    return this.data.hardware.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get hardwareTotalPages() {
+    return Math.ceil(this.data.hardware.length / this.pageSize) || 1;
+  }
+
+  nextHardwarePage() {
+    if (this.hardwareCurrentPage < this.hardwareTotalPages) {
+      this.hardwareCurrentPage++;
+    }
+  }
+
+  prevHardwarePage() {
+    if (this.hardwareCurrentPage > 1) {
+      this.hardwareCurrentPage--;
+    }
+  }
+
+  get paginatedSitiosList() {
+    const startIndex = (this.sitiosCurrentPage - 1) * this.pageSize;
+    return this.data.sitios.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get sitiosTotalPages() {
+    return Math.ceil(this.data.sitios.length / this.pageSize) || 1;
+  }
+
+  nextSitiosPage() {
+    if (this.sitiosCurrentPage < this.sitiosTotalPages) {
+      this.sitiosCurrentPage++;
+    }
+  }
+
+  prevSitiosPage() {
+    if (this.sitiosCurrentPage > 1) {
+      this.sitiosCurrentPage--;
+    }
+  }
+
+  get paginatedPlataformasList() {
+    const startIndex = (this.plataformasCurrentPage - 1) * this.pageSize;
+    return this.data.plataformas.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get plataformasTotalPages() {
+    return Math.ceil(this.data.plataformas.length / this.pageSize) || 1;
+  }
+
+  nextPlataformasPage() {
+    if (this.plataformasCurrentPage < this.plataformasTotalPages) {
+      this.plataformasCurrentPage++;
+    }
+  }
+
+  prevPlataformasPage() {
+    if (this.plataformasCurrentPage > 1) {
+      this.plataformasCurrentPage--;
+    }
+  }
+
+
   constructor(private api: ApiService) {}
 
   ngOnInit() {
@@ -261,6 +362,8 @@ export class ReportesComponent implements OnInit {
     this.filtroEmpleado = '';
     this.terminoBusqueda = '';
     this.busquedaRealizada = false;
+
+
     this.data = { hardware: [], sitios: [], plataformas: [] };
   }
 
@@ -278,6 +381,8 @@ export class ReportesComponent implements OnInit {
 
     this.isLoading = true;
     this.busquedaRealizada = false;
+
+
 
     this.api.getReporteIntegral(parametroFinal).subscribe({
       next: (res) => {
