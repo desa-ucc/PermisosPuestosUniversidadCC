@@ -20,7 +20,7 @@ import { Empleado, Puesto } from '../../models/models';
       <section class="ucc-card">
         <div class="flex items-center gap-2 mb-6 text-ucc-secondary">
           <span class="material-symbols-outlined">add_circle</span>
-          <h3 class="text-xl font-bold">Registrar Colaborador</h3>
+          <h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles del Colaborador' : (isEditing ? 'Editar Colaborador' : 'Registrar Colaborador') }}</h3>
         </div>
 
         <form [formGroup]="empleadoForm" (ngSubmit)="onSubmit()">
@@ -61,19 +61,21 @@ import { Empleado, Puesto } from '../../models/models';
           </div>
 
           <div class="flex gap-4 mt-6">
-            <button type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
-              @if(isEditing) {
-                <span class="material-symbols-outlined">save</span> Actualizar
-              } @else {
-                <span class="material-symbols-outlined">add</span> Agregar
-              }
-            </button>
+            @if(!isReadOnly) {
+  <button type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
+    @if(isEditing) {
+      <span class="material-symbols-outlined">save</span> Actualizar
+    } @else {
+      <span class="material-symbols-outlined">add</span> Agregar
+    }
+  </button>
+}
 
-            @if(isEditing) {
-              <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full md:w-auto">
-                Cancelar
-              </button>
-            }
+            @if(isEditing || isReadOnly) {
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full md:w-auto">
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+  </button>
+}
           </div>
         </form>
       </section>
@@ -108,7 +110,10 @@ import { Empleado, Puesto } from '../../models/models';
                 </td>
                 <td>
                   <div class="flex justify-center gap-3">
-                    <button (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                    <button (click)="verDetalle(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
                     <button (click)="delete(emp.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
@@ -135,6 +140,7 @@ export class ColaboradoresComponent implements OnInit {
   puestos: Puesto[] = [];
   empleadoForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -189,7 +195,9 @@ export class ColaboradoresComponent implements OnInit {
 
   edit(emp: Empleado) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = emp.id;
+    this.empleadoForm.enable();
     this.empleadoForm.patchValue({
       codigoEmpleado: emp.codigoEmpleado,
       nombreCompleto: emp.nombreCompleto,
@@ -207,8 +215,22 @@ export class ColaboradoresComponent implements OnInit {
     }
   }
 
+  verDetalle(emp: Empleado) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = emp.id;
+    this.empleadoForm.patchValue({
+      codigoEmpleado: emp.codigoEmpleado,
+      nombreCompleto: emp.nombreCompleto,
+      correoInstitucional: emp.correoInstitucional,
+      puestoId: emp.puestoId || null
+    });
+    this.empleadoForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.empleadoForm.reset({
       codigoEmpleado: '',
@@ -216,5 +238,6 @@ export class ColaboradoresComponent implements OnInit {
       correoInstitucional: '',
       puestoId: null
     });
+    this.empleadoForm.enable();
   }
 }

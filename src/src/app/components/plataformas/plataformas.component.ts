@@ -13,7 +13,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Plataformas y Licencias</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Plataforma' : (isEditing ? 'Editar Plataforma' : 'Registrar Plataforma') }}</h3></div>
 <form [formGroup]="plataformaForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
@@ -87,19 +87,21 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="plataformaForm.invalid" class="ucc-btn-primary">
-            @if(isEditing) {
-              Actualizar
-            } @else {
-              Agregar
-            }
-          </button>
+          @if(!isReadOnly) {
+  <button type="submit" [disabled]="plataformaForm.invalid" class="ucc-btn-primary">
+    @if(isEditing) {
+      Actualizar
+    } @else {
+      Agregar
+    }
+  </button>
+}
 
-          @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-              Cancelar
-            </button>
-          }
+          @if(isEditing || isReadOnly) {
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+  </button>
+}
         </div>
       </form>
 </section>
@@ -138,12 +140,15 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                 <td>{{ plat.accesosPermisos }}</td>
                 <td>{{ plat.nivelAcceso }}</td>
                 <td>
-                  <button (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-                    Editar
-                  </button>
+                  <div class="flex justify-center gap-3"><button (click)="verDetalle(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+  <span class="material-symbols-outlined">visibility</span>
+</button>
+<button (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+  <span class="material-symbols-outlined">edit</span>
+</button>
                   <button (click)="delete(plat.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-                    Eliminar
-                  </button>
+  <span class="material-symbols-outlined">delete</span>
+</button></div>
                 </td>
               </tr>
             } @empty {
@@ -165,6 +170,7 @@ export class PlataformasComponent implements OnInit {
   puestos: Puesto[] = [];
   plataformaForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
@@ -254,7 +260,9 @@ export class PlataformasComponent implements OnInit {
 
   edit(plat: Plataforma) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = plat.id;
+    this.plataformaForm.enable();
     this.plataformaForm.patchValue({
       empleadoId: plat.empleadoId,
       licencias: plat.licencias,
@@ -275,8 +283,25 @@ export class PlataformasComponent implements OnInit {
     }
   }
 
+  verDetalle(plat: Plataforma) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = plat.id;
+    this.plataformaForm.patchValue({
+      empleadoId: plat.empleadoId,
+      licencias: plat.licencias,
+      nombrePlataforma: plat.nombrePlataforma,
+      modulos: plat.modulos,
+      accesosPermisos: plat.accesosPermisos,
+      nivelAcceso: plat.nivelAcceso
+    });
+    this.onEmpleadoChange(null);
+    this.plataformaForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.selectedEmpleadoPuestoId = null;
     this.plataformaForm.reset({
@@ -287,5 +312,6 @@ export class PlataformasComponent implements OnInit {
       accesosPermisos: '',
       nivelAcceso: ''
     });
+    this.plataformaForm.enable();
   }
 }

@@ -13,7 +13,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Especificaciones: Equipo Ideal</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">Formulario de Registro</h3></div>
+<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles del Equipo Ideal' : (isEditing ? 'Editar Plantilla' : 'Formulario de Registro') }}</h3></div>
 <form [formGroup]="hwIdealForm" (ngSubmit)="onSubmit()" >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
@@ -83,19 +83,21 @@ import { HardwareIdeal, Puesto } from '../../models/models';
         </div>
 
         <div class="mt-4">
-          <button type="submit" [disabled]="hwIdealForm.invalid" class="ucc-btn-primary">
-            @if(isEditing) {
-              Actualizar
-            } @else {
-              Agregar Plantilla
-            }
-          </button>
+          @if(!isReadOnly) {
+  <button type="submit" [disabled]="hwIdealForm.invalid" class="ucc-btn-primary">
+    @if(isEditing) {
+      Actualizar
+    } @else {
+      Agregar Plantilla
+    }
+  </button>
+}
 
-          @if(isEditing) {
-            <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-              Cancelar
-            </button>
-          }
+          @if(isEditing || isReadOnly) {
+  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+  </button>
+}
         </div>
       </form>
 </section>
@@ -120,12 +122,15 @@ import { HardwareIdeal, Puesto } from '../../models/models';
                 <td>{{hw.procesador}}</td>
                 <td>{{hw.memoria}}</td>
                 <td>
-                  <button (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-                    Editar
-                  </button>
+                  <button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+  <span class="material-symbols-outlined">visibility</span>
+</button>
+<button (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+  <span class="material-symbols-outlined">edit</span>
+</button>
                   <button (click)="delete(hw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-                    Eliminar
-                  </button>
+  <span class="material-symbols-outlined">delete</span>
+</button>
                 </td>
               </tr>
             } @empty {
@@ -146,6 +151,7 @@ export class HardwareIdealComponent implements OnInit {
   puestos: Puesto[] = [];
   hwIdealForm: FormGroup;
   isEditing = false;
+  isReadOnly = false;
   currentId: number | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -205,7 +211,9 @@ export class HardwareIdealComponent implements OnInit {
 
   edit(hw: HardwareIdeal) {
     this.isEditing = true;
+    this.isReadOnly = false;
     this.currentId = hw.id;
+    this.hwIdealForm.enable();
     this.hwIdealForm.patchValue(hw);
   }
 
@@ -218,8 +226,17 @@ export class HardwareIdealComponent implements OnInit {
     }
   }
 
+  verDetalle(hw: HardwareIdeal) {
+    this.isReadOnly = true;
+    this.isEditing = false;
+    this.currentId = hw.id;
+    this.hwIdealForm.patchValue(hw);
+    this.hwIdealForm.disable();
+  }
+
   resetForm() {
     this.isEditing = false;
+    this.isReadOnly = false;
     this.currentId = null;
     this.hwIdealForm.reset({
       puestoId: null,
@@ -231,5 +248,6 @@ export class HardwareIdealComponent implements OnInit {
       tecladoNumerico: false,
       otrasConsideraciones: ''
     });
+    this.hwIdealForm.enable();
   }
 }
