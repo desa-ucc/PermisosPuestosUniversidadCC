@@ -52,7 +52,7 @@ namespace PermisosPuestosApi.Models
     {
         [Key] public int Id { get; set; }
         public int EmpleadoId { get; set; }
-        public string Equipo { get; set; } = string.Empty;
+        public string? NombreEmpleado { get; set; }
         public string GruposAD { get; set; } = string.Empty;
         public string NombreSoftware { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
@@ -123,7 +123,7 @@ namespace PermisosPuestosApi.Models
         public string CodigoEmpleado { get; set; } = string.Empty;
         public string Empleado { get; set; } = string.Empty;
         public string Perfil { get; set; } = string.Empty;
-        public string Equipo { get; set; } = string.Empty;
+        public string? NombreEmpleado { get; set; }
         public string PlacaEquipo { get; set; } = string.Empty;
         public string Software { get; set; } = string.Empty;
         public string VersionSoftware { get; set; } = string.Empty;
@@ -137,7 +137,7 @@ namespace PermisosPuestosApi.Models
     {
         public string Puesto { get; set; } = string.Empty;
         public string Nombre { get; set; } = string.Empty;
-        public string Equipo { get; set; } = string.Empty;
+        public string? NombreEmpleado { get; set; }
         public string Procesador { get; set; } = string.Empty;
         public string Memoria { get; set; } = string.Empty;
         public string Disco { get; set; } = string.Empty;

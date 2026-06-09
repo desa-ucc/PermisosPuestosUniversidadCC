@@ -27,27 +27,63 @@ import * as XLSX from 'xlsx';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Puesto</label>
-            <select [(ngModel)]="filtroPuesto" (change)="onFilterChange('puesto')" class="ucc-select">
-              <option value="">Todos los puestos</option>
-              @for(puesto of listaPuestos; track puesto.id) {
-                <option [value]="puesto.nombrePuesto">{{puesto.nombrePuesto}}</option>
-              }
-            </select>
+            <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar puesto..."
+                     [(ngModel)]="searchTermPuestos"
+                     (focus)="showDropdownPuestos = true"
+                     (blur)="cerrarDropdownPuestos()">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownPuestos">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarPuesto(null)">
+                  Todos los puestos
+                </li>
+                @for(puesto of puestosFiltrados; track puesto.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarPuesto(puesto)">
+                    {{puesto.nombrePuesto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
           </div>
 
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Colaborador</label>
-            <select [(ngModel)]="filtroEmpleado" (change)="onFilterChange('empleado')" class="ucc-select">
-              <option value="">Todos los colaboradores</option>
-              @for(emp of listaEmpleados; track emp.id) {
-                <option [value]="emp.nombreCompleto">{{emp.nombreCompleto}}</option>
-              }
-            </select>
+            <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar colaborador..."
+                     [(ngModel)]="searchTermColaboradores"
+                     (focus)="showDropdownColaboradores = true"
+                     (blur)="cerrarDropdownColaboradores()">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownColaboradores">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarColaborador(null)">
+                  Todos los colaboradores
+                </li>
+                @for(emp of colaboradoresFiltrados; track emp.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarColaborador(emp)">
+                    {{emp.nombreCompleto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
           </div>
 
           <div class="flex flex-col">
             <label class="ucc-label">Búsqueda Libre</label>
-            <input [(ngModel)]="terminoBusqueda" (keyup)="onFilterChange('texto')" (keyup.enter)="buscar()" class="ucc-input" placeholder="O escriba un término (código, placa...)" type="text" />
+            <input [(ngModel)]="terminoBusqueda"  (keyup.enter)="buscar()" class="ucc-input" placeholder="O escriba un término (código, placa...)" type="text" />
           </div>
         </div>
 
@@ -55,7 +91,7 @@ import * as XLSX from 'xlsx';
           <button (click)="limpiarFiltros()" class="ucc-btn-secondary">
             <span class="material-symbols-outlined">clear_all</span> Limpiar Filtros
           </button>
-          <button (click)="buscar()" [disabled]="!hasAnyFilter || isLoading" class="ucc-btn-primary">
+          <button (click)="buscar()" [disabled]="!formularioTieneFiltros() || isLoading" class="ucc-btn-primary">
              @if (isLoading) {
                 <span class="material-symbols-outlined animate-spin">sync</span> Buscando...
              } @else {
@@ -86,7 +122,7 @@ import * as XLSX from 'xlsx';
                   <tr>
                     <th>Puesto</th>
                     <th>Nombre</th>
-                    <th>Equipo</th>
+                    <th>Colaborador</th>
                     <th>Procesador</th>
                     <th>Memoria</th>
                     <th>Disco</th>
@@ -96,17 +132,17 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(hw of data.hardware; track $index) {
+                  @for(hw of paginatedHardwareList; track $index) {
                     <tr>
                       <td class="font-bold">{{hw.puesto}}</td>
                       <td>{{hw.nombre}}</td>
-                      <td>{{hw.equipo || 'N/A'}}</td>
+                      <td>{{hw.nombreEmpleado || 'N/A'}}</td>
                       <td>{{hw.procesador || 'N/A'}}</td>
                       <td>{{hw.memoria || 'N/A'}}</td>
                       <td>{{hw.disco || 'N/A'}}</td>
                       <td>{{hw.marcaPC || 'N/A'}}</td>
                       <td>
-                        @if(hw.equipo) {
+                        @if(hw.nombreEmpleado) {
                            {{hw.tecladoNumerico ? 'Sí' : 'No'}}
                         } @else {
                            N/A
@@ -120,6 +156,25 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- HARDWARE PAGINATION FOOTER -->
+            @if(data.hardware.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{hardwareCurrentPage}} de {{hardwareTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevHardwarePage()" [disabled]="hardwareCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextHardwarePage()" [disabled]="hardwareCurrentPage === hardwareTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
           <!-- SECTION 2: SITIOS -->
@@ -140,7 +195,7 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(sit of data.sitios; track $index) {
+                  @for(sit of paginatedSitiosList; track $index) {
                     <tr>
                       <td class="font-bold">{{sit.puesto}}</td>
                       <td>{{sit.nombre}}</td>
@@ -163,6 +218,25 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- SITIOS PAGINATION FOOTER -->
+            @if(data.sitios.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{sitiosCurrentPage}} de {{sitiosTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevSitiosPage()" [disabled]="sitiosCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextSitiosPage()" [disabled]="sitiosCurrentPage === sitiosTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
           <!-- SECTION 3: PLATAFORMAS -->
@@ -185,7 +259,7 @@ import * as XLSX from 'xlsx';
                   </tr>
                 </thead>
                 <tbody>
-                  @for(plat of data.plataformas; track $index) {
+                  @for(plat of paginatedPlataformasList; track $index) {
                     <tr>
                       <td class="font-bold">{{plat.puesto}}</td>
                       <td>{{plat.nombre}}</td>
@@ -210,6 +284,25 @@ import * as XLSX from 'xlsx';
                 </tbody>
               </table>
             </div>
+            <!-- PLATAFORMAS PAGINATION FOOTER -->
+            @if(data.plataformas.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
+                    <span class="text-sm text-ucc-neutral-variant">Mostrando página {{plataformasCurrentPage}} de {{plataformasTotalPages}}</span>
+                    <div class="flex gap-2">
+                        <button (click)="prevPlataformasPage()" [disabled]="plataformasCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                        <button (click)="nextPlataformasPage()" [disabled]="plataformasCurrentPage === plataformasTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                    </div>
+                </div>
+            }
           </section>
 
         } @else {
@@ -233,10 +326,149 @@ export class ReportesComponent implements OnInit {
   listaPuestos: Puesto[] = [];
   listaEmpleados: Empleado[] = [];
 
+  // Buscador Puestos
+  showDropdownPuestos = false;
+  searchTermPuestos = '';
+
+  get puestosFiltrados() {
+    return this.listaPuestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
+  }
+
+  seleccionarPuesto(puesto: Puesto | null) {
+    if (puesto) {
+        this.filtroPuesto = puesto.nombrePuesto;
+        this.searchTermPuestos = puesto.nombrePuesto;
+    } else {
+        this.filtroPuesto = '';
+        this.searchTermPuestos = '';
+    }
+    this.showDropdownPuestos = false;
+  }
+
+  // Buscador Colaboradores
+  showDropdownColaboradores = false;
+  searchTermColaboradores = '';
+
+  get colaboradoresFiltrados() {
+    return this.listaEmpleados.filter(c => c.nombreCompleto.toLowerCase().includes(this.searchTermColaboradores.toLowerCase()));
+  }
+
+  seleccionarColaborador(colaborador: Empleado | null) {
+    if (colaborador) {
+        this.filtroEmpleado = colaborador.nombreCompleto;
+        this.searchTermColaboradores = colaborador.nombreCompleto;
+    } else {
+        this.filtroEmpleado = '';
+        this.searchTermColaboradores = '';
+    }
+    this.showDropdownColaboradores = false;
+  }
+
+  cerrarDropdownPuestos() {
+    setTimeout(() => {
+      this.showDropdownPuestos = false;
+      if(this.filtroPuesto === '' && this.searchTermPuestos !== '') {
+          this.searchTermPuestos = '';
+      }
+    }, 200);
+  }
+
+  cerrarDropdownColaboradores() {
+    setTimeout(() => {
+      this.showDropdownColaboradores = false;
+      if(this.filtroEmpleado === '' && this.searchTermColaboradores !== '') {
+          this.searchTermColaboradores = '';
+      }
+    }, 200);
+  }
+
+
+
   // Datos del Reporte
   data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [] };
   isLoading = false;
   busquedaRealizada = false;
+
+  // Paginación de Tablas
+  pageSize: number = 10;
+
+
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  changePageSize(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = Number(target.value);
+    this.hardwareCurrentPage = 1;
+    this.sitiosCurrentPage = 1;
+    this.plataformasCurrentPage = 1;
+  }
+hardwareCurrentPage: number = 1;
+  sitiosCurrentPage: number = 1;
+  plataformasCurrentPage: number = 1;
+
+  get paginatedHardwareList() {
+    const startIndex = (this.hardwareCurrentPage - 1) * this.pageSize;
+    return this.data.hardware.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get hardwareTotalPages() {
+    return Math.ceil(this.data.hardware.length / this.pageSize) || 1;
+  }
+
+  nextHardwarePage() {
+    if (this.hardwareCurrentPage < this.hardwareTotalPages) {
+      this.hardwareCurrentPage++;
+    }
+  }
+
+  prevHardwarePage() {
+    if (this.hardwareCurrentPage > 1) {
+      this.hardwareCurrentPage--;
+    }
+  }
+
+  get paginatedSitiosList() {
+    const startIndex = (this.sitiosCurrentPage - 1) * this.pageSize;
+    return this.data.sitios.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get sitiosTotalPages() {
+    return Math.ceil(this.data.sitios.length / this.pageSize) || 1;
+  }
+
+  nextSitiosPage() {
+    if (this.sitiosCurrentPage < this.sitiosTotalPages) {
+      this.sitiosCurrentPage++;
+    }
+  }
+
+  prevSitiosPage() {
+    if (this.sitiosCurrentPage > 1) {
+      this.sitiosCurrentPage--;
+    }
+  }
+
+  get paginatedPlataformasList() {
+    const startIndex = (this.plataformasCurrentPage - 1) * this.pageSize;
+    return this.data.plataformas.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get plataformasTotalPages() {
+    return Math.ceil(this.data.plataformas.length / this.pageSize) || 1;
+  }
+
+  nextPlataformasPage() {
+    if (this.plataformasCurrentPage < this.plataformasTotalPages) {
+      this.plataformasCurrentPage++;
+    }
+  }
+
+  prevPlataformasPage() {
+    if (this.plataformasCurrentPage > 1) {
+      this.plataformasCurrentPage--;
+    }
+  }
+
 
   constructor(private api: ApiService) {}
 
@@ -246,7 +478,7 @@ export class ReportesComponent implements OnInit {
     this.api.getEmpleados().subscribe(res => this.listaEmpleados = res);
   }
 
-  get hasAnyFilter(): boolean {
+  formularioTieneFiltros(): boolean {
     return !!this.filtroPuesto || !!this.filtroEmpleado || !!this.terminoBusqueda.trim();
   }
 
@@ -254,31 +486,22 @@ export class ReportesComponent implements OnInit {
     return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0;
   }
 
-  onFilterChange(source: 'puesto' | 'empleado' | 'texto') {
-    if (source === 'texto' && this.terminoBusqueda.trim() !== '') {
-      this.filtroPuesto = '';
-      this.filtroEmpleado = '';
-    }
-    else if (source === 'puesto') {
-      this.filtroEmpleado = '';
-      this.terminoBusqueda = '';
-    }
-    else if (source === 'empleado') {
-      this.filtroPuesto = '';
-      this.terminoBusqueda = '';
-    }
-  }
+
 
   limpiarFiltros() {
     this.filtroPuesto = '';
+    this.searchTermPuestos = '';
     this.filtroEmpleado = '';
+    this.searchTermColaboradores = '';
     this.terminoBusqueda = '';
     this.busquedaRealizada = false;
+
+
     this.data = { hardware: [], sitios: [], plataformas: [] };
   }
 
   buscar() {
-    if (!this.hasAnyFilter) return;
+    if (!this.formularioTieneFiltros()) return;
 
     let parametroFinal = '';
     if (this.terminoBusqueda.trim() !== '') {
@@ -291,6 +514,8 @@ export class ReportesComponent implements OnInit {
 
     this.isLoading = true;
     this.busquedaRealizada = false;
+
+
 
     this.api.getReporteIntegral(parametroFinal).subscribe({
       next: (res) => {
@@ -314,7 +539,7 @@ export class ReportesComponent implements OnInit {
       const hwData = this.data.hardware.map(row => ({
         'PUESTO': row.puesto,
         'NOMBRE': row.nombre,
-        'EQUIPO': row.equipo,
+        'EMPLEADO': row.nombreEmpleado,
         'PROCESADOR': row.procesador,
         'MEMORIA': row.memoria,
         'DISCO': row.disco,

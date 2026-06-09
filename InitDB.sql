@@ -282,7 +282,20 @@ GO
 -- pt_SoftwareLocal CRUD
 IF OBJECT_ID('sp_Getpt_SoftwareLocales', 'P') IS NOT NULL DROP PROCEDURE sp_Getpt_SoftwareLocales;
 GO
-CREATE PROCEDURE sp_Getpt_SoftwareLocales AS BEGIN SELECT * FROM pt_SoftwareLocal END;
+CREATE PROCEDURE sp_Getpt_SoftwareLocales
+AS
+BEGIN
+    SELECT
+        S.Id,
+        S.EmpleadoId,
+        ISNULL(E.NombreCompleto, 'Sin asignar') AS NombreEmpleado,
+        S.GruposAD,
+        S.NombreSoftware,
+        S.Version,
+        S.Fabricante
+    FROM pt_SoftwareLocal S
+    LEFT JOIN pt_Empleados E ON S.EmpleadoId = E.Id
+END;
 GO
 
 IF OBJECT_ID('sp_Creatept_SoftwareLocal', 'P') IS NOT NULL DROP PROCEDURE sp_Creatept_SoftwareLocal;

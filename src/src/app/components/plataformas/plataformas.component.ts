@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
@@ -7,7 +7,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 @Component({
   selector: 'app-plataformas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Plataformas y Licencias</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -18,12 +18,27 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="ucc-select">
-              <option [ngValue]="null">Seleccione Empleado</option>
-              @for(emp of empleados; track emp.id) {
-                <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar empleado..."
+                     [(ngModel)]="searchTermEmpleados"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownEmpleados = true"
+                     (blur)="cerrarDropdownEmpleados()"
+                     [disabled]="isReadOnly">
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownEmpleados || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarEmpleado(null)">Ninguno</li>
+                @for(emp of empleadosFiltrados; track emp.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(plataformaForm.get('empleadoId')?.invalid && plataformaForm.get('empleadoId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
             }
@@ -32,12 +47,27 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="licencias" class="ucc-select">
-              <option value="">Posee Licencia?</option>
-              @for(lic of tiposLicencia; track lic.id) {
-                <option [value]="lic.nombre">{{lic.nombre}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar licencia..."
+                     [(ngModel)]="searchTermLicencias"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownLicencias = true"
+                     (blur)="cerrarDropdownLicencias()"
+                     [disabled]="isReadOnly">
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownLicencias || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarLicencia(null)">Ninguno</li>
+                @for(lic of licenciasFiltrados; track lic.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarLicencia(lic)">{{lic.nombre}}</li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(plataformaForm.get('licencias')?.invalid && plataformaForm.get('licencias')?.touched) {
               <span class="text-red-400 text-xs mt-1">La licencia es requerida.</span>
             }
@@ -45,12 +75,27 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="nombrePlataforma" class="ucc-select">
-              <option value="">Seleccione Plataforma</option>
-              @for(plat of plataformasNombres; track plat.id) {
-                <option [value]="plat.nombre">{{plat.nombre}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar plataforma..."
+                     [(ngModel)]="searchTermPlataformas"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownPlataformas = true"
+                     (blur)="cerrarDropdownPlataformas()"
+                     [disabled]="isReadOnly">
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownPlataformas || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarPlataforma(null)">Ninguno</li>
+                @for(plat of plataformasNombresFiltrados; track plat.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarPlataforma(plat)">{{plat.nombre}}</li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(plataformaForm.get('nombrePlataforma')?.invalid && plataformaForm.get('nombrePlataforma')?.touched) {
               <span class="text-red-400 text-xs mt-1">La plataforma es requerida.</span>
             }
@@ -74,12 +119,27 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="nivelAcceso" class="ucc-select">
-              <option value="">Nivel de Acceso</option>
-              @for(nivel of nivelesAcceso; track nivel.id) {
-                <option [value]="nivel.nombre">{{nivel.nombre}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar nivel..."
+                     [(ngModel)]="searchTermNiveles"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownNiveles = true"
+                     (blur)="cerrarDropdownNiveles()"
+                     [disabled]="isReadOnly">
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownNiveles || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarNivel(null)">Ninguno</li>
+                @for(nivel of nivelesFiltrados; track nivel.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarNivel(nivel)">{{nivel.nombre}}</li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(plataformaForm.get('nivelAcceso')?.invalid && plataformaForm.get('nivelAcceso')?.touched) {
               <span class="text-red-400 text-xs mt-1">El nivel de acceso es requerido.</span>
             }
@@ -122,7 +182,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            @for(plat of plataformas; track plat.id) {
+            @for(plat of paginatedList; track plat.id) {
               <tr>
                 <td>{{ getEmpleadoName(plat.empleadoId) }}</td>
                 <td>{{ getPuestoByEmpleado(plat.empleadoId) }}</td>
@@ -159,7 +219,28 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               </tr>
             }
           </tbody>
+
         </table>
+
+        <!-- FOOTER PAGINACIÓN DINÁMICA -->
+        <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
+          <span class="text-sm font-medium text-ucc-neutral-variant">Mostrando página {{currentPage}} de {{totalPages}}</span>
+
+          <div class="flex gap-2">
+            <button (click)="prevPage()" [disabled]="currentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Anterior</button>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
+          </div>
+        </div>
+
 </section>
     </div>
   `
@@ -172,6 +253,169 @@ export class PlataformasComponent implements OnInit {
   isEditing = false;
   isReadOnly = false;
   currentId: number | null = null;
+
+  // Buscador Autocompletado: Empleados
+  showDropdownEmpleados = false;
+  searchTermEmpleados = '';
+
+  get empleadosFiltrados() {
+    return this.empleados.filter(e => e.nombreCompleto.toLowerCase().includes(this.searchTermEmpleados.toLowerCase()));
+  }
+
+  seleccionarEmpleado(empleado: Empleado | null) {
+    if (empleado) {
+        this.plataformaForm.patchValue({ empleadoId: empleado.id });
+        this.searchTermEmpleados = empleado.nombreCompleto;
+    } else {
+        this.plataformaForm.patchValue({ empleadoId: null });
+        this.searchTermEmpleados = '';
+    }
+    this.showDropdownEmpleados = false;
+    this.onEmpleadoChange(null);
+  }
+
+  cerrarDropdownEmpleados() {
+    setTimeout(() => {
+      this.showDropdownEmpleados = false;
+      const currentId = this.plataformaForm.get('empleadoId')?.value;
+      if (!currentId) {
+          this.searchTermEmpleados = '';
+      } else {
+          const matched = this.empleados.find(e => e.id === currentId);
+          if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+      }
+    }, 200);
+  }
+
+  // Buscador Autocompletado: Tipo Licencia
+  showDropdownLicencias = false;
+  searchTermLicencias = '';
+
+  get licenciasFiltrados() {
+    return this.tiposLicencia.filter(l => l.nombre.toLowerCase().includes(this.searchTermLicencias.toLowerCase()));
+  }
+
+  seleccionarLicencia(licencia: Catalogo | null) {
+    if (licencia) {
+        this.plataformaForm.patchValue({ licencias: licencia.nombre });
+        this.searchTermLicencias = licencia.nombre;
+    } else {
+        this.plataformaForm.patchValue({ licencias: null });
+        this.searchTermLicencias = '';
+    }
+    this.showDropdownLicencias = false;
+  }
+
+  cerrarDropdownLicencias() {
+    setTimeout(() => {
+      this.showDropdownLicencias = false;
+      const currentId = this.plataformaForm.get('licencias')?.value;
+      if (!currentId) {
+          this.searchTermLicencias = '';
+      } else {
+          const matched = this.tiposLicencia.find(l => l.nombre === currentId);
+          if (matched) this.searchTermLicencias = matched.nombre;
+      }
+    }, 200);
+  }
+
+  // Buscador Autocompletado: Plataforma
+  showDropdownPlataformas = false;
+  searchTermPlataformas = '';
+
+  get plataformasNombresFiltrados() {
+    return this.plataformasNombres.filter(p => p.nombre.toLowerCase().includes(this.searchTermPlataformas.toLowerCase()));
+  }
+
+  seleccionarPlataforma(plataforma: Catalogo | null) {
+    if (plataforma) {
+        this.plataformaForm.patchValue({ nombrePlataforma: plataforma.nombre });
+        this.searchTermPlataformas = plataforma.nombre;
+    } else {
+        this.plataformaForm.patchValue({ nombrePlataforma: null });
+        this.searchTermPlataformas = '';
+    }
+    this.showDropdownPlataformas = false;
+  }
+
+  cerrarDropdownPlataformas() {
+    setTimeout(() => {
+      this.showDropdownPlataformas = false;
+      const currentId = this.plataformaForm.get('nombrePlataforma')?.value;
+      if (!currentId) {
+          this.searchTermPlataformas = '';
+      } else {
+          const matched = this.plataformasNombres.find(p => p.nombre === currentId);
+          if (matched) this.searchTermPlataformas = matched.nombre;
+      }
+    }, 200);
+  }
+
+  // Buscador Autocompletado: Nivel Acceso
+  showDropdownNiveles = false;
+  searchTermNiveles = '';
+
+  get nivelesFiltrados() {
+    return this.nivelesAcceso.filter(n => n.nombre.toLowerCase().includes(this.searchTermNiveles.toLowerCase()));
+  }
+
+  seleccionarNivel(nivel: Catalogo | null) {
+    if (nivel) {
+        this.plataformaForm.patchValue({ nivelAcceso: nivel.nombre });
+        this.searchTermNiveles = nivel.nombre;
+    } else {
+        this.plataformaForm.patchValue({ nivelAcceso: null });
+        this.searchTermNiveles = '';
+    }
+    this.showDropdownNiveles = false;
+  }
+
+  cerrarDropdownNiveles() {
+    setTimeout(() => {
+      this.showDropdownNiveles = false;
+      const currentId = this.plataformaForm.get('nivelAcceso')?.value;
+      if (!currentId) {
+          this.searchTermNiveles = '';
+      } else {
+          const matched = this.nivelesAcceso.find(n => n.nombre === currentId);
+          if (matched) this.searchTermNiveles = matched.nombre;
+      }
+    }, 200);
+  }
+
+
+  // Paginación Dinámica
+  currentPage: number = 1;
+  pageSize: number = 20;
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  get paginatedList() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.plataformas.slice(start, start + this.pageSize);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.plataformas.length / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  changePageSize(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = Number(target.value);
+    this.currentPage = 1;
+  }
+
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
   // Catálogos dinámicos
