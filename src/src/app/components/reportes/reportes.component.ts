@@ -123,6 +123,15 @@ import * as XLSX from 'xlsx';
             <!-- HARDWARE PAGINATION FOOTER -->
             @if(data.hardware.length > pageSize) {
                 <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
                     <span class="text-sm text-ucc-neutral-variant">Mostrando página {{hardwareCurrentPage}} de {{hardwareTotalPages}}</span>
                     <div class="flex gap-2">
                         <button (click)="prevHardwarePage()" [disabled]="hardwareCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
@@ -176,6 +185,15 @@ import * as XLSX from 'xlsx';
             <!-- SITIOS PAGINATION FOOTER -->
             @if(data.sitios.length > pageSize) {
                 <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
                     <span class="text-sm text-ucc-neutral-variant">Mostrando página {{sitiosCurrentPage}} de {{sitiosTotalPages}}</span>
                     <div class="flex gap-2">
                         <button (click)="prevSitiosPage()" [disabled]="sitiosCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
@@ -233,6 +251,15 @@ import * as XLSX from 'xlsx';
             <!-- PLATAFORMAS PAGINATION FOOTER -->
             @if(data.plataformas.length > pageSize) {
                 <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
                     <span class="text-sm text-ucc-neutral-variant">Mostrando página {{plataformasCurrentPage}} de {{plataformasTotalPages}}</span>
                     <div class="flex gap-2">
                         <button (click)="prevPlataformasPage()" [disabled]="plataformasCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
@@ -271,7 +298,17 @@ export class ReportesComponent implements OnInit {
   // Paginación de Tablas
   pageSize: number = 10;
 
-  hardwareCurrentPage: number = 1;
+
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  changePageSize(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = Number(target.value);
+    this.hardwareCurrentPage = 1;
+    this.sitiosCurrentPage = 1;
+    this.plataformasCurrentPage = 1;
+  }
+hardwareCurrentPage: number = 1;
   sitiosCurrentPage: number = 1;
   plataformasCurrentPage: number = 1;
 

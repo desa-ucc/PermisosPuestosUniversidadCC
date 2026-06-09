@@ -125,7 +125,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            @for(hw of equipos; track hw.id) {
+            @for(hw of paginatedList; track hw.id) {
               <tr>
                 <td>{{getPuestoByEmpleado(hw.empleadoId)}}</td>
                 <td>{{getEmpleadoName(hw.empleadoId)}}</td>
@@ -152,7 +152,28 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               </tr>
             }
           </tbody>
+
         </table>
+
+        <!-- FOOTER PAGINACIÓN DINÁMICA -->
+        <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+            <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+              @for(size of pageSizeOptions; track size) {
+                <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+              }
+            </select>
+          </div>
+
+          <span class="text-sm font-medium text-ucc-neutral-variant">Mostrando página {{currentPage}} de {{totalPages}}</span>
+
+          <div class="flex gap-2">
+            <button (click)="prevPage()" [disabled]="currentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Anterior</button>
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
+          </div>
+        </div>
+
 </section>
     </div>
   `
@@ -165,6 +186,39 @@ export class HardwareComponent implements OnInit {
   isEditing = false;
   isReadOnly = false;
   currentId: number | null = null;
+
+  // Paginación Dinámica
+  currentPage: number = 1;
+  pageSize: number = 20;
+  pageSizeOptions: number[] = [10, 20, 50, 100];
+
+  get paginatedList() {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.equipos.slice(start, start + this.pageSize);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.equipos.length / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  changePageSize(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = Number(target.value);
+    this.currentPage = 1;
+  }
+
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {

@@ -41,3 +41,9 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
 - El estándar dicta el uso de `currentPage = 1`, `pageSize = 20`, y un array de configuración `pageSizeOptions = [10, 20, 50, 100]`.
 - Se usa un footer flexible conteniendo los 3 elementos visuales principales: Selección de tamaño de visualización, Contador dinámico de página `Math.ceil()`, y botones de acción "Anterior" y "Siguiente".
 - Las reglas críticas prohíben modificar Backend / .NET y SPs.
+
+### 7. Despliegue Masivo de Paginación Dinámica
+- Aplicar la arquitectura de "Software Local" a todos los demás componentes con tablas: Colaboradores, Puestos, Hardware Ideal, Hardware, Sitios, Plataformas, y Reportes.
+- No modificar el backend ni requerir llamados adicionales a la API, respetando la regla base de Client-Side Pagination al 100%.
+- Mantener la cohesión de nombres de variables en el TypeScript: `currentPage`, `pageSize=20`, `pageSizeOptions`, `paginatedList`, `nextPage`, `prevPage`, `changePageSize`.
+- Mantener diseño Flexbox estándar de UCC en los `.html`.
