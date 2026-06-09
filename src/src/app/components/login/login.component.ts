@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
           <span class="material-symbols-outlined text-3xl">admin_panel_settings</span>
         </div>
         <h2 class="text-2xl font-bold mb-2 text-ucc-secondary">Admin Login</h2>
-        <p class="text-sm text-ucc-neutral-variant mb-6">Permisos XPuesto</p>
+        <p class="text-sm text-ucc-neutral-variant mb-6">Perfiles Tecnológicos</p>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full">
           <div class="mb-4 w-full">
