@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { HardwareIdeal, Puesto } from '../../models/models';
@@ -7,7 +7,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 @Component({
   selector: 'app-hardware-ideal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Especificaciones: Equipo Ideal</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -18,12 +18,32 @@ import { HardwareIdeal, Puesto } from '../../models/models';
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="puestoId" class="ucc-select">
-              <option [ngValue]="null">Seleccione Puesto</option>
-              @for(puesto of puestos; track puesto.id) {
-                <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar puesto..."
+                     [(ngModel)]="searchTermPuestos"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownPuestos = true"
+                     (blur)="cerrarDropdownPuestos()"
+                     [disabled]="isReadOnly">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownPuestos || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarPuesto(null)">
+                  Ninguno
+                </li>
+                @for(puesto of puestosFiltrados; track puesto.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarPuesto(puesto)">
+                    {{puesto.nombrePuesto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(hwIdealForm.get('puestoId')?.invalid && hwIdealForm.get('puestoId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El puesto es requerido.</span>
             }
@@ -174,6 +194,39 @@ export class HardwareIdealComponent implements OnInit {
   isEditing = false;
   isReadOnly = false;
   currentId: number | null = null;
+
+  // Buscador Autocompletado: Puestos
+  showDropdownPuestos = false;
+  searchTermPuestos = '';
+
+  get puestosFiltrados() {
+    return this.puestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
+  }
+
+  seleccionarPuesto(puesto: Puesto | null) {
+    if (puesto) {
+        this.hwIdealForm.patchValue({ puestoId: puesto.id });
+        this.searchTermPuestos = puesto.nombrePuesto;
+    } else {
+        this.hwIdealForm.patchValue({ puestoId: null });
+        this.searchTermPuestos = '';
+    }
+    this.showDropdownPuestos = false;
+  }
+
+  cerrarDropdownPuestos() {
+    setTimeout(() => {
+      this.showDropdownPuestos = false;
+      const currentId = this.hwIdealForm.get('puestoId')?.value;
+      if (!currentId) {
+          this.searchTermPuestos = '';
+      } else {
+          const matched = this.puestos.find(p => p.id === currentId);
+          if (matched) this.searchTermPuestos = matched.nombrePuesto;
+      }
+    }, 200);
+  }
+
 
   // Paginación Dinámica
   currentPage: number = 1;

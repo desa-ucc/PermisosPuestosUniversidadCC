@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Empleado, Puesto } from '../../models/models';
@@ -7,7 +7,7 @@ import { Empleado, Puesto } from '../../models/models';
 @Component({
   selector: 'app-colaboradores',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8">
@@ -51,12 +51,32 @@ import { Empleado, Puesto } from '../../models/models';
 
             <div class="flex flex-col">
               <label class="ucc-label">Puesto Asignado</label>
-              <select formControlName="puestoId" class="ucc-select">
-                <option [ngValue]="null">Seleccione un Puesto</option>
-                @for(puesto of puestos; track puesto.id) {
-                  <option [ngValue]="puesto.id">{{puesto.nombrePuesto}}</option>
+              <div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar puesto..."
+                     [(ngModel)]="searchTermPuestos"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownPuestos = true"
+                     (blur)="cerrarDropdownPuestos()"
+                     [disabled]="isReadOnly">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownPuestos || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarPuesto(null)">
+                  Ninguno
+                </li>
+                @for(puesto of puestosFiltrados; track puesto.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarPuesto(puesto)">
+                    {{puesto.nombrePuesto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
-              </select>
+              </ul>
+            </div>
             </div>
           </div>
 
@@ -164,6 +184,39 @@ export class ColaboradoresComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
+  // Buscador Autocompletado: Puestos
+  showDropdownPuestos = false;
+  searchTermPuestos = '';
+
+  get puestosFiltrados() {
+    return this.puestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
+  }
+
+  seleccionarPuesto(puesto: Puesto | null) {
+    if (puesto) {
+        this.empleadoForm.patchValue({ puestoId: puesto.id });
+        this.searchTermPuestos = puesto.nombrePuesto;
+    } else {
+        this.empleadoForm.patchValue({ puestoId: null });
+        this.searchTermPuestos = '';
+    }
+    this.showDropdownPuestos = false;
+  }
+
+  cerrarDropdownPuestos() {
+    setTimeout(() => {
+      this.showDropdownPuestos = false;
+      const currentId = this.empleadoForm.get('puestoId')?.value;
+      if (!currentId) {
+          this.searchTermPuestos = '';
+      } else {
+          const matched = this.puestos.find(p => p.id === currentId);
+          if (matched) this.searchTermPuestos = matched.nombrePuesto;
+      }
+    }, 200);
+  }
+
+
   // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
@@ -251,13 +304,21 @@ export class ColaboradoresComponent implements OnInit {
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = emp.id;
-    this.empleadoForm.enable();
+        this.empleadoForm.enable();
+    this.searchTermPuestos = '';
     this.empleadoForm.patchValue({
       codigoEmpleado: emp.codigoEmpleado,
       nombreCompleto: emp.nombreCompleto,
       correoInstitucional: emp.correoInstitucional,
       puestoId: emp.puestoId || null
     });
+
+    if (emp.puestoId) {
+        const matched = this.puestos.find(p => p.id === emp.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
   }
 
   delete(id: number) {
@@ -279,6 +340,13 @@ export class ColaboradoresComponent implements OnInit {
       correoInstitucional: emp.correoInstitucional,
       puestoId: emp.puestoId || null
     });
+
+    if (emp.puestoId) {
+        const matched = this.puestos.find(p => p.id === emp.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
     this.empleadoForm.disable();
   }
 
@@ -292,6 +360,7 @@ export class ColaboradoresComponent implements OnInit {
       correoInstitucional: '',
       puestoId: null
     });
-    this.empleadoForm.enable();
+        this.empleadoForm.enable();
+    this.searchTermPuestos = '';
   }
 }

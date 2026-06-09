@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { SoftwareLocal, HardwareAsignado } from '../../models/models';
@@ -7,7 +7,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 @Component({
   selector: 'app-software',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Software Local</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -18,12 +18,32 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="empleadoId" class="ucc-select">
-              <option [ngValue]="null">Seleccione Equipo/Empleado</option>
-              @for(eq of equipos; track eq.id) {
-                <option [ngValue]="eq.empleadoId">{{eq.placa}} - {{eq.marcaPC}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar equipo..."
+                     [(ngModel)]="searchTermEquipos"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownEquipos = true"
+                     (blur)="cerrarDropdownEquipos()"
+                     [disabled]="isReadOnly">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownEquipos || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarEquipo(null)">
+                  Ninguno
+                </li>
+                @for(eq of equiposFiltrados; track eq.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarEquipo(eq)">
+                    {{eq.placa}} - {{eq.marcaPC}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(swForm.get('empleadoId')?.invalid && swForm.get('empleadoId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El equipo/empleado es requerido.</span>
             }
@@ -163,6 +183,42 @@ export class SoftwareComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
+  // Buscador Autocompletado: Equipos
+  showDropdownEquipos = false;
+  searchTermEquipos = '';
+
+  get equiposFiltrados() {
+    return this.equipos.filter(e => {
+        const fullString = `${e.placa} - ${e.marcaPC}`.toLowerCase();
+        return fullString.includes(this.searchTermEquipos.toLowerCase());
+    });
+  }
+
+  seleccionarEquipo(equipo: HardwareAsignado | null) {
+    if (equipo) {
+        this.swForm.patchValue({ empleadoId: equipo.empleadoId });
+        this.searchTermEquipos = `${equipo.placa} - ${equipo.marcaPC}`;
+    } else {
+        this.swForm.patchValue({ empleadoId: null });
+        this.searchTermEquipos = '';
+    }
+    this.showDropdownEquipos = false;
+  }
+
+  cerrarDropdownEquipos() {
+    setTimeout(() => {
+      this.showDropdownEquipos = false;
+      const currentId = this.swForm.get('empleadoId')?.value;
+      if (!currentId) {
+          this.searchTermEquipos = '';
+      } else {
+          const matched = this.equipos.find(e => e.empleadoId === currentId);
+          if (matched) this.searchTermEquipos = `${matched.placa} - ${matched.marcaPC}`;
+      }
+    }, 200);
+  }
+
+
   // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
@@ -251,7 +307,14 @@ export class SoftwareComponent implements OnInit {
     this.isReadOnly = false;
     this.currentId = sw.id;
     this.swForm.enable();
+    this.searchTermEquipos = '';
     this.swForm.patchValue(sw);
+    if (sw.empleadoId) {
+        const matched = this.equipos.find(e => e.empleadoId === sw.empleadoId);
+        if (matched) this.searchTermEquipos = `${matched.placa} - ${matched.marcaPC}`;
+    } else {
+        this.searchTermEquipos = '';
+    }
   }
 
   delete(id: number) {
@@ -284,5 +347,6 @@ export class SoftwareComponent implements OnInit {
       fabricante: ''
     });
     this.swForm.enable();
+    this.searchTermEquipos = '';
   }
 }

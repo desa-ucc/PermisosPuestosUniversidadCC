@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
@@ -7,7 +7,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 @Component({
   selector: 'app-hardware',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Hardware Asignado</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -18,12 +18,32 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="flex flex-col">
             <label class="ucc-label">Seleccione Opción</label>
-<select formControlName="empleadoId" (change)="onEmpleadoChange($event)" class="ucc-select">
-              <option [ngValue]="null">Seleccione Persona</option>
-              @for(emp of empleados; track emp.id) {
-                <option [ngValue]="emp.id">{{emp.nombreCompleto}}</option>
-              }
-            </select>
+<div class="relative">
+              <input type="text"
+                     class="ucc-input w-full"
+                     placeholder="Buscar o seleccionar empleado..."
+                     [(ngModel)]="searchTermEmpleados"
+                     [ngModelOptions]="{standalone: true}"
+                     (focus)="showDropdownEmpleados = true"
+                     (blur)="cerrarDropdownEmpleados()"
+                     [disabled]="isReadOnly">
+
+              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                  [hidden]="!showDropdownEmpleados || isReadOnly">
+                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                    (click)="seleccionarEmpleado(null)">
+                  Ninguno
+                </li>
+                @for(emp of empleadosFiltrados; track emp.id) {
+                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                      (click)="seleccionarEmpleado(emp)">
+                    {{emp.nombreCompleto}}
+                  </li>
+                } @empty {
+                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                }
+              </ul>
+            </div>
             @if(hwForm.get('empleadoId')?.invalid && hwForm.get('empleadoId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
             }
@@ -187,6 +207,40 @@ export class HardwareComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
+  // Buscador Autocompletado: Empleados
+  showDropdownEmpleados = false;
+  searchTermEmpleados = '';
+
+  get empleadosFiltrados() {
+    return this.empleados.filter(e => e.nombreCompleto.toLowerCase().includes(this.searchTermEmpleados.toLowerCase()));
+  }
+
+  seleccionarEmpleado(empleado: Empleado | null) {
+    if (empleado) {
+        this.hwForm.patchValue({ empleadoId: empleado.id });
+        this.searchTermEmpleados = empleado.nombreCompleto;
+    } else {
+        this.hwForm.patchValue({ empleadoId: null });
+        this.searchTermEmpleados = '';
+    }
+    this.showDropdownEmpleados = false;
+    this.onEmpleadoChange(null);
+  }
+
+  cerrarDropdownEmpleados() {
+    setTimeout(() => {
+      this.showDropdownEmpleados = false;
+      const currentId = this.hwForm.get('empleadoId')?.value;
+      if (!currentId) {
+          this.searchTermEmpleados = '';
+      } else {
+          const matched = this.empleados.find(e => e.id === currentId);
+          if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+      }
+    }, 200);
+  }
+
+
   // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
@@ -301,7 +355,14 @@ export class HardwareComponent implements OnInit {
     this.isReadOnly = false;
     this.currentId = hw.id;
     this.hwForm.enable();
+    this.searchTermEmpleados = '';
     this.hwForm.patchValue(hw);
+    if (hw.empleadoId) {
+        const matched = this.empleados.find(e => e.id === hw.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
     this.onEmpleadoChange(null);
   }
 
@@ -340,5 +401,6 @@ export class HardwareComponent implements OnInit {
       placa: ''
     });
     this.hwForm.enable();
+    this.searchTermEmpleados = '';
   }
 }

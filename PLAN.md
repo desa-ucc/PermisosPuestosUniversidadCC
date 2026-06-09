@@ -61,3 +61,11 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
   - Gestión de eventos `(focus)` para abrir y `(blur)` (con `setTimeout`) para cerrar.
   - Lista flotante absoluta (`<ul class="absolute z-50 w-full ...">`) anclada bajo el input.
   - Directivas `@for` para iterar elementos y `@empty` para notificar cuando no hay resultados.
+
+### 9. Rollout de Buscador con Autocompletado Masivo
+- Extender el nuevo `<input>` de filtrado `absolute` y `z-50` (Searchable Dropdown) a todos los formularios del sistema que utilizan catálogos.
+- Componentes a actualizar: Colaboradores, Hardware Ideal, Hardware, Software Local, Sitios y Plataformas.
+- Reglas:
+  - Manejo de múltiples selectores en la misma vista requiere variables independientes (ej. `searchTermEmpleados`, `searchTermSitios`).
+  - Actualización del Reactive Form en los métodos `seleccionar[Item]` vía `this.form.patchValue({ fieldId: id })`.
+  - Timeout de 200ms en los métodos de `blur` para permitir la acción de click sobre la lista.
