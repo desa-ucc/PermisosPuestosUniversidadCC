@@ -569,7 +569,7 @@ BEGIN
         E.NombreCompleto AS Nombre,
         S.Sitio,
         S.Ambiente,
-        S.Grupospt_Permisos
+        S.GruposPermisos
     FROM pt_Empleados E
     INNER JOIN pt_Puestos P ON E.PuestoId = P.Id
     INNER JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
