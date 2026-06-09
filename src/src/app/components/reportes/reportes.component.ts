@@ -122,7 +122,7 @@ import * as XLSX from 'xlsx';
                   <tr>
                     <th>Puesto</th>
                     <th>Nombre</th>
-                    <th>Equipo</th>
+                    <th>Colaborador</th>
                     <th>Procesador</th>
                     <th>Memoria</th>
                     <th>Disco</th>
@@ -136,13 +136,13 @@ import * as XLSX from 'xlsx';
                     <tr>
                       <td class="font-bold">{{hw.puesto}}</td>
                       <td>{{hw.nombre}}</td>
-                      <td>{{hw.equipo || 'N/A'}}</td>
+                      <td>{{hw.nombreEmpleado || 'N/A'}}</td>
                       <td>{{hw.procesador || 'N/A'}}</td>
                       <td>{{hw.memoria || 'N/A'}}</td>
                       <td>{{hw.disco || 'N/A'}}</td>
                       <td>{{hw.marcaPC || 'N/A'}}</td>
                       <td>
-                        @if(hw.equipo) {
+                        @if(hw.nombreEmpleado) {
                            {{hw.tecladoNumerico ? 'Sí' : 'No'}}
                         } @else {
                            N/A
@@ -539,7 +539,7 @@ hardwareCurrentPage: number = 1;
       const hwData = this.data.hardware.map(row => ({
         'PUESTO': row.puesto,
         'NOMBRE': row.nombre,
-        'EQUIPO': row.equipo,
+        'EMPLEADO': row.nombreEmpleado,
         'PROCESADOR': row.procesador,
         'MEMORIA': row.memoria,
         'DISCO': row.disco,

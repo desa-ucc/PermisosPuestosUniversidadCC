@@ -1,67 +1,42 @@
-**HardwareComponent Logic Template:**
-
-```typescript
-  // Buscador Autocompletado: Empleados
-  showDropdownEmpleados = false;
-  searchTermEmpleados = '';
-
-  get empleadosFiltrados() {
-    return this.empleados.filter(e => e.nombreCompleto.toLowerCase().includes(this.searchTermEmpleados.toLowerCase()));
-  }
-
-  seleccionarEmpleado(empleado: Empleado | null) {
-    if (empleado) {
-        this.hwForm.patchValue({ empleadoId: empleado.id });
-        this.searchTermEmpleados = empleado.nombreCompleto;
-    } else {
-        this.hwForm.patchValue({ empleadoId: null });
-        this.searchTermEmpleados = '';
-    }
-    this.showDropdownEmpleados = false;
-    this.onEmpleadoChange(null);
-  }
-
-  cerrarDropdownEmpleados() {
-    setTimeout(() => {
-      this.showDropdownEmpleados = false;
-      const currentId = this.hwForm.get('empleadoId')?.value;
-      if (!currentId) {
-          this.searchTermEmpleados = '';
-      } else {
-          const matched = this.empleados.find(e => e.id === currentId);
-          if (matched) this.searchTermEmpleados = matched.nombreCompleto;
-      }
-    }, 200);
-  }
+**1. Script SQL (`InitDB.sql` u objeto en motor)**
+```sql
+ALTER PROCEDURE sp_Getpt_SoftwareLocales
+AS
+BEGIN
+    SELECT
+        S.Id,
+        S.EmpleadoId,
+        ISNULL(E.NombreCompleto, 'Sin asignar') AS NombreEmpleado,
+        S.GruposAD,
+        S.NombreSoftware,
+        S.Version,
+        S.Fabricante
+    FROM pt_SoftwareLocal S
+    LEFT JOIN pt_Empleados E ON S.EmpleadoId = E.Id
+END;
+GO
 ```
 
-**HardwareComponent HTML Template:**
+**2. C# Backend (`PermisosPuestosApi/Models/Models.cs`)**
+```csharp
+public string? NombreEmpleado { get; set; }
+```
 
+**3. HTML Frontend (`software.component.ts`)**
 ```html
-            <div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar empleado..."
-                     [(ngModel)]="searchTermEmpleados"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownEmpleados = true"
-                     (blur)="cerrarDropdownEmpleados()"
-                     [disabled]="isReadOnly">
-
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEmpleados || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">
-                  Ninguno
-                </li>
-                @for(emp of empleadosFiltrados; track emp.id) {
-                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">
-                    {{emp.nombreCompleto}}
-                  </li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
-            </div>
+          <thead>
+            <tr>
+              <th>COLABORADOR</th>
+              <th>Software</th>
+              <th>Versión</th>
+              <th>Fabricante</th>
+              <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(sw of paginatedList; track sw.id) {
+              <tr>
+                <td>{{sw.nombreEmpleado || 'Sin asignar'}}</td>
+                <td>{{sw.nombreSoftware}}</td>
+                ...
 ```

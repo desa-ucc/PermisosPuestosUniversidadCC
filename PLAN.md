@@ -69,3 +69,9 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
   - Manejo de múltiples selectores en la misma vista requiere variables independientes (ej. `searchTermEmpleados`, `searchTermSitios`).
   - Actualización del Reactive Form en los métodos `seleccionar[Item]` vía `this.form.patchValue({ fieldId: id })`.
   - Timeout de 200ms en los métodos de `blur` para permitir la acción de click sobre la lista.
+
+### 10. Refactorización UX: Software Local a Empleados
+- Cambio de UX a nivel de BD, Backend y Frontend para mostrar el nombre del Empleado (Colaborador) en lugar del Hardware asigando en los reportes base de Software.
+- Alterar `sp_Getpt_SoftwareLocales` usando un `LEFT JOIN pt_Empleados` (CERO LINQ).
+- Cambiar DTO `SoftwareLocal` de `.NET` para integrar el campo `NombreEmpleado`.
+- Cambiar UI HTML en Angular `software.component.ts`.

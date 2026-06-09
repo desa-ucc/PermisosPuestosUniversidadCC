@@ -288,13 +288,13 @@ BEGIN
     SELECT
         S.Id,
         S.EmpleadoId,
-        ISNULL(H.Placa + ' - ' + H.MarcaPC, 'Desconocido') AS Equipo,
+        ISNULL(E.NombreCompleto, 'Sin asignar') AS NombreEmpleado,
         S.GruposAD,
         S.NombreSoftware,
         S.Version,
         S.Fabricante
     FROM pt_SoftwareLocal S
-    LEFT JOIN pt_HardwareAsignado H ON S.EmpleadoId = H.EmpleadoId
+    LEFT JOIN pt_Empleados E ON S.EmpleadoId = E.Id
 END;
 GO
 

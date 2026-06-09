@@ -115,7 +115,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 <table class="ucc-table">
           <thead>
             <tr>
-              <th>Equipo Asignado</th>
+              <th>COLABORADOR</th>
               <th>Software</th>
               <th>Versión</th>
               <th>Fabricante</th>
@@ -125,7 +125,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
           <tbody>
             @for(sw of paginatedList; track sw.id) {
               <tr>
-                <td>{{getEquipoPlaca(sw.empleadoId)}}</td>
+                <td>{{sw.nombreEmpleado || 'Sin asignar'}}</td>
                 <td>{{sw.nombreSoftware}}</td>
                 <td>{{sw.version}}</td>
                 <td>{{sw.fabricante}}</td>

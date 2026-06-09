@@ -49,7 +49,7 @@ export interface HardwareAsignado {
 export interface SoftwareLocal {
   id: number;
   empleadoId: number;
-  equipo: string;
+  nombreEmpleado?: string;
   gruposAD: string;
   nombreSoftware: string;
   version: string;
@@ -83,7 +83,7 @@ export interface ReportePerfil {
   codigoEmpleado: string;
   empleado: string;
   perfil: string;
-  equipo: string;
+  nombreEmpleado?: string;
   placaEquipo: string;
   software: string;
   versionSoftware: string;
@@ -96,7 +96,7 @@ export interface ReportePerfil {
 export interface ReporteHardware {
   puesto: string;
   nombre: string;
-  equipo: string;
+  nombreEmpleado?: string;
   procesador: string;
   memoria: string;
   disco: string;
