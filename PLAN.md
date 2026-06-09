@@ -34,3 +34,10 @@ Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la ap
 - Modificación de los bucles `@for` en el template HTML para iterar sobre los getters paginados.
 - Adición de footer para controles de paginación ("Anterior", "Siguiente", y texto "Mostrando página X de Y").
 - Esta modificación no requerirá cambios en el Backend (.NET) ni en Stored Procedures.
+
+### 6. Paginación Dinámica del lado del Cliente (Dynamic Client-Side Pagination)
+- Añadir control interactivo de tamaño de página a la paginación de cliente (Client-side) para evitar scroll infinito masivo.
+- Componentes a actualizar (Estándar): Todos los mantenimientos con tablas.
+- El estándar dicta el uso de `currentPage = 1`, `pageSize = 20`, y un array de configuración `pageSizeOptions = [10, 20, 50, 100]`.
+- Se usa un footer flexible conteniendo los 3 elementos visuales principales: Selección de tamaño de visualización, Contador dinámico de página `Math.ceil()`, y botones de acción "Anterior" y "Siguiente".
+- Las reglas críticas prohíben modificar Backend / .NET y SPs.
