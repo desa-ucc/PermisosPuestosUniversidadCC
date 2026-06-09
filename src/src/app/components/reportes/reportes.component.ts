@@ -255,10 +255,9 @@ export class ReportesComponent implements OnInit {
   }
 
   onFilterChange(source: 'puesto' | 'empleado' | 'texto') {
-    if (source === 'texto' && this.terminoBusqueda.trim() !== '') {
-      this.filtroPuesto = '';
-      this.filtroEmpleado = '';
-    }
+    // Los filtros deben poder mantener su estado simultáneamente.
+    // Se elimina la lógica que reseteaba los comboboxes.
+  }
     else if (source === 'puesto') {
       this.filtroEmpleado = '';
       this.terminoBusqueda = '';
