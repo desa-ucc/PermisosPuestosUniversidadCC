@@ -1,37 +1,28 @@
-# PLAN: ProyectoPermisosXPuesto
+# PLAN.md
 
-## Arquitectura y Pasos de Ejecución
+## Objetivo
+Corregir el bloqueo crítico de UX en la pantalla de Reportes Avanzados de la aplicación Angular (`reportes.component.ts`), garantizando que la selección de filtros en los comboboxes y la caja de búsqueda libre sean independientes, y ajustando la lógica de envío de parámetros al backend.
 
-1. **Creación de la Base de Datos (`InitDB.sql`)**
-   - Escribir script monolítico para crear tablas normalizadas con cláusulas `IF NOT EXISTS`.
-   - Incluir tablas de Seguridad (Usuarios, Roles, Permisos), Colaboradores (Empleados, Puestos), Hardware (Equipos Ideales, Equipos Asignados) y Software/Accesos (Software Local, Permisos Sitio, Plataformas).
-   - Crear Stored Procedures (SPs) para el CRUD completo de cada tabla para cumplir la regla de 100% SPs y CERO LINQ.
-   - Insertar usuario administrador semilla con contraseña SHA256 (`admin123`).
+## Arquitectura y Tareas
 
-2. **Desarrollo del Backend (.NET 8 - `/PermisosPuestosApi/`)**
-   - Crear solución y proyecto Web API en .NET 8.
-   - Configurar Entity Framework Core para mapear llamadas a SPs usando `FromSqlRaw` / `ExecuteSqlRaw`.
-   - Crear modelos correspondientes a las tablas de la BD.
-   - Implementar JWT Auth y Hashing (SHA256).
-   - Crear los Controladores (API endpoints) para exponer los SPs.
-   - Configurar CORS y Swagger.
+### 1. Desacoplamiento de Controles en Frontend
+- El archivo actual (`./src/src/app/components/reportes/reportes.component.ts`) contiene un evento `onFilterChange` que reinicia variables (`filtroPuesto`, `filtroEmpleado`, `terminoBusqueda`) basándose en lo que se modifica, acoplando su funcionamiento.
+- **Acción:** Eliminar `onFilterChange` del controlador TS y de las plantillas HTML:
+  - Quitar `(change)="onFilterChange('puesto')"`
+  - Quitar `(change)="onFilterChange('empleado')"`
+  - Quitar `(keyup)="onFilterChange('texto')"`
 
-3. **Desarrollo del Frontend (Angular 17 - `/src/`)**
-   - Inicializar proyecto Angular 17.
-   - Instalar Tailwind CSS y configurar el "Dark Mode" por defecto.
-   - Instalar `ngx-charts` para el Dashboard interactivo.
-   - Crear servicios HTTP para interactuar con la API.
-   - Implementar Guards (`AuthGuard`) e Interceptores JWT.
-   - Crear componentes (Pantallas): Login, Dashboard, Colaboradores y Puestos, Hardware, Software y Accesos.
-   - Implementar formularios reactivos para todo el CRUD simulando las capacidades del Excel previo.
+### 2. Actualización de Lógica de Búsqueda
+- El método `buscar()` debe recolectar los valores sin modificarlos y enviarlos siguiendo la jerarquía:
+  1. Si hay texto en "Búsqueda Libre", usa ese valor.
+  2. Si no, pero hay un "Colaborador" seleccionado, usa el nombre del colaborador.
+  3. Si no, pero hay un "Puesto" seleccionado, usa el nombre del puesto.
+- La lógica actual ya implementa esta jerarquía de forma similar (a través de `if else`), se mantendrá y validará.
 
-4. **Configuración de Docker y Despliegue**
-   - Crear `Dockerfile` para la API (.NET).
-   - Crear `Dockerfile` para el Frontend (Angular + Nginx).
-   - Crear `docker-compose.yml` en la raíz para levantar ambos contenedores, configurando las variables de entorno para que se conecte a la IP `172.29.99.8` de SQL Server.
+### 3. Prevención de Errores (Validation)
+- Crear el método `formularioTieneFiltros()` o actualizar el getter `hasAnyFilter` a dicho nombre, para validar que al menos uno de los tres controles tenga valor diferente de sus valores por defecto (o vacío) antes de permitir la petición.
+- Actualizar el botón "Generar Reporte" para utilizar `[disabled]="!formularioTieneFiltros() || isLoading"`.
 
-5. **Documentación (`README.md`)**
-   - Detallar instrucciones de despliegue, URLs locales, credenciales de administrador y pasos para la ejecución del script SQL.
-
-6. **Auditoría Final**
-   - Revisión de requisitos y entrega de reporte de calidad final `/audit`.
+### 4. Aseguramiento de Calidad
+- Ejecución de pruebas / `ng build` para confirmar que las variables y plantillas funcionan correctamente sin errores de compilación.
+- Auditar que se envíe un único string al servicio API.

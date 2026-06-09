@@ -27,7 +27,7 @@ import * as XLSX from 'xlsx';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Puesto</label>
-            <select [(ngModel)]="filtroPuesto" (change)="onFilterChange('puesto')" class="ucc-select">
+            <select [(ngModel)]="filtroPuesto"  class="ucc-select">
               <option value="">Todos los puestos</option>
               @for(puesto of listaPuestos; track puesto.id) {
                 <option [value]="puesto.nombrePuesto">{{puesto.nombrePuesto}}</option>
@@ -37,7 +37,7 @@ import * as XLSX from 'xlsx';
 
           <div class="flex flex-col">
             <label class="ucc-label">Filtrar por Colaborador</label>
-            <select [(ngModel)]="filtroEmpleado" (change)="onFilterChange('empleado')" class="ucc-select">
+            <select [(ngModel)]="filtroEmpleado"  class="ucc-select">
               <option value="">Todos los colaboradores</option>
               @for(emp of listaEmpleados; track emp.id) {
                 <option [value]="emp.nombreCompleto">{{emp.nombreCompleto}}</option>
@@ -47,7 +47,7 @@ import * as XLSX from 'xlsx';
 
           <div class="flex flex-col">
             <label class="ucc-label">Búsqueda Libre</label>
-            <input [(ngModel)]="terminoBusqueda" (keyup)="onFilterChange('texto')" (keyup.enter)="buscar()" class="ucc-input" placeholder="O escriba un término (código, placa...)" type="text" />
+            <input [(ngModel)]="terminoBusqueda"  (keyup.enter)="buscar()" class="ucc-input" placeholder="O escriba un término (código, placa...)" type="text" />
           </div>
         </div>
 
@@ -55,7 +55,7 @@ import * as XLSX from 'xlsx';
           <button (click)="limpiarFiltros()" class="ucc-btn-secondary">
             <span class="material-symbols-outlined">clear_all</span> Limpiar Filtros
           </button>
-          <button (click)="buscar()" [disabled]="!hasAnyFilter || isLoading" class="ucc-btn-primary">
+          <button (click)="buscar()" [disabled]="!formularioTieneFiltros() || isLoading" class="ucc-btn-primary">
              @if (isLoading) {
                 <span class="material-symbols-outlined animate-spin">sync</span> Buscando...
              } @else {
@@ -246,7 +246,7 @@ export class ReportesComponent implements OnInit {
     this.api.getEmpleados().subscribe(res => this.listaEmpleados = res);
   }
 
-  get hasAnyFilter(): boolean {
+  formularioTieneFiltros(): boolean {
     return !!this.filtroPuesto || !!this.filtroEmpleado || !!this.terminoBusqueda.trim();
   }
 
@@ -254,20 +254,7 @@ export class ReportesComponent implements OnInit {
     return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0;
   }
 
-  onFilterChange(source: 'puesto' | 'empleado' | 'texto') {
-    if (source === 'texto' && this.terminoBusqueda.trim() !== '') {
-      this.filtroPuesto = '';
-      this.filtroEmpleado = '';
-    }
-    else if (source === 'puesto') {
-      this.filtroEmpleado = '';
-      this.terminoBusqueda = '';
-    }
-    else if (source === 'empleado') {
-      this.filtroPuesto = '';
-      this.terminoBusqueda = '';
-    }
-  }
+
 
   limpiarFiltros() {
     this.filtroPuesto = '';
@@ -278,7 +265,7 @@ export class ReportesComponent implements OnInit {
   }
 
   buscar() {
-    if (!this.hasAnyFilter) return;
+    if (!this.formularioTieneFiltros()) return;
 
     let parametroFinal = '';
     if (this.terminoBusqueda.trim() !== '') {
