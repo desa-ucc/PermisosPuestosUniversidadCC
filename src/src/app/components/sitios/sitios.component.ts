@@ -30,10 +30,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">Ninguno</li>
+                    (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                      (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -59,10 +59,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownSitios || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarSitio(null)">Ninguno</li>
+                    (mousedown)="seleccionarSitio(null)">Ninguno</li>
                 @for(sitio of sitiosFiltrados; track sitio.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
+                      (mousedown)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -87,10 +87,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownAmbientes || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarAmbiente(null)">Ninguno</li>
+                    (mousedown)="seleccionarAmbiente(null)">Ninguno</li>
                 @for(amb of ambientesFiltrados; track amb.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
+                      (mousedown)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }

@@ -31,12 +31,12 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPuestos || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPuesto(null)">
+                    (mousedown)="seleccionarPuesto(null)">
                   Ninguno
                 </li>
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPuesto(puesto)">
+                      (mousedown)="seleccionarPuesto(puesto)">
                     {{puesto.nombrePuesto}}
                   </li>
                 } @empty {

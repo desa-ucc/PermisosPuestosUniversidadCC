@@ -38,12 +38,12 @@ import * as XLSX from 'xlsx';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPuestos">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPuesto(null)">
+                    (mousedown)="seleccionarPuesto(null)">
                   Todos los puestos
                 </li>
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPuesto(puesto)">
+                      (mousedown)="seleccionarPuesto(puesto)">
                     {{puesto.nombrePuesto}}
                   </li>
                 } @empty {
@@ -66,12 +66,12 @@ import * as XLSX from 'xlsx';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownColaboradores">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarColaborador(null)">
+                    (mousedown)="seleccionarColaborador(null)">
                   Todos los colaboradores
                 </li>
                 @for(emp of colaboradoresFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarColaborador(emp)">
+                      (mousedown)="seleccionarColaborador(emp)">
                     {{emp.nombreCompleto}}
                   </li>
                 } @empty {

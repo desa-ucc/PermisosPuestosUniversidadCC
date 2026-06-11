@@ -31,12 +31,12 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">
+                    (mousedown)="seleccionarEmpleado(null)">
                   Ninguno
                 </li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">
+                      (mousedown)="seleccionarEmpleado(emp)">
                     {{emp.nombreCompleto}}
                   </li>
                 } @empty {

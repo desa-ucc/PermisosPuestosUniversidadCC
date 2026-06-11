@@ -30,10 +30,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">Ninguno</li>
+                    (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                      (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -59,10 +59,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownLicencias || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarLicencia(null)">Ninguno</li>
+                    (mousedown)="seleccionarLicencia(null)">Ninguno</li>
                 @for(lic of licenciasFiltrados; track lic.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarLicencia(lic)">{{lic.nombre}}</li>
+                      (mousedown)="seleccionarLicencia(lic)">{{lic.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -87,10 +87,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPlataformas || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPlataforma(null)">Ninguno</li>
+                    (mousedown)="seleccionarPlataforma(null)">Ninguno</li>
                 @for(plat of plataformasNombresFiltrados; track plat.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPlataforma(plat)">{{plat.nombre}}</li>
+                      (mousedown)="seleccionarPlataforma(plat)">{{plat.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -131,10 +131,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownNiveles || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarNivel(null)">Ninguno</li>
+                    (mousedown)="seleccionarNivel(null)">Ninguno</li>
                 @for(nivel of nivelesFiltrados; track nivel.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarNivel(nivel)">{{nivel.nombre}}</li>
+                      (mousedown)="seleccionarNivel(nivel)">{{nivel.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }

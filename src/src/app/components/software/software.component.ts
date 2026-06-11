@@ -31,12 +31,12 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEquipos || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEquipo(null)">
+                    (mousedown)="seleccionarEquipo(null)">
                   Ninguno
                 </li>
                 @for(eq of equiposFiltrados; track eq.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEquipo(eq)">
+                      (mousedown)="seleccionarEquipo(eq)">
                     {{eq.placa}} - {{eq.marcaPC}}
                   </li>
                 } @empty {
