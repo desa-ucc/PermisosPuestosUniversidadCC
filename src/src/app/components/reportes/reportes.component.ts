@@ -117,6 +117,25 @@ import * as XLSX from 'xlsx';
                <h3 class="font-bold text-ucc-secondary">Sección 1: Especificaciones de Equipo</h3>
             </div>
             <div class="overflow-x-auto">
+
+            <!-- TOOLBAR DE FILTROS (PLANTILLA MAESTRA) -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center rounded-t-xl">
+              <span class="material-symbols-outlined text-ucc-neutral-variant text-[20px] mr-2">filter_list</span>
+
+              <!-- Inputs Premium -->
+              <input type="text" placeholder="Puesto" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" placeholder="Nombre" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" placeholder="Equipo" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+
+              <!-- Separador flexible para empujar el botón a la derecha -->
+              <div class="flex-grow"></div>
+
+              <!-- Botón Limpiar Ghost -->
+              <button class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span>
+                Limpiar
+              </button>
+            </div>
               <table class="ucc-table min-w-[1000px]">
                 <thead>
                   <tr>
