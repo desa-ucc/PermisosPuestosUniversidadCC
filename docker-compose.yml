@@ -9,7 +9,6 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Server=172.29.99.8;Database=PERFILES_BD;User Id=fsalazarmo;Password=3i5q32sNpf8B;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
-
   frontend:
     build:
       context: ./src
