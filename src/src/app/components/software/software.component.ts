@@ -112,7 +112,27 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+            <!-- TOOLBAR DE FILTROS -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center rounded-t-xl">
+              <span class="material-symbols-outlined text-ucc-neutral-variant text-[20px] mr-2">filter_list</span>
+
+              <!-- Inputs Premium -->
+              <input type="text" [(ngModel)]="filtroEquipo" placeholder="Equipo" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroSoftware" placeholder="Software" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroVersion" placeholder="Versión" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroFabricante" placeholder="Fabricante" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+
+              <!-- Separador flexible para empujar el botón a la derecha -->
+              <div class="flex-grow"></div>
+
+              <!-- Botón Limpiar Ghost -->
+              <button (click)="limpiarFiltrosTabla()" class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span>
+                Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Equipo Asignado</th>
@@ -122,15 +142,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroSoftware" placeholder="Filtrar Software..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroVersion" placeholder="Filtrar Versión..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroFabricante" placeholder="Filtrar Fabricante..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar Filtros</button>
-            </td>
-          </tr>
+
           </thead>
           <tbody>
             @for(sw of paginatedList; track sw.id) {

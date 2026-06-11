@@ -1,14 +1,17 @@
-# PLAN: Finalize Master Template
+# PLAN: Standardize Toolbar UI Across Entire Application
 
 ## Architecture
-The client requested the table filters be moved from an internal `<tr>` into an external "Toolbar" `<div>` above the table, providing precise aesthetic directives.
+The client required the professional "Toolbar" filtering pattern—originally prototyped as a template—to be strictly implemented across *all* table views in the application.
 
 ## Steps Executed
-1. Read the state of `ReportesComponent`.
-2. Extracted and inserted the new Toolbar template above the Hardware table using a Node.js text replacement script.
-3. Addressed the specific styling classes, alignments, and the Ghost Button design.
-4. Validated the structural change.
-5. Successfully ran headless tests.
+1.  **PuestosComponent**: Implemented the Toolbar from scratch, removing it from the `<tr>` layer. Replaced it with the `bg-white border-b ... flex flex-wrap` design. Added TS properties and `listaFiltradaTabla` getter for pagination.
+2.  **ColaboradoresComponent**: Stripped out the old `<tr>` and implemented the correct Toolbar `<div class="bg-white border-b...">` above the table.
+3.  **HardwareIdealComponent**: Applied the same extraction and insertion process.
+4.  **HardwareComponent**: Applied the same extraction and insertion process.
+5.  **SoftwareComponent**: Applied the same extraction and insertion process.
+6.  **SitiosComponent**: Applied the same extraction and insertion process.
+7.  **PlataformasComponent**: Applied the same extraction and insertion process.
+8.  **Tests**: Ran `ng test` completely headlessly. All tests pass with zero regressions.
 
 ## Final Result
-The requested master template has been constructed exactly as requested and is ready for client review and subsequent replication.
+The Toolbar is now standard across all tables, establishing unified UI and code cohesion for the UCC Design System.

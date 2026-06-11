@@ -168,7 +168,30 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+            <!-- TOOLBAR DE FILTROS -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center rounded-t-xl">
+              <span class="material-symbols-outlined text-ucc-neutral-variant text-[20px] mr-2">filter_list</span>
+
+              <!-- Inputs Premium -->
+              <input type="text" [(ngModel)]="filtroPersona" placeholder="Persona" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroPuesto" placeholder="Puesto" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroLicencia" placeholder="Licencia" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroPlataforma" placeholder="Plataforma" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroModulos" placeholder="Módulos" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroAccesos" placeholder="Accesos" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+              <input type="text" [(ngModel)]="filtroNivel" placeholder="Nivel" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
+
+              <!-- Separador flexible para empujar el botón a la derecha -->
+              <div class="flex-grow"></div>
+
+              <!-- Botón Limpiar Ghost -->
+              <button (click)="limpiarFiltrosTabla()" class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span>
+                Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Persona</th>
@@ -181,18 +204,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPersona" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroLicencia" placeholder="Filtrar Licencia..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPlataforma" placeholder="Filtrar Plataforma..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroModulos" placeholder="Filtrar Módulos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroAccesos" placeholder="Filtrar Accesos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroNivel" placeholder="Filtrar Nivel..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar</button>
-            </td>
-          </tr>
+
           </thead>
           <tbody>
             @for(plat of paginatedList; track plat.id) {
