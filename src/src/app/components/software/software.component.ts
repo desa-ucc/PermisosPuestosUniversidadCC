@@ -31,12 +31,12 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEquipos || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEquipo(null)">
+                    (mousedown)="seleccionarEquipo(null)">
                   Ninguno
                 </li>
                 @for(eq of equiposFiltrados; track eq.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEquipo(eq)">
+                      (mousedown)="seleccionarEquipo(eq)">
                     {{eq.placa}} - {{eq.marcaPC}}
                   </li>
                 } @empty {
@@ -112,7 +112,20 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Equipo..." [(ngModel)]="filtroEquipo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Software..." [(ngModel)]="filtroSoftware" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Versión..." [(ngModel)]="filtroVersion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Fabricante..." [(ngModel)]="filtroFabricante" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Equipo Asignado</th>
@@ -121,6 +134,8 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
               <th>Fabricante</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(sw of paginatedList; track sw.id) {
@@ -176,6 +191,38 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
   `
 })
 export class SoftwareComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroEquipo: string = '';
+  filtroSoftware: string = '';
+  filtroVersion: string = '';
+  filtroFabricante: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get listaFiltradaTabla() {
+    return this.softwareList.filter(sw => {
+      const equipoNombre = this.getEquipoPlaca(sw.empleadoId);
+
+      const matchEquipo = equipoNombre.toLowerCase().includes(this.filtroEquipo.toLowerCase());
+      const matchSoftware = sw.nombreSoftware?.toLowerCase().includes(this.filtroSoftware.toLowerCase()) ?? true;
+      const matchVersion = sw.version?.toLowerCase().includes(this.filtroVersion.toLowerCase()) ?? true;
+      const matchFabricante = sw.fabricante?.toLowerCase().includes(this.filtroFabricante.toLowerCase()) ?? true;
+
+      return matchEquipo && matchSoftware && matchVersion && matchFabricante;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroEquipo = '';
+    this.filtroSoftware = '';
+    this.filtroVersion = '';
+    this.filtroFabricante = '';
+    this.aplicarFiltros();
+  }
+
   softwareList: SoftwareLocal[] = [];
   equipos: HardwareAsignado[] = [];
   swForm: FormGroup;
@@ -226,11 +273,11 @@ export class SoftwareComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.softwareList.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.softwareList.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -332,6 +379,12 @@ export class SoftwareComponent implements OnInit {
     this.currentId = sw.id;
     this.swForm.patchValue(sw);
     this.swForm.disable();
+    if (sw.empleadoId) {
+        const matched = this.equipos.find(e => e.empleadoId === sw.empleadoId);
+        if (matched) this.searchTermEquipos = `${matched.placa} - ${matched.marcaPC}`;
+    } else {
+        this.searchTermEquipos = '';
+    }
   }
 
   resetForm() {

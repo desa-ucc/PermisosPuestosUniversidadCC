@@ -30,10 +30,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">Ninguno</li>
+                    (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                      (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -59,10 +59,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownSitios || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarSitio(null)">Ninguno</li>
+                    (mousedown)="seleccionarSitio(null)">Ninguno</li>
                 @for(sitio of sitiosFiltrados; track sitio.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
+                      (mousedown)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -87,10 +87,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownAmbientes || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarAmbiente(null)">Ninguno</li>
+                    (mousedown)="seleccionarAmbiente(null)">Ninguno</li>
                 @for(amb of ambientesFiltrados; track amb.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
+                      (mousedown)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -132,7 +132,21 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Persona..." [(ngModel)]="filtroPersona" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Sitio..." [(ngModel)]="filtroSitio" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Ambiente..." [(ngModel)]="filtroAmbiente" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Grupos..." [(ngModel)]="filtroGrupos" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Persona</th>
@@ -142,6 +156,8 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <th>Grupos Permisos</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(sitio of paginatedList; track sitio.id) {
@@ -207,6 +223,42 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
   `
 })
 export class SitiosComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroPersona: string = '';
+  filtroPuesto: string = '';
+  filtroSitio: string = '';
+  filtroAmbiente: string = '';
+  filtroGrupos: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get listaFiltradaTabla() {
+    return this.permisosSitios.filter(sitio => {
+      const personaNombre = this.getEmpleadoName(sitio.empleadoId);
+      const puestoNombre = this.getPuestoByEmpleado(sitio.empleadoId);
+
+      const matchPersona = personaNombre.toLowerCase().includes(this.filtroPersona.toLowerCase());
+      const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
+      const matchSitio = sitio.sitio?.toLowerCase().includes(this.filtroSitio.toLowerCase()) ?? true;
+      const matchAmbiente = sitio.ambiente?.toLowerCase().includes(this.filtroAmbiente.toLowerCase()) ?? true;
+      const matchGrupos = sitio.gruposPermisos?.toLowerCase().includes(this.filtroGrupos.toLowerCase()) ?? true;
+
+      return matchPersona && matchPuesto && matchSitio && matchAmbiente && matchGrupos;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroPersona = '';
+    this.filtroPuesto = '';
+    this.filtroSitio = '';
+    this.filtroAmbiente = '';
+    this.filtroGrupos = '';
+    this.aplicarFiltros();
+  }
+
   permisosSitios: PermisosSitio[] = [];
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
@@ -320,11 +372,11 @@ export class SitiosComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.permisosSitios.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.permisosSitios.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -428,16 +480,21 @@ export class SitiosComponent implements OnInit {
     this.isReadOnly = false;
     this.currentId = sitio.id;
     this.sitioForm.enable();
-    this.searchTermEmpleados = '';
-    this.searchTermSitios = '';
-    this.searchTermAmbientes = '';
     this.sitioForm.patchValue({
       empleadoId: sitio.empleadoId,
       sitio: sitio.sitio,
       ambiente: sitio.ambiente,
       gruposPermisos: sitio.gruposPermisos
     });
-    this.onEmpleadoChange(null); // Update UI
+    this.onEmpleadoChange(null);
+    if (sitio.empleadoId) {
+        const matched = this.empleados.find(e => e.id === sitio.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermSitios = sitio.sitio || '';
+    this.searchTermAmbientes = sitio.ambiente || '';
   }
 
   delete(id: number) {
@@ -461,6 +518,14 @@ export class SitiosComponent implements OnInit {
     });
     this.onEmpleadoChange(null);
     this.sitioForm.disable();
+    if (sitio.empleadoId) {
+        const matched = this.empleados.find(e => e.id === sitio.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermSitios = sitio.sitio || '';
+    this.searchTermAmbientes = sitio.ambiente || '';
   }
 
   resetForm() {

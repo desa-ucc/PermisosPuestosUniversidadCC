@@ -31,12 +31,12 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPuestos || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPuesto(null)">
+                    (mousedown)="seleccionarPuesto(null)">
                   Ninguno
                 </li>
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPuesto(puesto)">
+                      (mousedown)="seleccionarPuesto(puesto)">
                     {{puesto.nombrePuesto}}
                   </li>
                 } @empty {
@@ -124,7 +124,20 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuestoRel" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Equipo..." [(ngModel)]="filtroEquipo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Procesador..." [(ngModel)]="filtroProcesador" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Memoria..." [(ngModel)]="filtroMemoria" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Puesto Relacionado</th>
@@ -133,6 +146,8 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               <th>Memoria</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(hw of paginatedList; track hw.id) {
@@ -188,6 +203,37 @@ import { HardwareIdeal, Puesto } from '../../models/models';
   `
 })
 export class HardwareIdealComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroPuestoRel: string = '';
+  filtroEquipo: string = '';
+  filtroProcesador: string = '';
+  filtroMemoria: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get listaFiltradaTabla() {
+    return this.equiposIdeales.filter(hw => {
+      const puestoNombre = this.getPuestoName(hw.puestoId);
+      const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuestoRel.toLowerCase());
+      const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchProcesador = hw.procesador?.toLowerCase().includes(this.filtroProcesador.toLowerCase()) ?? true;
+      const matchMemoria = hw.memoria?.toLowerCase().includes(this.filtroMemoria.toLowerCase()) ?? true;
+
+      return matchPuesto && matchEquipo && matchProcesador && matchMemoria;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroPuestoRel = '';
+    this.filtroEquipo = '';
+    this.filtroProcesador = '';
+    this.filtroMemoria = '';
+    this.aplicarFiltros();
+  }
+
   equiposIdeales: HardwareIdeal[] = [];
   puestos: Puesto[] = [];
   hwIdealForm: FormGroup;
@@ -235,11 +281,11 @@ export class HardwareIdealComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.equiposIdeales.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.equiposIdeales.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -322,6 +368,12 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.enable();
     this.hwIdealForm.patchValue(hw);
+    if (hw.puestoId) {
+        const matched = this.puestos.find(p => p.id === hw.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
   }
 
   delete(id: number) {
@@ -339,6 +391,12 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.patchValue(hw);
     this.hwIdealForm.disable();
+    if (hw.puestoId) {
+        const matched = this.puestos.find(p => p.id === hw.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
   }
 
   resetForm() {

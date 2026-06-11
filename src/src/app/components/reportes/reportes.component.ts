@@ -38,12 +38,12 @@ import * as XLSX from 'xlsx';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPuestos">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPuesto(null)">
+                    (mousedown)="seleccionarPuesto(null)">
                   Todos los puestos
                 </li>
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPuesto(puesto)">
+                      (mousedown)="seleccionarPuesto(puesto)">
                     {{puesto.nombrePuesto}}
                   </li>
                 } @empty {
@@ -66,12 +66,12 @@ import * as XLSX from 'xlsx';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownColaboradores">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarColaborador(null)">
+                    (mousedown)="seleccionarColaborador(null)">
                   Todos los colaboradores
                 </li>
                 @for(emp of colaboradoresFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarColaborador(emp)">
+                      (mousedown)="seleccionarColaborador(emp)">
                     {{emp.nombreCompleto}}
                   </li>
                 } @empty {
@@ -117,6 +117,24 @@ import * as XLSX from 'xlsx';
                <h3 class="font-bold text-ucc-secondary">Sección 1: Especificaciones de Equipo</h3>
             </div>
             <div class="overflow-x-auto">
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Puesto..." class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Nombre..." class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Equipo..." class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+
+              <!-- Botón Limpiar Ghost -->
+              <button class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span>
+                Limpiar
+              </button>
+            </div>
               <table class="ucc-table min-w-[1000px]">
                 <thead>
                   <tr>

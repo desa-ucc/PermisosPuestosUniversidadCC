@@ -31,12 +31,12 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">
+                    (mousedown)="seleccionarEmpleado(null)">
                   Ninguno
                 </li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">
+                      (mousedown)="seleccionarEmpleado(emp)">
                     {{emp.nombreCompleto}}
                   </li>
                 } @empty {
@@ -133,7 +133,21 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Persona..." [(ngModel)]="filtroEmpleado" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Equipo..." [(ngModel)]="filtroEquipo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Marca..." [(ngModel)]="filtroMarca" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Placa..." [(ngModel)]="filtroPlaca" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Puesto</th>
@@ -143,6 +157,8 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <th>Placa</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(hw of paginatedList; track hw.id) {
@@ -199,6 +215,42 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
   `
 })
 export class HardwareComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroPuesto: string = '';
+  filtroEmpleado: string = '';
+  filtroEquipo: string = '';
+  filtroMarca: string = '';
+  filtroPlaca: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get listaFiltradaTabla() {
+    return this.equipos.filter(hw => {
+      const puestoNombre = this.getPuestoByEmpleado(hw.empleadoId);
+      const empleadoNombre = this.getEmpleadoName(hw.empleadoId);
+
+      const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
+      const matchEmpleado = empleadoNombre.toLowerCase().includes(this.filtroEmpleado.toLowerCase());
+      const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchMarca = hw.marcaPC?.toLowerCase().includes(this.filtroMarca.toLowerCase()) ?? true;
+      const matchPlaca = hw.placa?.toLowerCase().includes(this.filtroPlaca.toLowerCase()) ?? true;
+
+      return matchPuesto && matchEmpleado && matchEquipo && matchMarca && matchPlaca;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroPuesto = '';
+    this.filtroEmpleado = '';
+    this.filtroEquipo = '';
+    this.filtroMarca = '';
+    this.filtroPlaca = '';
+    this.aplicarFiltros();
+  }
+
   equipos: HardwareAsignado[] = [];
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
@@ -248,11 +300,11 @@ export class HardwareComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.equipos.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.equipos.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -382,6 +434,12 @@ export class HardwareComponent implements OnInit {
     this.hwForm.patchValue(hw);
     this.onEmpleadoChange(null);
     this.hwForm.disable();
+    if (hw.empleadoId) {
+        const matched = this.empleados.find(e => e.id === hw.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
   }
 
   resetForm() {

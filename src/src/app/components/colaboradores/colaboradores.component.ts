@@ -107,6 +107,19 @@ import { Empleado, Puesto } from '../../models/models';
           </h3>
         </div>
 
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Código..." [(ngModel)]="filtroCodigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Correo..." [(ngModel)]="filtroCorreo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuestoTabla" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
         <table class="ucc-table">
           <thead>
             <tr>
@@ -116,6 +129,8 @@ import { Empleado, Puesto } from '../../models/models';
               <th>Puesto</th>
               <th class="text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(emp of paginatedList; track emp.id) {
@@ -177,6 +192,36 @@ import { Empleado, Puesto } from '../../models/models';
   `
 })
 export class ColaboradoresComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroCodigo: string = '';
+  filtroNombre: string = '';
+  filtroCorreo: string = '';
+  filtroPuestoTabla: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get empleadosFiltradosTabla() {
+    return this.empleados.filter(emp => {
+      const matchCodigo = emp.codigoEmpleado?.toLowerCase().includes(this.filtroCodigo.toLowerCase()) ?? true;
+      const matchNombre = emp.nombreCompleto?.toLowerCase().includes(this.filtroNombre.toLowerCase()) ?? true;
+      const matchCorreo = emp.correoInstitucional?.toLowerCase().includes(this.filtroCorreo.toLowerCase()) ?? true;
+      const matchPuesto = (emp.nombrePuesto || 'No Asignado').toLowerCase().includes(this.filtroPuestoTabla.toLowerCase());
+
+      return matchCodigo && matchNombre && matchCorreo && matchPuesto;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroCodigo = '';
+    this.filtroNombre = '';
+    this.filtroCorreo = '';
+    this.filtroPuestoTabla = '';
+    this.aplicarFiltros();
+  }
+
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
   empleadoForm: FormGroup;
@@ -224,11 +269,11 @@ export class ColaboradoresComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.empleados.slice(start, start + this.pageSize);
+    return this.empleadosFiltradosTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.empleados.length / this.pageSize) || 1;
+    return Math.ceil(this.empleadosFiltradosTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {

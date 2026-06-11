@@ -30,10 +30,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownEmpleados || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">Ninguno</li>
+                    (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
                 @for(emp of empleadosFiltrados; track emp.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                      (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -59,10 +59,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownLicencias || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarLicencia(null)">Ninguno</li>
+                    (mousedown)="seleccionarLicencia(null)">Ninguno</li>
                 @for(lic of licenciasFiltrados; track lic.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarLicencia(lic)">{{lic.nombre}}</li>
+                      (mousedown)="seleccionarLicencia(lic)">{{lic.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -87,10 +87,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPlataformas || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPlataforma(null)">Ninguno</li>
+                    (mousedown)="seleccionarPlataforma(null)">Ninguno</li>
                 @for(plat of plataformasNombresFiltrados; track plat.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarPlataforma(plat)">{{plat.nombre}}</li>
+                      (mousedown)="seleccionarPlataforma(plat)">{{plat.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -131,10 +131,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownNiveles || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarNivel(null)">Ninguno</li>
+                    (mousedown)="seleccionarNivel(null)">Ninguno</li>
                 @for(nivel of nivelesFiltrados; track nivel.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarNivel(nivel)">{{nivel.nombre}}</li>
+                      (mousedown)="seleccionarNivel(nivel)">{{nivel.nombre}}</li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
                 }
@@ -168,7 +168,23 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+
+
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Persona..." [(ngModel)]="filtroPersona" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Licencia..." [(ngModel)]="filtroLicencia" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Plataforma..." [(ngModel)]="filtroPlataforma" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Módulos..." [(ngModel)]="filtroModulos" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Accesos..." [(ngModel)]="filtroAccesos" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Nivel..." [(ngModel)]="filtroNivel" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
+              </button>
+            </div>
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Persona</th>
@@ -180,6 +196,8 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               <th>Nivel</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+
           </thead>
           <tbody>
             @for(plat of paginatedList; track plat.id) {
@@ -246,6 +264,48 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
   `
 })
 export class PlataformasComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroPersona: string = '';
+  filtroPuesto: string = '';
+  filtroLicencia: string = '';
+  filtroPlataforma: string = '';
+  filtroModulos: string = '';
+  filtroAccesos: string = '';
+  filtroNivel: string = '';
+
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
+  get listaFiltradaTabla() {
+    return this.plataformas.filter(plat => {
+      const personaNombre = this.getEmpleadoName(plat.empleadoId);
+      const puestoNombre = this.getPuestoByEmpleado(plat.empleadoId);
+
+      const matchPersona = personaNombre.toLowerCase().includes(this.filtroPersona.toLowerCase());
+      const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
+      const matchLicencia = plat.licencias?.toLowerCase().includes(this.filtroLicencia.toLowerCase()) ?? true;
+      const matchPlataforma = plat.nombrePlataforma?.toLowerCase().includes(this.filtroPlataforma.toLowerCase()) ?? true;
+      const matchModulos = plat.modulos?.toLowerCase().includes(this.filtroModulos.toLowerCase()) ?? true;
+      const matchAccesos = plat.accesosPermisos?.toLowerCase().includes(this.filtroAccesos.toLowerCase()) ?? true;
+      const matchNivel = plat.nivelAcceso?.toLowerCase().includes(this.filtroNivel.toLowerCase()) ?? true;
+
+      return matchPersona && matchPuesto && matchLicencia && matchPlataforma && matchModulos && matchAccesos && matchNivel;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtroPersona = '';
+    this.filtroPuesto = '';
+    this.filtroLicencia = '';
+    this.filtroPlataforma = '';
+    this.filtroModulos = '';
+    this.filtroAccesos = '';
+    this.filtroNivel = '';
+    this.aplicarFiltros();
+  }
+
   plataformas: Plataforma[] = [];
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
@@ -391,11 +451,11 @@ export class PlataformasComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.plataformas.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.plataformas.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -516,6 +576,15 @@ export class PlataformasComponent implements OnInit {
       nivelAcceso: plat.nivelAcceso
     });
     this.onEmpleadoChange(null);
+    if (plat.empleadoId) {
+        const matched = this.empleados.find(e => e.id === plat.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermLicencias = plat.licencias || '';
+    this.searchTermPlataformas = plat.nombrePlataforma || '';
+    this.searchTermNiveles = plat.nivelAcceso || '';
   }
 
   delete(id: number) {
@@ -541,6 +610,15 @@ export class PlataformasComponent implements OnInit {
     });
     this.onEmpleadoChange(null);
     this.plataformaForm.disable();
+    if (plat.empleadoId) {
+        const matched = this.empleados.find(e => e.id === plat.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermLicencias = plat.licencias || '';
+    this.searchTermPlataformas = plat.nombrePlataforma || '';
+    this.searchTermNiveles = plat.nivelAcceso || '';
   }
 
   resetForm() {
