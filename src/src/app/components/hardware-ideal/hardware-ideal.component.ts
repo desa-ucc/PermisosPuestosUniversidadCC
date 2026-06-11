@@ -322,6 +322,12 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.enable();
     this.hwIdealForm.patchValue(hw);
+    if (hw.puestoId) {
+        const matched = this.puestos.find(p => p.id === hw.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
   }
 
   delete(id: number) {
@@ -339,6 +345,12 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.patchValue(hw);
     this.hwIdealForm.disable();
+    if (hw.puestoId) {
+        const matched = this.puestos.find(p => p.id === hw.puestoId);
+        if (matched) this.searchTermPuestos = matched.nombrePuesto;
+    } else {
+        this.searchTermPuestos = '';
+    }
   }
 
   resetForm() {

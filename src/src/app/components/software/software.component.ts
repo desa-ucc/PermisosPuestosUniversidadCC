@@ -332,6 +332,12 @@ export class SoftwareComponent implements OnInit {
     this.currentId = sw.id;
     this.swForm.patchValue(sw);
     this.swForm.disable();
+    if (sw.empleadoId) {
+        const matched = this.equipos.find(e => e.empleadoId === sw.empleadoId);
+        if (matched) this.searchTermEquipos = `${matched.placa} - ${matched.marcaPC}`;
+    } else {
+        this.searchTermEquipos = '';
+    }
   }
 
   resetForm() {

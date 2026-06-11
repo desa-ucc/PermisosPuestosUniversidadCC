@@ -428,16 +428,21 @@ export class SitiosComponent implements OnInit {
     this.isReadOnly = false;
     this.currentId = sitio.id;
     this.sitioForm.enable();
-    this.searchTermEmpleados = '';
-    this.searchTermSitios = '';
-    this.searchTermAmbientes = '';
     this.sitioForm.patchValue({
       empleadoId: sitio.empleadoId,
       sitio: sitio.sitio,
       ambiente: sitio.ambiente,
       gruposPermisos: sitio.gruposPermisos
     });
-    this.onEmpleadoChange(null); // Update UI
+    this.onEmpleadoChange(null);
+    if (sitio.empleadoId) {
+        const matched = this.empleados.find(e => e.id === sitio.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermSitios = sitio.sitio || '';
+    this.searchTermAmbientes = sitio.ambiente || '';
   }
 
   delete(id: number) {
@@ -461,6 +466,14 @@ export class SitiosComponent implements OnInit {
     });
     this.onEmpleadoChange(null);
     this.sitioForm.disable();
+    if (sitio.empleadoId) {
+        const matched = this.empleados.find(e => e.id === sitio.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermSitios = sitio.sitio || '';
+    this.searchTermAmbientes = sitio.ambiente || '';
   }
 
   resetForm() {

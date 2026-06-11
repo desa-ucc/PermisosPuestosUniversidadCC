@@ -516,6 +516,15 @@ export class PlataformasComponent implements OnInit {
       nivelAcceso: plat.nivelAcceso
     });
     this.onEmpleadoChange(null);
+    if (plat.empleadoId) {
+        const matched = this.empleados.find(e => e.id === plat.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermLicencias = plat.licencias || '';
+    this.searchTermPlataformas = plat.nombrePlataforma || '';
+    this.searchTermNiveles = plat.nivelAcceso || '';
   }
 
   delete(id: number) {
@@ -541,6 +550,15 @@ export class PlataformasComponent implements OnInit {
     });
     this.onEmpleadoChange(null);
     this.plataformaForm.disable();
+    if (plat.empleadoId) {
+        const matched = this.empleados.find(e => e.id === plat.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
+    this.searchTermLicencias = plat.licencias || '';
+    this.searchTermPlataformas = plat.nombrePlataforma || '';
+    this.searchTermNiveles = plat.nivelAcceso || '';
   }
 
   resetForm() {

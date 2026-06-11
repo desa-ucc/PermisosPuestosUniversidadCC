@@ -382,6 +382,12 @@ export class HardwareComponent implements OnInit {
     this.hwForm.patchValue(hw);
     this.onEmpleadoChange(null);
     this.hwForm.disable();
+    if (hw.empleadoId) {
+        const matched = this.empleados.find(e => e.id === hw.empleadoId);
+        if (matched) this.searchTermEmpleados = matched.nombreCompleto;
+    } else {
+        this.searchTermEmpleados = '';
+    }
   }
 
   resetForm() {
