@@ -77,22 +77,15 @@ import { Puesto } from '../../models/models';
 </div>
 <div class="overflow-x-auto">
 
-            <!-- TOOLBAR DE FILTROS -->
-            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center rounded-t-xl">
-              <span class="material-symbols-outlined text-ucc-neutral-variant text-[20px] mr-2">filter_list</span>
 
-              <!-- Inputs Premium -->
-              <input type="text" [(ngModel)]="filtroCodigo" placeholder="Código" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroNombre" placeholder="Nombre" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroDescripcion" placeholder="Descripción" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-
-              <!-- Separador flexible para empujar el botón a la derecha -->
-              <div class="flex-grow"></div>
-
-              <!-- Botón Limpiar Ghost -->
-              <button (click)="limpiarFiltrosTabla()" class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-                <span class="material-symbols-rounded text-lg">refresh</span>
-                Limpiar
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Código..." [(ngModel)]="filtroCodigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Nombre..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Descripción..." [(ngModel)]="filtroDescripcion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
               </button>
             </div>
         <table class="ucc-table">
@@ -225,6 +218,10 @@ export class PuestosComponent implements OnInit {
   filtroNombre: string = '';
   filtroDescripcion: string = '';
 
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
   get listaFiltradaTabla() {
     return this.puestos.filter(puesto => {
       const matchCodigo = puesto.codigoPuesto?.toLowerCase().includes(this.filtroCodigo.toLowerCase()) ?? true;
@@ -235,11 +232,11 @@ export class PuestosComponent implements OnInit {
     });
   }
 
-  limpiarFiltrosTabla() {
+  limpiarFiltros() {
     this.filtroCodigo = '';
     this.filtroNombre = '';
     this.filtroDescripcion = '';
-    this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
   puestos: Puesto[] = [];

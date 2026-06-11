@@ -1,17 +1,14 @@
-# PLAN: Standardize Toolbar UI Across Entire Application
+# PLAN: Implement Master Toolbar Pattern Universally
 
 ## Architecture
-The client required the professional "Toolbar" filtering pattern—originally prototyped as a template—to be strictly implemented across *all* table views in the application.
+The client required that all modules conform identically to the newly polished UI Toolbar for filtering. The HTML structure, CSS classes, layout paradigms (`flex`, `gap-3`, `ml-auto`), and TS methods (`aplicarFiltros()`, `limpiarFiltros()`) must match perfectly.
 
 ## Steps Executed
-1.  **PuestosComponent**: Implemented the Toolbar from scratch, removing it from the `<tr>` layer. Replaced it with the `bg-white border-b ... flex flex-wrap` design. Added TS properties and `listaFiltradaTabla` getter for pagination.
-2.  **ColaboradoresComponent**: Stripped out the old `<tr>` and implemented the correct Toolbar `<div class="bg-white border-b...">` above the table.
-3.  **HardwareIdealComponent**: Applied the same extraction and insertion process.
-4.  **HardwareComponent**: Applied the same extraction and insertion process.
-5.  **SoftwareComponent**: Applied the same extraction and insertion process.
-6.  **SitiosComponent**: Applied the same extraction and insertion process.
-7.  **PlataformasComponent**: Applied the same extraction and insertion process.
-8.  **Tests**: Ran `ng test` completely headlessly. All tests pass with zero regressions.
+1. Formatted the "Master Toolbar" HTML structure requested by the user.
+2. Built an automated Node.js transformation script that injected this exact HTML structure into `PuestosComponent`, `ColaboradoresComponent`, `HardwareIdealComponent`, `HardwareComponent`, `SoftwareComponent`, `SitiosComponent`, and `PlataformasComponent`.
+3. Extended the TS logic insertion to include `aplicarFiltros()` and renamed old reset functions to the standard `limpiarFiltros()`.
+4. Applied the change to `ReportesComponent` taking into account its single advanced filtering toolbar structure.
+5. Successfully ran headless tests.
 
 ## Final Result
-The Toolbar is now standard across all tables, establishing unified UI and code cohesion for the UCC Design System.
+All tables within the system now feature an identical, deeply polished, and universally standard "Toolbar de Filtros" according to the Master Template.

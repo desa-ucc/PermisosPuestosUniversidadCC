@@ -169,26 +169,19 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
       <section class="ucc-table-container">
 <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
 
-            <!-- TOOLBAR DE FILTROS -->
-            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center rounded-t-xl">
-              <span class="material-symbols-outlined text-ucc-neutral-variant text-[20px] mr-2">filter_list</span>
 
-              <!-- Inputs Premium -->
-              <input type="text" [(ngModel)]="filtroPersona" placeholder="Persona" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroPuesto" placeholder="Puesto" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroLicencia" placeholder="Licencia" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroPlataforma" placeholder="Plataforma" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroModulos" placeholder="Módulos" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroAccesos" placeholder="Accesos" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-              <input type="text" [(ngModel)]="filtroNivel" placeholder="Nivel" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all placeholder:text-ucc-neutral-variant w-40">
-
-              <!-- Separador flexible para empujar el botón a la derecha -->
-              <div class="flex-grow"></div>
-
-              <!-- Botón Limpiar Ghost -->
-              <button (click)="limpiarFiltrosTabla()" class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-                <span class="material-symbols-rounded text-lg">refresh</span>
-                Limpiar
+            <!-- TOOLBAR DE FILTROS MAESTRA -->
+            <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+              <span class="material-symbols-rounded text-ucc-primary">filter_list</span>
+              <input type="text" placeholder="Filtrar Persona..." [(ngModel)]="filtroPersona" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Puesto..." [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Licencia..." [(ngModel)]="filtroLicencia" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Plataforma..." [(ngModel)]="filtroPlataforma" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Módulos..." [(ngModel)]="filtroModulos" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Accesos..." [(ngModel)]="filtroAccesos" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <input type="text" placeholder="Filtrar Nivel..." [(ngModel)]="filtroNivel" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+              <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+                <span class="material-symbols-rounded text-lg">refresh</span> Limpiar
               </button>
             </div>
         <table class="ucc-table">
@@ -281,6 +274,10 @@ export class PlataformasComponent implements OnInit {
   filtroAccesos: string = '';
   filtroNivel: string = '';
 
+  aplicarFiltros() {
+    this.currentPage = 1;
+  }
+
   get listaFiltradaTabla() {
     return this.plataformas.filter(plat => {
       const personaNombre = this.getEmpleadoName(plat.empleadoId);
@@ -298,7 +295,7 @@ export class PlataformasComponent implements OnInit {
     });
   }
 
-  limpiarFiltrosTabla() {
+  limpiarFiltros() {
     this.filtroPersona = '';
     this.filtroPuesto = '';
     this.filtroLicencia = '';
@@ -306,7 +303,7 @@ export class PlataformasComponent implements OnInit {
     this.filtroModulos = '';
     this.filtroAccesos = '';
     this.filtroNivel = '';
-    this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
   plataformas: Plataforma[] = [];
