@@ -121,6 +121,16 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
               <th>Fabricante</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
+
+          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroSoftware" placeholder="Filtrar Software..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroVersion" placeholder="Filtrar Versión..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroFabricante" placeholder="Filtrar Fabricante..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2 text-center">
+              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar Filtros</button>
+            </td>
+          </tr>
           </thead>
           <tbody>
             @for(sw of paginatedList; track sw.id) {
@@ -176,6 +186,34 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
   `
 })
 export class SoftwareComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroEquipo: string = '';
+  filtroSoftware: string = '';
+  filtroVersion: string = '';
+  filtroFabricante: string = '';
+
+  get listaFiltradaTabla() {
+    return this.softwareList.filter(sw => {
+      const equipoNombre = this.getEquipoPlaca(sw.empleadoId);
+
+      const matchEquipo = equipoNombre.toLowerCase().includes(this.filtroEquipo.toLowerCase());
+      const matchSoftware = sw.nombreSoftware?.toLowerCase().includes(this.filtroSoftware.toLowerCase()) ?? true;
+      const matchVersion = sw.version?.toLowerCase().includes(this.filtroVersion.toLowerCase()) ?? true;
+      const matchFabricante = sw.fabricante?.toLowerCase().includes(this.filtroFabricante.toLowerCase()) ?? true;
+
+      return matchEquipo && matchSoftware && matchVersion && matchFabricante;
+    });
+  }
+
+  limpiarFiltrosTabla() {
+    this.filtroEquipo = '';
+    this.filtroSoftware = '';
+    this.filtroVersion = '';
+    this.filtroFabricante = '';
+    this.currentPage = 1;
+  }
+
   softwareList: SoftwareLocal[] = [];
   equipos: HardwareAsignado[] = [];
   swForm: FormGroup;
@@ -226,11 +264,11 @@ export class SoftwareComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.softwareList.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.softwareList.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {

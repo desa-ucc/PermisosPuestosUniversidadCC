@@ -116,6 +116,16 @@ import { Empleado, Puesto } from '../../models/models';
               <th>Puesto</th>
               <th class="text-center w-32">Acciones</th>
             </tr>
+
+          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigo" placeholder="Filtrar Código..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroNombre" placeholder="Filtrar Nombre..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCorreo" placeholder="Filtrar Correo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroPuestoTabla" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2 text-center">
+              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar Filtros</button>
+            </td>
+          </tr>
           </thead>
           <tbody>
             @for(emp of paginatedList; track emp.id) {
@@ -177,6 +187,32 @@ import { Empleado, Puesto } from '../../models/models';
   `
 })
 export class ColaboradoresComponent implements OnInit {
+
+  // Filtros de Tabla
+  filtroCodigo: string = '';
+  filtroNombre: string = '';
+  filtroCorreo: string = '';
+  filtroPuestoTabla: string = '';
+
+  get empleadosFiltradosTabla() {
+    return this.empleados.filter(emp => {
+      const matchCodigo = emp.codigoEmpleado?.toLowerCase().includes(this.filtroCodigo.toLowerCase()) ?? true;
+      const matchNombre = emp.nombreCompleto?.toLowerCase().includes(this.filtroNombre.toLowerCase()) ?? true;
+      const matchCorreo = emp.correoInstitucional?.toLowerCase().includes(this.filtroCorreo.toLowerCase()) ?? true;
+      const matchPuesto = (emp.nombrePuesto || 'No Asignado').toLowerCase().includes(this.filtroPuestoTabla.toLowerCase());
+
+      return matchCodigo && matchNombre && matchCorreo && matchPuesto;
+    });
+  }
+
+  limpiarFiltrosTabla() {
+    this.filtroCodigo = '';
+    this.filtroNombre = '';
+    this.filtroCorreo = '';
+    this.filtroPuestoTabla = '';
+    this.currentPage = 1;
+  }
+
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
   empleadoForm: FormGroup;
@@ -224,11 +260,11 @@ export class ColaboradoresComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.empleados.slice(start, start + this.pageSize);
+    return this.empleadosFiltradosTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.empleados.length / this.pageSize) || 1;
+    return Math.ceil(this.empleadosFiltradosTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
