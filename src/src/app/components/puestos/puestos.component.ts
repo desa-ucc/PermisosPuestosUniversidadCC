@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Puesto } from '../../models/models';
@@ -7,7 +7,7 @@ import { Puesto } from '../../models/models';
 @Component({
   selector: 'app-puestos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
 
 <main class="p-gutter max-w-container-max-width mx-auto space-y-8">
@@ -68,6 +68,17 @@ import { Puesto } from '../../models/models';
 </section>
 <!-- Data Table -->
 <section class="ucc-table-container">
+<!-- Toolbar de Filtros Estándar -->
+<div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+  <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
+  <input type="text" placeholder="Filtrar por Código..." [(ngModel)]="filtros.codigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+  <input type="text" placeholder="Filtrar por Nombre..." [(ngModel)]="filtros.nombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+  <input type="text" placeholder="Filtrar por Descripción..." [(ngModel)]="filtros.descripcion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+  <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+    <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
+  </button>
+</div>
+
 <div class="p-md flex justify-between items-center border-b border-outline-variant/20 bg-secondary">
 <h3 class="font-title-lg text-title-lg text-white">Puestos Registrados</h3>
 <button class="hover:bg-white/10 px-4 py-2 rounded-lg transition-all flex items-center gap-2 border border-white/30 text-white">
@@ -137,7 +148,7 @@ import { Puesto } from '../../models/models';
 
 </div>
 <div class="p-4 bg-surface-container-low flex justify-between items-center text-on-surface-variant">
-<p class="font-label-md text-label-md">Mostrando {{puestos.length}} puestos registrados</p>
+<p class="font-label-md text-label-md">Mostrando {{puestosFiltrados.length}} puestos registrados</p>
 <div class="flex gap-2">
 <button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container-highest transition-all disabled:opacity-50" disabled><span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></button>
 <button class="w-8 h-8 flex items-center justify-center rounded bg-secondary text-on-secondary font-bold text-xs">1</button>
@@ -201,6 +212,12 @@ import { Puesto } from '../../models/models';
 })
 export class PuestosComponent implements OnInit {
   puestos: Puesto[] = [];
+  puestosFiltrados: Puesto[] = [];
+  filtros = {
+    codigo: '',
+    nombre: '',
+    descripcion: ''
+  };
   puestoForm: FormGroup;
   isEditing = false;
   isReadOnly = false;
@@ -213,11 +230,11 @@ export class PuestosComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.puestos.slice(start, start + this.pageSize);
+    return this.puestosFiltrados.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.puestos.length / this.pageSize) || 1;
+    return Math.ceil(this.puestosFiltrados.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -253,7 +270,10 @@ export class PuestosComponent implements OnInit {
 
   loadData() {
     this.api.getPuestos().subscribe({
-      next: (res) => this.puestos = res,
+      next: (res) => {
+        this.puestos = res;
+        this.puestosFiltrados = res;
+      },
       error: (err) => console.error('Error al cargar puestos', err)
     });
   }
@@ -316,8 +336,23 @@ export class PuestosComponent implements OnInit {
     this.puestoForm.disable();
   }
 
+  aplicarFiltros() {
+    this.puestosFiltrados = this.puestos.filter(p => {
+      const matchCodigo = p.codigoPuesto.toLowerCase().includes(this.filtros.codigo.toLowerCase());
+      const matchNombre = p.nombrePuesto.toLowerCase().includes(this.filtros.nombre.toLowerCase());
+      const matchDescripcion = (p.descripcion || '').toLowerCase().includes(this.filtros.descripcion.toLowerCase());
+      return matchCodigo && matchNombre && matchDescripcion;
+    });
+    this.currentPage = 1;
+  }
+
+  limpiarFiltros() {
+    this.filtros = { codigo: '', nombre: '', descripcion: '' };
+    this.puestosFiltrados = [...this.puestos];
+    this.currentPage = 1;
+  }
+
   resetForm() {
-    this.isEditing = false;
     this.isReadOnly = false;
     this.currentId = null;
     this.puestoForm.reset();
