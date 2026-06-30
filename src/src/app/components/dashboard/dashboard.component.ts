@@ -202,6 +202,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 </div>
 </div>
+
 </div>
 <!-- Recent Activity / Floating Data -->
 <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-gutter">

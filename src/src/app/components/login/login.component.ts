@@ -38,6 +38,7 @@ import { CommonModule } from '@angular/common';
         </form>
       </div>
     </div>
+    
   `
 })
 export class LoginComponent {
