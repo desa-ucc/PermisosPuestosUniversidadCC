@@ -17,199 +17,136 @@ import { PermissionService, Permiso } from '../../services/permission.service';
     </p>
   </div>
 
-  <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden">
-    <!-- Tabs -->
-    <div class="flex border-b border-outline-variant/20 bg-surface">
-      <button
-        (click)="activeTab = 'roles'"
-        [class.border-b-2]="activeTab === 'roles'"
-        [class.border-primary]="activeTab === 'roles'"
-        [class.text-primary]="activeTab === 'roles'"
-        [class.text-on-surface-variant]="activeTab !== 'roles'"
-        class="px-6 py-4 font-label-lg font-bold transition-all hover:bg-surface-container-highest">
-        Matriz de Permisos
-      </button>
-      <button
-        (click)="activeTab = 'usuarios'"
-        [class.border-b-2]="activeTab === 'usuarios'"
-        [class.border-primary]="activeTab === 'usuarios'"
-        [class.text-primary]="activeTab === 'usuarios'"
-        [class.text-on-surface-variant]="activeTab !== 'usuarios'"
-        class="px-6 py-4 font-label-lg font-bold transition-all hover:bg-surface-container-highest">
-        Usuarios del Sistema
+  <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative">
+
+    <!-- Toolbar de Filtros Estándar (Roles) -->
+    <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+      <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
+      <input type="text" placeholder="Filtrar por Rol..." [(ngModel)]="filtrosRoles.nombre" (input)="aplicarFiltrosRoles()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+      <button (click)="limpiarFiltrosRoles()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+        <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
       </button>
     </div>
 
-    <!-- Pestaña: Matriz de Permisos -->
-    <div *ngIf="activeTab === 'roles'" class="p-0">
+    <div class="overflow-x-auto">
+      <table class="ucc-table">
+        <thead>
+          <tr>
+            <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-left w-1/4">ID</th>
+            <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-left w-1/2">Nombre del Rol</th>
+            <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase w-1/4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(rol of rolesFiltrados; track rol.id) {
+            <tr class="hover:bg-surface-container-lowest transition-colors">
+              <td class="py-4 px-6 font-body-md text-body-md font-bold text-secondary">{{rol.id}}</td>
+              <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">{{rol.nombre}}</td>
+              <td class="py-4 px-6">
+                <div class="flex justify-center gap-3">
+                  <button (click)="abrirModalPermisos(rol)" class="ucc-btn-primary flex items-center gap-2 px-3 py-1 text-sm rounded-full">
+                    <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Editar Permisos
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="py-8 px-6 text-center font-body-md text-on-surface-variant">No hay roles registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-      <!-- Select Rol -->
-      <div class="p-6 bg-surface border-b border-outline-variant/20 flex items-center gap-4">
-        <label class="font-label-md font-bold text-secondary">Seleccione un Rol para configurar:</label>
-        <select class="ucc-input w-64" [(ngModel)]="selectedRoleId" (change)="onRoleChange()">
-          <option [ngValue]="null">-- Seleccione un Rol --</option>
-          <option *ngFor="let rol of roles" [value]="rol.id">{{rol.nombre}}</option>
-        </select>
+    <!-- Modal de Edición de Permisos -->
+    <div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
 
-        <button *ngIf="selectedRoleId" (click)="guardarPermisos()" class="ucc-btn-primary ml-auto flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">save</span>
-          Guardar Cambios
-        </button>
-      </div>
-
-      <!-- Data Table Permisos -->
-      <section class="ucc-table-container mt-0 rounded-none border-0 shadow-none">
-
-        <!-- Toolbar de Filtros Estándar -->
-        <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-          <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-          <input type="text" placeholder="Filtrar por Pantalla..." [(ngModel)]="filtrosPermisos.pantalla" (input)="aplicarFiltrosPermisos()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-64">
-          <button (click)="limpiarFiltrosPermisos()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-            <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
+        <!-- Header del Modal -->
+        <div class="flex justify-between items-center p-6 border-b border-outline-variant/20 bg-secondary">
+          <h3 class="font-title-lg text-title-lg text-white">Editar Permisos: {{rolSeleccionado?.nombre}}</h3>
+          <button (click)="cerrarModal()" class="text-white hover:text-white/70 transition-colors">
+            <span class="material-symbols-outlined text-[24px]">close</span>
           </button>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="ucc-table">
-            <thead>
-              <tr>
-                <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-left w-1/3">Pantalla / Módulo</th>
-                <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Ver</th>
-                <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Crear</th>
-                <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Editar</th>
-                <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Eliminar</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if(!selectedRoleId) {
-                <tr>
-                  <td colspan="5" class="py-8 px-6 text-center font-body-md text-on-surface-variant">
-                    Seleccione un rol para visualizar y editar su matriz de permisos.
-                  </td>
-                </tr>
-              } @else {
-                @for(permiso of permisosFiltrados; track permiso.pantallaId) {
-                  <tr class="hover:bg-surface-container-lowest transition-colors">
-                    <td class="py-4 px-6 font-body-md text-body-md font-bold text-secondary">{{permiso.pantallaId}}</td>
+        <!-- Cuerpo del Modal -->
+        <div class="p-6 overflow-y-auto bg-surface-container-low flex-1">
+          <div class="grid grid-cols-1 gap-4">
+            <!-- Encabezados Grid -->
+            <div class="grid grid-cols-5 gap-4 bg-surface-container-highest p-3 rounded-t-lg border-b border-outline-variant/20">
+              <div class="font-label-md font-bold text-secondary uppercase tracking-wider pl-2">Pantalla</div>
+              <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Crear</div>
+              <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Editar</div>
+              <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Eliminar</div>
+              <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Ver</div>
+            </div>
 
-                    <td class="py-4 px-6 text-center">
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" [(ngModel)]="permiso.puedeVer" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
-                      </label>
-                    </td>
+            <!-- Filas Grid -->
+            @for(permiso of permisosActuales; track permiso.pantallaId) {
+              <div class="grid grid-cols-5 gap-4 items-center p-3 border-b border-outline-variant/10 hover:bg-surface-container transition-colors">
+                <div class="font-body-md font-bold text-secondary pl-2">{{permiso.pantallaId}}</div>
 
-                    <td class="py-4 px-6 text-center">
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" [(ngModel)]="permiso.puedeCrear" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
-                      </label>
-                    </td>
+                <div class="flex justify-center">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="permiso.puedeCrear" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
+                  </label>
+                </div>
 
-                    <td class="py-4 px-6 text-center">
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" [(ngModel)]="permiso.puedeEditar" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
-                      </label>
-                    </td>
+                <div class="flex justify-center">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="permiso.puedeEditar" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
+                  </label>
+                </div>
 
-                    <td class="py-4 px-6 text-center">
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" [(ngModel)]="permiso.puedeEliminar" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
-                      </label>
-                    </td>
-                  </tr>
-                }
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+                <div class="flex justify-center">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="permiso.puedeEliminar" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
+                  </label>
+                </div>
 
-    <!-- Pestaña: Usuarios -->
-    <div *ngIf="activeTab === 'usuarios'" class="p-0">
-
-      <!-- Toolbar de Filtros Estándar -->
-      <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-        <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-        <input type="text" placeholder="Filtrar por Usuario..." [(ngModel)]="filtrosUsuarios.usuario" (input)="aplicarFiltrosUsuarios()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-        <input type="text" placeholder="Filtrar por Email..." [(ngModel)]="filtrosUsuarios.email" (input)="aplicarFiltrosUsuarios()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-        <button (click)="limpiarFiltrosUsuarios()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-          <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
-        </button>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="ucc-table">
-          <thead>
-            <tr>
-              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-left">Usuario</th>
-              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-left">Email</th>
-              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-center">Rol Asignado</th>
-              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase text-center">Estado</th>
-              <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for(usuario of usuariosFiltrados; track usuario.id) {
-              <tr class="hover:bg-surface-container-lowest transition-colors">
-                <td class="py-4 px-6 font-body-md text-body-md font-bold text-secondary">{{usuario.nombreUsuario}}</td>
-                <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">{{usuario.email}}</td>
-                <td class="py-4 px-6 text-center">
-                  <span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-xs font-bold">
-                    {{getRolName(usuario.rolId)}}
-                  </span>
-                </td>
-                <td class="py-4 px-6 text-center">
-                  <span class="px-3 py-1 rounded-full text-xs font-bold" [ngClass]="usuario.activo ? 'bg-success/20 text-success' : 'bg-error/20 text-error'">
-                    {{usuario.activo ? 'Activo' : 'Inactivo'}}
-                  </span>
-                </td>
-                <td class="py-4 px-6">
-                  <div class="flex justify-center gap-3">
-                    <button class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all" title="Editar">
-                      <span class="material-symbols-outlined" data-icon="edit">edit</span>
-                    </button>
-                    <button class="p-2 text-error hover:bg-error/10 rounded-full transition-all" title="Eliminar">
-                      <span class="material-symbols-outlined" data-icon="delete">delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="py-8 px-6 text-center font-body-md text-on-surface-variant">No hay usuarios registrados o que coincidan con la búsqueda.</td>
-              </tr>
+                <div class="flex justify-center">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="permiso.puedeVer" class="form-checkbox h-5 w-5 text-primary rounded border-outline-variant focus:ring-primary focus:ring-offset-surface">
+                  </label>
+                </div>
+              </div>
             }
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        <!-- Footer del Modal -->
+        <div class="flex justify-end gap-3 p-4 border-t border-outline-variant/20 bg-surface">
+          <button (click)="cerrarModal()" class="ucc-btn-secondary px-6">Cancelar</button>
+          <button (click)="guardarPermisos()" class="ucc-btn-primary px-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">save</span> Guardar Cambios
+          </button>
+        </div>
+
       </div>
     </div>
+
   </div>
 </main>
   `
 })
 export class SeguridadComponent implements OnInit {
-  activeTab: 'roles' | 'usuarios' = 'roles';
-
   // Data
   roles: any[] = [];
-  usuarios: any[] = [];
+  rolesFiltrados: any[] = [];
+  filtrosRoles = { nombre: '' };
 
-  // Tab Roles/Permisos
-  selectedRoleId: number | null = null;
+  // Modal State
+  isModalOpen = false;
+  rolSeleccionado: any | null = null;
   permisosActuales: Permiso[] = [];
-  permisosFiltrados: Permiso[] = [];
 
-  // Las pantallas dinámicas disponibles en el sistema (idealmente cargadas desde config o enum)
+  // Las pantallas dinámicas disponibles en el sistema
   pantallasSistema: string[] = [
     'PUESTOS', 'COLABORADORES', 'HARDWARE', 'HARDWARE_IDEAL',
     'SOFTWARE', 'SITIOS', 'PLATAFORMAS', 'REPORTES', 'SEGURIDAD'
   ];
-
-  filtrosPermisos = { pantalla: '' };
-
-  // Tab Usuarios
-  usuariosFiltrados: any[] = [];
-  filtrosUsuarios = { usuario: '', email: '' };
 
   constructor(private permissionService: PermissionService) {}
 
@@ -219,33 +156,39 @@ export class SeguridadComponent implements OnInit {
 
   cargarDatosBase() {
     this.permissionService.getAllRoles().subscribe({
-      next: (res) => this.roles = res,
-      error: (err) => console.error('Error loading roles', err)
-    });
-
-    this.permissionService.getUsuarios().subscribe({
       next: (res) => {
-        this.usuarios = res;
-        this.usuariosFiltrados = [...this.usuarios];
+        this.roles = res;
+        this.rolesFiltrados = [...this.roles];
       },
-      error: (err) => console.error('Error loading users', err)
+      error: (err) => console.error('Error loading roles', err)
     });
   }
 
-  onRoleChange() {
-    if (!this.selectedRoleId) {
-      this.permisosActuales = [];
-      this.permisosFiltrados = [];
-      return;
+  aplicarFiltrosRoles() {
+    if (!this.filtrosRoles.nombre) {
+      this.rolesFiltrados = [...this.roles];
+    } else {
+      const search = this.filtrosRoles.nombre.toLowerCase();
+      this.rolesFiltrados = this.roles.filter(r =>
+        r.nombre.toLowerCase().includes(search)
+      );
     }
+  }
 
-    this.permissionService.getPermisosPorRol(this.selectedRoleId).subscribe({
+  limpiarFiltrosRoles() {
+    this.filtrosRoles.nombre = '';
+    this.aplicarFiltrosRoles();
+  }
+
+  abrirModalPermisos(rol: any) {
+    this.rolSeleccionado = rol;
+    this.permissionService.getPermisosPorRol(rol.id).subscribe({
       next: (res) => {
         // Asegurarnos de que todas las pantallas existan en la matriz del rol
         this.permisosActuales = this.pantallasSistema.map(pantalla => {
           const permisoExistente = res.find((p: Permiso) => p.pantallaId === pantalla);
           return permisoExistente || {
-            roleId: this.selectedRoleId!,
+            roleId: rol.id,
             pantallaId: pantalla,
             puedeCrear: false,
             puedeEditar: false,
@@ -253,55 +196,27 @@ export class SeguridadComponent implements OnInit {
             puedeVer: false
           };
         });
-
-        this.aplicarFiltrosPermisos();
+        this.isModalOpen = true;
       },
       error: (err) => console.error('Error loading permissions', err)
     });
   }
 
-  // --- Filtros Tab Permisos ---
-  aplicarFiltrosPermisos() {
-    if (!this.filtrosPermisos.pantalla) {
-      this.permisosFiltrados = [...this.permisosActuales];
-    } else {
-      const search = this.filtrosPermisos.pantalla.toLowerCase();
-      this.permisosFiltrados = this.permisosActuales.filter(p =>
-        p.pantallaId.toLowerCase().includes(search)
-      );
-    }
-  }
-
-  limpiarFiltrosPermisos() {
-    this.filtrosPermisos.pantalla = '';
-    this.aplicarFiltrosPermisos();
+  cerrarModal() {
+    this.isModalOpen = false;
+    this.rolSeleccionado = null;
+    this.permisosActuales = [];
   }
 
   guardarPermisos() {
-    if (!this.selectedRoleId) return;
+    if (!this.rolSeleccionado) return;
 
-    this.permissionService.guardarPermisos(this.selectedRoleId, this.permisosActuales).subscribe({
-      next: () => alert('Permisos guardados correctamente'),
+    this.permissionService.guardarPermisos(this.rolSeleccionado.id, this.permisosActuales).subscribe({
+      next: () => {
+        alert('Permisos guardados correctamente');
+        this.cerrarModal();
+      },
       error: (err) => alert('Error al guardar permisos')
     });
-  }
-
-  // --- Filtros Tab Usuarios ---
-  aplicarFiltrosUsuarios() {
-    this.usuariosFiltrados = this.usuarios.filter(u => {
-      const matchUsuario = u.nombreUsuario.toLowerCase().includes(this.filtrosUsuarios.usuario.toLowerCase());
-      const matchEmail = u.email.toLowerCase().includes(this.filtrosUsuarios.email.toLowerCase());
-      return matchUsuario && matchEmail;
-    });
-  }
-
-  limpiarFiltrosUsuarios() {
-    this.filtrosUsuarios = { usuario: '', email: '' };
-    this.usuariosFiltrados = [...this.usuarios];
-  }
-
-  getRolName(rolId: number): string {
-    const rol = this.roles.find(r => r.id === rolId);
-    return rol ? rol.nombre : 'Desconocido';
   }
 }
