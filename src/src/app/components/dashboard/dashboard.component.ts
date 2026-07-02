@@ -13,10 +13,6 @@ import { ApiService } from '../../services/api.service';
 <h2 class="font-display-lg text-headline-lg text-secondary">Dashboard Operativo</h2>
 <p class="text-body-lg font-body-lg text-on-surface-variant">Resumen ejecutivo del cumplimiento y asignaciones de activos.</p>
 </div>
-<button class="bg-primary-container text-on-primary-fixed-variant font-label-md text-label-md px-6 py-3 rounded-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-md">
-<span class="material-symbols-outlined">add</span>
-                Nuevo Registro
-            </button>
 </div>
 <!-- 4 Stat Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-8">
@@ -128,84 +124,10 @@ import { ApiService } from '../../services/api.service';
 <p class="text-label-md text-on-secondary-fixed-variant">Se detectaron 3 dispositivos con software no autorizado fuera del catálogo.</p>
 </div>
 </div>
-<!-- Bar Chart: Software Instalado -->
-<div class="col-span-12 ucc-card p-0">
-<div class="flex justify-between items-center mb-8">
-<div>
-<h3 class="font-title-lg text-title-lg text-secondary">Software Instalado vs Catálogo Base</h3>
-<p class="text-body-md text-on-surface-variant">Comparativa mensual de instalaciones por categoría de software.</p>
-</div>
-<div class="flex gap-2">
-<button class="px-4 py-2 rounded-lg bg-surface-container-low text-label-md text-on-surface border border-outline-variant">Mes Actual</button>
-<button class="px-4 py-2 rounded-lg hover:bg-surface-container-low text-label-md text-on-surface-variant transition-all">Histórico</button>
-</div>
-</div>
-<div class="grid grid-cols-7 gap-4 h-64 items-end">
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-48 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-52 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Lunes</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-32 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-40 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Martes</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-56 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-48 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Miércoles</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-40 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-44 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Jueves</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-24 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-32 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Viernes</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-12 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-16 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Sábado</span>
-</div>
-<div class="flex flex-col items-center gap-2 group">
-<div class="relative w-full flex justify-center gap-1 items-end">
-<div class="w-6 bg-secondary h-8 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-<div class="w-6 bg-primary-container h-12 rounded-t-sm group-hover:opacity-80 transition-opacity"></div>
-</div>
-<span class="text-label-md text-on-surface-variant">Domingo</span>
-</div>
-</div>
-<div class="mt-8 flex justify-center gap-8 border-t border-outline-variant pt-6">
-<div class="flex items-center gap-2">
-<span class="w-4 h-4 rounded-sm bg-secondary"></span>
-<span class="text-body-md text-on-surface-variant">Hardware Activo</span>
-</div>
-<div class="flex items-center gap-2">
-<span class="w-4 h-4 rounded-sm bg-primary-container"></span>
-<span class="text-body-md text-on-surface-variant">Software Licenciado</span>
-</div>
-</div>
-</div>
 
 </div>
 <!-- Recent Activity / Floating Data -->
-<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!--<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-gutter">
 <div class="lg:col-span-1 ucc-card hover:-translate-y-1 transition-transform duration-300">
 <h3 class="font-title-lg text-title-lg text-secondary mb-4">Alertas de Permisos</h3>
 <div class="space-y-4">
@@ -225,7 +147,7 @@ import { ApiService } from '../../services/api.service';
 </div>
 </div>
 </div>
-<div class="lg:col-span-2 bg-ucc-secondary text-white p-6 rounded-xl relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+ <div class="lg:col-span-2 bg-ucc-secondary text-white p-6 rounded-xl relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
 <div class="relative z-10">
 <h3 class="font-title-lg text-title-lg mb-2">Auditoría Semestral</h3>
 <p class="text-body-md opacity-80 mb-6">Faltan 14 días para el próximo cierre de auditoría de seguridad informática y hardware.</p>
@@ -233,12 +155,12 @@ import { ApiService } from '../../services/api.service';
 <button class="bg-primary-container text-on-primary-fixed-variant px-6 py-2 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all">Iniciar Pre-auditoría</button>
 <button class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-lg font-label-md text-label-md transition-all">Descargar Reporte</button>
 </div>
-</div>
+</div> 
 <div class="absolute -right-10 -bottom-10 opacity-20 rotate-12">
 <span class="material-symbols-outlined text-[200px]">security</span>
 </div>
 </div>
-</div>
+</div>-->
   `
 })
 export class DashboardComponent implements OnInit {

@@ -71,21 +71,15 @@ import { Puesto } from '../../models/models';
 <!-- Toolbar de Filtros Estándar -->
 <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
   <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-  <input type="text" placeholder="Filtrar por Código..." [(ngModel)]="filtros.codigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" placeholder="Filtrar por Nombre..." [(ngModel)]="filtros.nombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" placeholder="Filtrar por Descripción..." [(ngModel)]="filtros.descripcion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+  <input type="text" placeholder="Filtrar por Código" [(ngModel)]="filtros.codigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
+  <input type="text" placeholder="Filtrar por Nombre" [(ngModel)]="filtros.nombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
+  <input type="text" placeholder="Filtrar por Descripción" [(ngModel)]="filtros.descripcion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
   <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
     <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
   </button>
 </div>
 
-<div class="p-md flex justify-between items-center border-b border-outline-variant/20 bg-secondary">
-<h3 class="font-title-lg text-title-lg text-white">Puestos Registrados</h3>
-<button class="hover:bg-white/10 px-4 py-2 rounded-lg transition-all flex items-center gap-2 border border-white/30 text-white">
-<span class="material-symbols-outlined" data-icon="file_download">file_download</span>
-<span class="font-label-md text-label-md">Exportar Listado</span>
-</button>
-</div>
+
 <div class="overflow-x-auto">
 <table class="ucc-table">
 <thead>
