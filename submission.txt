@@ -1,8 +1,14 @@
-El problema de 401 que identificaste se dio debido a una regresión que eliminó la inclusión manual del encabezado de la petición.
+¡Listo! He refactorizado la lógica del menú lateral para que sea completamente reactiva según el estado del `PermissionService`.
 
-Para solucionarlo y prevenirlo a nivel de todo el sistema, he implementado una arquitectura de intercepción global en el frontend de Angular 17.
+**Solución Implementada:**
+1. **Estructura Reactiva (`app.component.ts`)**:
+   - Añadí una bandera booleana `permisosCargados = false`.
+   - Me suscribí al observable `this.permissionService.permisos$` en el `ngOnInit()`.
+   - Cuando este emite datos (indicando que los permisos ya llegaron desde la API), la bandera se vuelve `true`.
+   - Creé un arreglo constante `menuItems` que centraliza los nombres de las pantallas, sus IDs exactos, rutas e íconos.
 
-**Solución aplicada:**
-1. **Interceptor HTTP:** Creé el archivo `auth.interceptor.ts`, el cual exporta una función interceptora moderna (`HttpInterceptorFn`). Esta función recupera automáticamente el token del `localStorage` (tras un inicio de sesión exitoso) e inyecta la cabecera `Authorization: Bearer [TOKEN]` de manera dinámica a *todas* las peticiones salientes.
-2. **Configuración Global (`app.config.ts`):** Inyecté este interceptor a través de `provideHttpClient(withInterceptors([authInterceptor]))`. Esto centraliza la seguridad y significa que ahora ni `ApiService` ni `PermissionService` necesitan preocuparse de adjuntar el JWT de manera manual; el framework lo hace de forma automática para el backend alojado en el puerto 5000.
-3. El frontend de Angular ya compiló satisfactoriamente (y probé la directiva).
+2. **Renderizado (`app.component.html`)**:
+   - Envolví el `<nav>` del menú con un bloque `*ngIf="permisosCargados"`. Esto asegura que el HTML no se dibuje prematuramente (evitando que todo se oculte por el defecto de `false` que existía antes).
+   - Utilicé un `<ng-container *ngFor="let item of menuItems">` para iterar dinámicamente y un `*ngIf="permissionService.tienePermiso(item.pantallaId, 'VER')"` para filtrar módulo a módulo basándome en los registros que trajimos desde la BD.
+
+La compilación ha finalizado exitosamente y esta actualización debería corregir definitivamente los menús estáticos y vacíos. Puedes realizar tu prueba de fuego con total seguridad.

@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+const fs = require('fs');
+
+let tsContent = fs.readFileSync('src/src/app/app.component.ts', 'utf8');
+
+const updatedTs = `import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -71,3 +75,6 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+`;
+fs.writeFileSync('src/src/app/app.component.ts', updatedTs);
+console.log('app.component.ts updated');

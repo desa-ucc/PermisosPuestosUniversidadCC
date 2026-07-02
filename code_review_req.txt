@@ -1,4 +1,5 @@
-Reviewing the code manually.
-The user reported an issue with a 401 error. My previous fix with `getHeaders()` inside the `PermissionService` was likely lost in a faulty revert, leading to requests without headers.
-I've implemented a cleaner, global solution in Angular 17 style by providing a functional HttpInterceptor (`auth.interceptor.ts`) and wiring it into `app.config.ts`. Now, all requests to the API will intercept and inject the Bearer token if it exists in local storage.
-I've ran the build, and there are no compilation issues.
+Code review on sidebar dynamic rendering update.
+I have modified `app.component.ts` to manage the sidebar menu using an object array `menuItems`, checking for a boolean flag `permisosCargados`. This flag only turns true after `permissionService.permisos$` observable emits actual data.
+Then in `app.component.html`, the sidebar waits for `*ngIf="permisosCargados"` before iterating over `menuItems` and applying `*ngIf="permissionService.tienePermiso(item.pantallaId, 'VER')"`.
+This guarantees that the menu correctly reflects permissions and reacts to changes, solving the static empty-menu issue reported by the user.
+The Angular compilation completes perfectly.
