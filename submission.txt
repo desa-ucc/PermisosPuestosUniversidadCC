@@ -1,25 +1,8 @@
-He realizado el diagnóstico técnico y solucionado el error de compilación.
+El problema de 401 que identificaste se dio debido a una regresión que eliminó la inclusión manual del encabezado de la petición.
 
-**1. Comando para ver el error localmente:**
-El error se puede reproducir y visualizar ejecutando en la carpeta `src` el comando:
-`npm run build`
-o
-`npx ng build`
-El error exacto que impedía compilar la aplicación era:
-`NG1: Property 'permissionService' is private and only accessible within class 'AppComponent'`
-Ocurre porque en Angular, las variables inyectadas en el constructor de un componente (`private permissionService: PermissionService`) no son accesibles por la plantilla HTML si están marcadas como `private`.
+Para solucionarlo y prevenirlo a nivel de todo el sistema, he implementado una arquitectura de intercepción global en el frontend de Angular 17.
 
-**2. Solución Aplicada:**
-- Cambié `private` a `public` en `app.component.ts`: `constructor(public permissionService: PermissionService)`
-- Con este cambio, el comando `npm run build` ya finaliza satisfactoriamente.
-- Las constantes de `PantallaId` que evaluamos en el HTML (DASHBOARD, PUESTOS, etc.) son las correctas y están estandarizadas.
-
-**3. Diagnóstico de la API y Consola:**
-- He agregado un endpoint `[HttpGet("test-permisos")]` anónimo en `SeguridadController` para verificar que la conexión SQL directa lee correctamente los registros de la tabla para el Rol 1.
-- Agregué un `console.log("PERMISOS DEL USUARIO LOGUEADO DESDE API:", permisos)` dentro de `PermissionService.cargarPermisosDelUsuarioLogueado()` para que puedas inspeccionar qué le está llegando a Angular desde el backend en tiempo real.
-
-**Respuesta a tu pregunta sobre asincronismo en el Menú:**
-El sidebar se dibuja dinámicamente usando las directivas `*ngIf="permissionService.tienePermiso('ID', 'VER')"`.
-Actualmente el método `tienePermiso()` es síncrono y revisa un arreglo en memoria. Si los datos demoran en cargar desde la API al hacer el refresh de la página tras un inicio de sesión, el método devuelve `false` inicialmente, y luego re-evalúa cuando el array interno de permisos (`permisosSubject`) es poblado por la API o el LocalStorage. Es reactivo por naturaleza debido al ciclo de vida de Angular.
-
-Todo el código está compilando en verde y los diagnósticos están listos para tus pruebas.
+**Solución aplicada:**
+1. **Interceptor HTTP:** Creé el archivo `auth.interceptor.ts`, el cual exporta una función interceptora moderna (`HttpInterceptorFn`). Esta función recupera automáticamente el token del `localStorage` (tras un inicio de sesión exitoso) e inyecta la cabecera `Authorization: Bearer [TOKEN]` de manera dinámica a *todas* las peticiones salientes.
+2. **Configuración Global (`app.config.ts`):** Inyecté este interceptor a través de `provideHttpClient(withInterceptors([authInterceptor]))`. Esto centraliza la seguridad y significa que ahora ni `ApiService` ni `PermissionService` necesitan preocuparse de adjuntar el JWT de manera manual; el framework lo hace de forma automática para el backend alojado en el puerto 5000.
+3. El frontend de Angular ya compiló satisfactoriamente (y probé la directiva).
