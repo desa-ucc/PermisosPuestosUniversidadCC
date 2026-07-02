@@ -11,6 +11,7 @@ import { PlataformasComponent } from './components/plataformas/plataformas.compo
 import { ReportesComponent } from './components/reportes/reportes.component';
 import { CatalogosComponent } from './components/catalogos/catalogos.component';
 import { AuthGuard } from './guards/auth.guard';
+import { SeguridadComponent } from './components/seguridad/seguridad.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,6 +25,7 @@ export const routes: Routes = [
   { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
   { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },
   { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard] },
+  { path: 'seguridad', component: SeguridadComponent, canActivate: [AuthGuard] },
 
   // Ruta por defecto explícita
   { path: '', redirectTo: 'login', pathMatch: 'full' },
