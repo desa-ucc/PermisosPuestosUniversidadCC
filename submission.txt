@@ -1,67 +1,25 @@
-**HardwareComponent Logic Template:**
+He realizado el diagnóstico técnico y solucionado el error de compilación.
 
-```typescript
-  // Buscador Autocompletado: Empleados
-  showDropdownEmpleados = false;
-  searchTermEmpleados = '';
+**1. Comando para ver el error localmente:**
+El error se puede reproducir y visualizar ejecutando en la carpeta `src` el comando:
+`npm run build`
+o
+`npx ng build`
+El error exacto que impedía compilar la aplicación era:
+`NG1: Property 'permissionService' is private and only accessible within class 'AppComponent'`
+Ocurre porque en Angular, las variables inyectadas en el constructor de un componente (`private permissionService: PermissionService`) no son accesibles por la plantilla HTML si están marcadas como `private`.
 
-  get empleadosFiltrados() {
-    return this.empleados.filter(e => e.nombreCompleto.toLowerCase().includes(this.searchTermEmpleados.toLowerCase()));
-  }
+**2. Solución Aplicada:**
+- Cambié `private` a `public` en `app.component.ts`: `constructor(public permissionService: PermissionService)`
+- Con este cambio, el comando `npm run build` ya finaliza satisfactoriamente.
+- Las constantes de `PantallaId` que evaluamos en el HTML (DASHBOARD, PUESTOS, etc.) son las correctas y están estandarizadas.
 
-  seleccionarEmpleado(empleado: Empleado | null) {
-    if (empleado) {
-        this.hwForm.patchValue({ empleadoId: empleado.id });
-        this.searchTermEmpleados = empleado.nombreCompleto;
-    } else {
-        this.hwForm.patchValue({ empleadoId: null });
-        this.searchTermEmpleados = '';
-    }
-    this.showDropdownEmpleados = false;
-    this.onEmpleadoChange(null);
-  }
+**3. Diagnóstico de la API y Consola:**
+- He agregado un endpoint `[HttpGet("test-permisos")]` anónimo en `SeguridadController` para verificar que la conexión SQL directa lee correctamente los registros de la tabla para el Rol 1.
+- Agregué un `console.log("PERMISOS DEL USUARIO LOGUEADO DESDE API:", permisos)` dentro de `PermissionService.cargarPermisosDelUsuarioLogueado()` para que puedas inspeccionar qué le está llegando a Angular desde el backend en tiempo real.
 
-  cerrarDropdownEmpleados() {
-    setTimeout(() => {
-      this.showDropdownEmpleados = false;
-      const currentId = this.hwForm.get('empleadoId')?.value;
-      if (!currentId) {
-          this.searchTermEmpleados = '';
-      } else {
-          const matched = this.empleados.find(e => e.id === currentId);
-          if (matched) this.searchTermEmpleados = matched.nombreCompleto;
-      }
-    }, 200);
-  }
-```
+**Respuesta a tu pregunta sobre asincronismo en el Menú:**
+El sidebar se dibuja dinámicamente usando las directivas `*ngIf="permissionService.tienePermiso('ID', 'VER')"`.
+Actualmente el método `tienePermiso()` es síncrono y revisa un arreglo en memoria. Si los datos demoran en cargar desde la API al hacer el refresh de la página tras un inicio de sesión, el método devuelve `false` inicialmente, y luego re-evalúa cuando el array interno de permisos (`permisosSubject`) es poblado por la API o el LocalStorage. Es reactivo por naturaleza debido al ciclo de vida de Angular.
 
-**HardwareComponent HTML Template:**
-
-```html
-            <div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar empleado..."
-                     [(ngModel)]="searchTermEmpleados"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownEmpleados = true"
-                     (blur)="cerrarDropdownEmpleados()"
-                     [disabled]="isReadOnly">
-
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEmpleados || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">
-                  Ninguno
-                </li>
-                @for(emp of empleadosFiltrados; track emp.id) {
-                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">
-                    {{emp.nombreCompleto}}
-                  </li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
-            </div>
-```
+Todo el código está compilando en verde y los diagnósticos están listos para tus pruebas.

@@ -1,0 +1,7 @@
+Reviewing the code manually. I have:
+1. Re-patched `AppDbContext.cs` and `Models.cs` which had their classes wiped previously due to a faulty overwrite script. The DB context now properly recognizes `Rol` and `Permiso`.
+2. Created a `test-permisos` anonymous endpoint in the API.
+3. Added a `console.log` in `PermissionService.ts` to output the loaded permissions array.
+4. Addressed the build failing due to `permissionService` being `private` inside `app.component.ts`. The Angular template relies on `permissionService.tienePermiso(...)`, so the service must be `public`. I ran `npm run build` and it passes.
+
+Everything requested by the user for diagnostics and compilation is addressed.

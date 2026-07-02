@@ -85,6 +85,7 @@ namespace PermisosPuestosApi.Models
         public string NombreUsuario { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string NombreRol { get; set; } = string.Empty;
+        public int RolId { get; set; }
     }
 
     public class EmpleadoDto
@@ -96,6 +97,25 @@ namespace PermisosPuestosApi.Models
         public int? PuestoId { get; set; }
         public DateTime FechaRegistro { get; set; }
         public string? NombrePuesto { get; set; }
+    }
+
+
+    public class Rol
+    {
+        [Key] public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+    }
+
+    public class Permiso
+    {
+        [Key] public int Id { get; set; }
+        public int RoleId { get; set; }
+        public string PantallaId { get; set; } = string.Empty;
+        public bool PuedeCrear { get; set; }
+        public bool PuedeEditar { get; set; }
+        public bool PuedeEliminar { get; set; }
+        public bool PuedeVer { get; set; }
     }
 
     public class LoginRequest

@@ -1,4 +1,26 @@
-using Microsoft.AspNetCore.Authorization;
+const fs = require('fs');
+
+let controllerPath = 'PermisosPuestosApi/Controllers/SeguridadController.cs';
+let content = fs.readFileSync(controllerPath, 'utf8');
+
+// replace the duplicated routing
+content = content.replace(/\[HttpGet\("mis-permisos"\)\]\s*\[AllowAnonymous\]\s*public async Task<IActionResult> TestPermisos\(\)\s*\{[\s\S]*?\}\s*\[HttpGet\("mis-permisos"\)\]\s*public async Task<IActionResult> GetMisPermisos\(\)/m, `
+        [HttpGet("test-permisos")]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestPermisos()
+        {
+            var roleIdParam = new SqlParameter("@RoleId", 1);
+            var permisos = await _context.Permisos
+                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
+                .ToListAsync();
+            return Ok(permisos);
+        }
+
+        [HttpGet("mis-permisos")]
+        public async Task<IActionResult> GetMisPermisos()`);
+
+// Let's just rewrite the specific section to be safe
+const fullController = `using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -154,3 +176,6 @@ namespace PermisosPuestosApi.Controllers
         }
     }
 }
+`;
+fs.writeFileSync(controllerPath, fullController);
+console.log('Controller overwritten');

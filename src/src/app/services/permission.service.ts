@@ -27,6 +27,7 @@ export class PermissionService {
   cargarPermisosDelUsuarioLogueado(): Observable<Permiso[]> {
     return this.http.get<Permiso[]>(`${this.apiUrl}/seguridad/mis-permisos`).pipe(
       tap(permisos => {
+        console.log("PERMISOS DEL USUARIO LOGUEADO DESDE API:", permisos);
         this.permisosSubject.next(permisos);
         localStorage.setItem('permisos', JSON.stringify(permisos));
       })
