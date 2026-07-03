@@ -14,8 +14,11 @@ namespace PermisosPuestosApi.Controllers
     {
         private readonly AppDbContext _context;
 
-        public SeguridadController(AppDbContext context)
+        private readonly ILogger<SeguridadController> _logger;
+
+        public SeguridadController(AppDbContext context, ILogger<SeguridadController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -37,6 +40,8 @@ namespace PermisosPuestosApi.Controllers
 
             if (string.IsNullOrEmpty(rolIdClaim) || !int.TryParse(rolIdClaim, out int rolId))
                 return Unauthorized();
+
+            _logger.LogInformation("Ejecutando sp_ObtenerPermisosPorRol para el usuario...");
 
             var rolIdParam = new SqlParameter("@RoleId", rolId);
 
