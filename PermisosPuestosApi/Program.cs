@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(x =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
             logger.LogError("Error de Autenticación JWT: {Message}", context.Exception.Message);
+            Console.WriteLine($"Error de autenticación JWT: {context.Exception.Message}");
             return Task.CompletedTask;
         },
         OnTokenValidated = context =>

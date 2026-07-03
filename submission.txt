@@ -1,38 +1,19 @@
-He implementado una batería de diagnóstico completo sobre el pipeline de autenticación JWT de .NET.
+He ampliado la instrumentación de diagnóstico tal como lo solicitaste.
 
-Dado que la petición genera un 401 antes de tocar la lógica del controlador, el problema radica estrictamente en el middleware (`UseAuthentication`/`UseAuthorization`) que rechaza el token.
+1. **Log directo con Console.WriteLine:** En `Program.cs`, modifiqué el manejador `OnAuthenticationFailed` dentro de la configuración de JwtBearer. Además de seguir reportándolo al sistema de Logs interno (`ILogger`), forcé una impresión agresiva a la consola nativa (`Console.WriteLine`) para asegurar que verás el mensaje de rechazo de forma irrefutable en tu terminal:
 
-Para que puedas ver **exactamente** por qué la API rechaza el token, agregué escuchas a los eventos de validación JWT en `Program.cs`. Ahora la consola imprimirá alertas específicas:
+   ```csharp
+   OnAuthenticationFailed = context =>
+   {
+       var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+       logger.LogError("Error de Autenticación JWT: {Message}", context.Exception.Message);
+       Console.WriteLine($"Error de autenticación JWT: {context.Exception.Message}");
+       return Task.CompletedTask;
+   }
+   ```
 
-1. **`OnMessageReceived`**: Imprimirá el token JWT crudo que el backend recibe. Si dice "NO TOKEN", sabremos que el Frontend/Interceptor está fallando en enviarlo.
-2. **`OnAuthenticationFailed`**: Si el token llega pero es inválido (ej. firma incorrecta, formato alterado), imprimirá el error técnico de des-serialización.
-3. **`OnChallenge`**: Si la validación falla silenciosamente, este evento te dirá el "por qué" estandarizado (ej. `invalid_token` o `missing_token`).
-4. Además, agregué una primera línea dentro de `GetMisPermisos()` en `SeguridadController.cs` que fuerza la impresión de los Headers y los Claims, para verificar qué tan vacío o lleno llega el contexto HTTP si logra traspasar la barrera.
+2. **Verificación de Esquema JwtBearer:** Corroboro que en la línea 32 de `Program.cs`, el esquema de autenticación y de desafío (`DefaultAuthenticateScheme` y `DefaultChallengeScheme`) sí están configurados explícitamente en `JwtBearerDefaults.AuthenticationScheme`, que bajo el capó se traduce como el esquema "Bearer". Esto significa que cualquier solicitud enviada con la cabecera `Authorization: Bearer <TOKEN>` debería ser interceptada y evaluada por este middleware.
 
-**Código Agregado en Program.cs (Middlewares)**:
-```csharp
-.AddJwtBearer(x =>
-{
-    // ... configuraciones anteriores
-    x.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context => {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogError("Error de Autenticación JWT: {Message}", context.Exception.Message);
-            return Task.CompletedTask;
-        },
-        OnMessageReceived = context => {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Token JWT recibido: {Token}", context.Token ?? "NO TOKEN");
-            return Task.CompletedTask;
-        },
-        OnChallenge = context => {
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("Desafío de Autenticación emitido (401). Error: {Error}, Descripción: {ErrorDescription}", context.Error, context.ErrorDescription);
-            return Task.CompletedTask;
-        }
-    };
-});
-```
+3. **Log de Entrada del Controlador:** Tal como te entregué en el paso anterior, dentro de `SeguridadController`, el método `[HttpGet("mis-permisos")]` cuenta con rastreo estricto de llegada: imprime explícitamente cuando arranca la lectura de las cabeceras (para ver si sobrevivieron los claims de identidad o si fueron blanqueados).
 
-La compilación corre sin errores. Reinicia tu API y realiza un intento de inicio de sesión. La consola te dará inmediatamente la causa del 401.
+Ejecuta de nuevo el flujo de Frontend. Si observas que `OnMessageReceived` (de mi commit anterior) muestra tu token con el log *"Token JWT recibido: eyJ..."* PERO luego imprime *"Error de autenticación JWT:..."*, sabremos con certeza de cirujano que la firma, fecha de expiración o formato del JWT están corrompidos.

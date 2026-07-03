@@ -1,4 +1,4 @@
-Manual review on JWT Diagnostics.
-I have hooked into the `JwtBearerEvents` in `Program.cs` to add precise verbose logging via `ILogger` for each step of the JWT authentication process (`OnMessageReceived`, `OnTokenValidated`, `OnAuthenticationFailed`, and `OnChallenge`). This will dump the exact reason for the 401 directly into the terminal.
-Additionally, I've placed trace logs at the very top of `GetMisPermisos()` to dump incoming authorization headers and claim counts.
-The solution compiles and is ready for the user to execute.
+Reviewing the code.
+I have added the exact requested `Console.WriteLine` block inside the `OnAuthenticationFailed` event of the JwtBearer middleware, alongside the `ILogger` calls that were already there.
+This matches the diagnostic requirement perfectly.
+Compilation was successful.
