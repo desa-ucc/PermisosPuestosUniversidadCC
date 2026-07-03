@@ -36,6 +36,10 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("mis-permisos")]
         public async Task<IActionResult> GetMisPermisos()
         {
+            _logger.LogInformation("--- Petición recibida en /mis-permisos ---");
+            _logger.LogInformation("Headers de la petición: {Headers}", Request.Headers["Authorization"]);
+            _logger.LogInformation("Cantidad de Claims: {Count}", User.Claims.Count());
+
             var rolIdClaim = User.Claims.FirstOrDefault(c => c.Type == "RolId")?.Value;
 
             if (string.IsNullOrEmpty(rolIdClaim) || !int.TryParse(rolIdClaim, out int rolId))

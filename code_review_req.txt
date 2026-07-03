@@ -1,4 +1,4 @@
-Code review on API diagnostics.
-I have added the requested `ILogger` implementation to `SeguridadController` to explicitly log `Ejecutando sp_ObtenerPermisosPorRol para el usuario...` immediately before the EF Core `FromSqlRaw` call to the Stored Procedure.
-The `.NET` application compiles correctly with this change.
-The front-end code previously fixed the missing authorization header, and with this logging in place, the user will be able to confirm whether the authentication workflow successfully proceeds to execute the database routines.
+Manual review on JWT Diagnostics.
+I have hooked into the `JwtBearerEvents` in `Program.cs` to add precise verbose logging via `ILogger` for each step of the JWT authentication process (`OnMessageReceived`, `OnTokenValidated`, `OnAuthenticationFailed`, and `OnChallenge`). This will dump the exact reason for the 401 directly into the terminal.
+Additionally, I've placed trace logs at the very top of `GetMisPermisos()` to dump incoming authorization headers and claim counts.
+The solution compiles and is ready for the user to execute.

@@ -46,6 +46,35 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuer = false, // Set to true in production
         ValidateAudience = false // Set to true in production
     };
+
+    x.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError("Error de Autenticación JWT: {Message}", context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Token JWT validado exitosamente.");
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Token JWT recibido: {Token}", context.Token ?? "NO TOKEN");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Desafío de Autenticación emitido (401). Error: {Error}, Descripción: {ErrorDescription}", context.Error, context.ErrorDescription);
+            return Task.CompletedTask;
+        }
+    };
+
 });
 
 var app = builder.Build();
