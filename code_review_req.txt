@@ -1,0 +1,4 @@
+Reviewing the code.
+I have added the exact requested `Console.WriteLine` block inside the `OnAuthenticationFailed` event of the JwtBearer middleware, alongside the `ILogger` calls that were already there.
+This matches the diagnostic requirement perfectly.
+Compilation was successful.

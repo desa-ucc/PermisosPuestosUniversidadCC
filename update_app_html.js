@@ -1,4 +1,6 @@
-@if (isLoggedIn) {
+const fs = require('fs');
+
+const htmlContent = `@if (isLoggedIn) {
   <!-- Sidebar -->
   <aside class="fixed left-0 top-0 h-full w-[280px] flex flex-col z-50 overflow-y-auto bg-ucc-secondary shadow-xl transition-all duration-300">
     <div class="p-gutter pb-8 flex flex-col gap-1">
@@ -53,3 +55,6 @@
 <main [ngClass]="isLoggedIn ? 'ml-[280px] pt-24 px-md pb-md' : ''">
   <router-outlet></router-outlet>
 </main>
+`;
+fs.writeFileSync('src/src/app/app.component.html', htmlContent);
+console.log('app.component.html updated');
