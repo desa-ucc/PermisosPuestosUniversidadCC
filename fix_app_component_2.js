@@ -1,29 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs/operators';
-import { PermissionService } from './services/permission.service';
+const fs = require('fs');
+const path = require('path');
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
-})
-export class AppComponent implements OnInit {
-  title = 'ProyectoPermisosXPuesto';
-  isLoggedIn = false;
+const filePath = path.join('src', 'src', 'app', 'app.component.ts');
+let content = fs.readFileSync(filePath, 'utf8');
 
-  constructor(
-    private router: Router,
-    public permissionService: PermissionService
-  ) {}
+// replace local storage with session storage
+content = content.replace(/localStorage.removeItem\('permisos'\);/g, "sessionStorage.removeItem('permisos');");
 
-  ngOnInit() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
+// implement redirect if sessionStorage doesn't exist on refresh
+const loginLogic = `
       // Ocultar navbar en la página de login
       const wasLoggedIn = this.isLoggedIn;
       this.isLoggedIn = !event.urlAfterRedirects.includes('/login');
@@ -46,13 +31,9 @@ export class AppComponent implements OnInit {
              this.logout();
           }
       }
-    });
-  }
+`;
 
-  logout() {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('permisos');
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
-  }
-}
+content = content.replace(/\/\/ Ocultar navbar en la página de login[\s\S]*this.permissionService.cargarPermisosDesdeStorage\(\);\n      }/g, loginLogic.trim());
+
+fs.writeFileSync(filePath, content);
+console.log("app.component updated");
