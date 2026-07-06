@@ -3,6 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PermisosPuestosApi.Models
 {
+    public class Permiso
+    {
+        public int Id { get; set; }
+        public int RoleId { get; set; }
+        public string PantallaId { get; set; } = string.Empty;
+        public bool PuedeCrear { get; set; }
+        public bool PuedeEditar { get; set; }
+        public bool PuedeEliminar { get; set; }
+        public bool PuedeVer { get; set; }
+    }
+
     public class Puesto
     {
         [Key] public int Id { get; set; }
@@ -85,6 +96,7 @@ namespace PermisosPuestosApi.Models
         public string NombreUsuario { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string NombreRol { get; set; } = string.Empty;
+        public int RolId { get; set; }
     }
 
     public class EmpleadoDto
