@@ -1,25 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs/operators';
-import { PermissionService } from './services/permission.service';
+const fs = require('fs');
+const path = require('path');
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
-})
-export class AppComponent implements OnInit {
-  title = 'ProyectoPermisosXPuesto';
-  isLoggedIn = false;
+const filePath = path.join('src', 'src', 'app', 'app.component.ts');
+let content = fs.readFileSync(filePath, 'utf8');
 
-  constructor(
-    private router: Router,
-    public permissionService: PermissionService
-  ) {}
-
+// replace ngOnInit properly to avoid duplicate braces and leftover code
+const newNgOnInit = `
   ngOnInit() {
     // Rehidratación de Estado inmediata (para refrescos de página)
     const token = localStorage.getItem('token');
@@ -30,6 +16,9 @@ export class AppComponent implements OnInit {
              this.permissionService.cargarPermisosDesdeStorage();
              this.isLoggedIn = true;
         } else {
+             // Evitamos logout inmediato en la primer carga post-login antes de que event dispare.
+             // Pero si es refresh puro (url no es login), deberíamos.
+             // Lo más seguro es dejar que el evento decida, o verificar la URL actual.
              if(window.location.pathname !== '/login') {
                  this.logout();
              }
@@ -54,11 +43,9 @@ export class AppComponent implements OnInit {
       }
     });
   }
+`;
 
-  logout() {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('permisos');
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
-  }
-}
+content = content.replace(/ngOnInit\(\) \{[\s\S]*?logout\(\)/, newNgOnInit.trim() + '\n\n  logout()');
+
+fs.writeFileSync(filePath, content);
+console.log("app.component updated correctly");

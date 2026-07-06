@@ -325,6 +325,10 @@ export class SoftwareComponent implements OnInit {
     data.empleadoId = Number(data.empleadoId);
 
     if (this.isEditing && this.currentId) {
+      if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+        alert('Acceso denegado: No tiene permisos para editar software local.');
+        return;
+      }
       this.api.updateSoftwareLocal(this.currentId, { ...data, id: this.currentId }).subscribe({
         next: () => {
           this.loadData();
@@ -333,6 +337,10 @@ export class SoftwareComponent implements OnInit {
         error: (err) => alert('Error al actualizar registro de software.')
       });
     } else {
+      if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'CREAR')) {
+        alert('Acceso denegado: No tiene permisos para crear software local.');
+        return;
+      }
       this.api.createSoftwareLocal(data).subscribe({
         next: () => {
           this.loadData();
@@ -344,6 +352,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   edit(sw: SoftwareLocal) {
+    if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+       alert('Acceso denegado');
+       return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = sw.id;
@@ -359,6 +371,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   delete(id: number) {
+    if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'ELIMINAR')) {
+       alert('Acceso denegado');
+       return;
+    }
     if(confirm('¿Está seguro de que desea eliminar este registro de software?')) {
       this.api.deleteSoftwareLocal(id).subscribe({
         next: () => this.loadData(),
