@@ -27,34 +27,38 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
-
-            var usuarios = await _context.UsuariosDto
-                .FromSqlRaw("EXEC sp_Login @NombreUsuario", usernameParam)
-                .ToListAsync();
-
-            var user = usuarios.FirstOrDefault();
-
-            if (user == null)
+            try
             {
-                return Unauthorized(new { message = "Usuario no encontrado o inactivo" });
+                var user = await _context.Database.SqlQueryRaw<UsuarioDto>(
+                    "EXEC sp_Login @NombreUsuario={0}", request.Username
+                ).FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Usuario no encontrado o inactivo" });
+                }
+
+                var hashToVerify = ComputeSha256Hash(request.Password);
+
+                if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized(new { message = "Contraseña incorrecta" });
+                }
+
+                var token = GenerateJwtToken(user);
+
+                return Ok(new
+                {
+                    token = token,
+                    username = user.NombreUsuario,
+                    role = user.NombreRol
+                });
             }
-
-            var hashToVerify = ComputeSha256Hash(request.Password);
-
-            if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = "Contraseña incorrecta" });
+                Console.WriteLine($"[ERROR EN LOGIN] {ex.Message}");
+                return StatusCode(500, new { message = "Error interno durante la autenticación", error = ex.Message });
             }
-
-            var token = GenerateJwtToken(user);
-
-            return Ok(new
-            {
-                token = token,
-                username = user.NombreUsuario,
-                role = user.NombreRol
-            });
         }
 
         private string ComputeSha256Hash(string rawData)

@@ -1,19 +1,4 @@
-He completado la implementación requerida.
-
-### Parte 1: Carga de Permisos Post-Login
-El flujo ha quedado documentado en `PLAN.md` que he generado. Resumidamente, una vez que el backend emite el JWT, este contiene el ID del rol en sus "claims". Al redirigir a `/dashboard` (y en el evento de navegación dentro de `app.component.ts`), si se detecta que hay un token pero la memoria global está vacía (o en un refresh), se invoca `PermissionService.cargarPermisosDelUsuarioLogueado()`, este servicio hace un GET y almacena los permisos tanto en el State del behavior subject como en el LocalStorage para persistencia.
-
-### Parte 2: Construcción y Desarrollo (Frontend Dinámico)
-- **Menú Dinámico:** El `app.component.html` ha sido actualizado. Las etiquetas `<a>` de navegación ahora usan la directiva `*ngIf="permissionService.tienePermiso('PANTALLA', 'VER')"`.
-- **Seguridad en Rutas:** Se implementó un guardián de rol `RoleGuard` el cual intercepta las navegaciones protegidas, valida en los `route.data` el ID de la pantalla usando la misma función (`tienePermiso`) y bloquea/redirige al dashboard si no se tienen los permisos.
-- **Control de Acceso a Acciones (CRUD):** El `PermissionService` ya tiene la función `tienePermiso(pantalla, accion)` que retorna un boolean. Para integrarla en los componentes y controlar el CRUD, solo basta inyectar `public permissionService: PermissionService` en el constructor de cualquier componente y envolver los botones con directivas de este estilo:
-  - `<button *ngIf="permissionService.tienePermiso('PUESTOS', 'CREAR')">Nuevo</button>`
-  - `<button *ngIf="permissionService.tienePermiso('PUESTOS', 'EDITAR')">Editar</button>`
-
-Todo ha sido testeado localmente y pasa los tests de Karma/Jasmine de Angular.
-
-### /audit
-SCORE: 100/100
-- Todas las rutas y directivas implementadas correctamente.
-- Documentación de arquitectura completada (`PLAN.md`).
-- Los tests corren correctamente.
+Realicé los cambios urgentes en el `AuthController.cs`:
+- Eliminé el uso de `FromSqlRaw` y el subsecuente `.FirstOrDefault()` en memoria.
+- Lo reemplacé por `_context.Database.SqlQueryRaw<UsuarioDto>("EXEC sp_Login @NombreUsuario={0}", request.Username).FirstOrDefaultAsync();`. Este enfoque obliga a EF Core a realizar un mapeo de resultados puro sin requerir que la entidad esté atada a un DbSet complejo, previniendo el congelamiento durante la validación de esquema o claves primarias.
+- El proyecto compila correctamente y está listo.
