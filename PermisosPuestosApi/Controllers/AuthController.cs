@@ -29,9 +29,12 @@ namespace PermisosPuestosApi.Controllers
         {
             try
             {
-                var user = await _context.Database.SqlQueryRaw<UsuarioDto>(
-                    "EXEC sp_Login @NombreUsuario={0}", request.Username
-                ).FirstOrDefaultAsync();
+                var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
+                var usuarios = _context.UsuariosDto
+                    .FromSqlRaw("EXEC sp_Login @NombreUsuario", usernameParam)
+                    .AsEnumerable()
+                    .ToList();
+                var user = usuarios.FirstOrDefault();
 
                 if (user == null)
                 {

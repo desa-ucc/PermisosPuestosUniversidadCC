@@ -22,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPlataformas()
         {
-            var data = await _context.Plataformas.FromSqlRaw("EXEC sp_GetPlataformas").ToListAsync();
+            var data = _context.Plataformas.FromSqlRaw("EXEC sp_GetPlataformas").AsEnumerable().ToList();
             return Ok(data);
         }
 

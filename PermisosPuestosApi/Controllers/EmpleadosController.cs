@@ -18,7 +18,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmpleados()
         {
-            var data = await _context.EmpleadosDto.FromSqlRaw("EXEC sp_GetEmpleados").ToListAsync();
+            var data = _context.EmpleadosDto.FromSqlRaw("EXEC sp_GetEmpleados").AsEnumerable().ToList();
             return Ok(data);
         }
 

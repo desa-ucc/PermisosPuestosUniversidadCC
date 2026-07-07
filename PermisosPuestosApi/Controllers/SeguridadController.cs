@@ -36,9 +36,9 @@ namespace PermisosPuestosApi.Controllers
 
                 var roleIdParam = new SqlParameter("@RoleId", roleId);
 
-                var permisos = await _context.Permisos
+                var permisos = _context.Permisos
                     .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
-                    .ToListAsync();
+                    .AsEnumerable().ToList();
 
                 return Ok(permisos);
             }

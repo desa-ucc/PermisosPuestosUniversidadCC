@@ -22,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPermisosSitios()
         {
-            var data = await _context.PermisosSitios.FromSqlRaw("EXEC sp_GetPermisosSitios").ToListAsync();
+            var data = _context.PermisosSitios.FromSqlRaw("EXEC sp_GetPermisosSitios").AsEnumerable().ToList();
             return Ok(data);
         }
 

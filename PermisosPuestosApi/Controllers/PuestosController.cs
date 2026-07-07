@@ -18,7 +18,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPuestos()
         {
-            var data = await _context.Puestos.FromSqlRaw("EXEC sp_GetPuestos").ToListAsync();
+            var data = _context.Puestos.FromSqlRaw("EXEC sp_GetPuestos").AsEnumerable().ToList();
             return Ok(data);
         }
 

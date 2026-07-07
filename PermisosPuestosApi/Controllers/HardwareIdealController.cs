@@ -18,7 +18,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHardwareIdeal()
         {
-            var data = await _context.HardwareIdeales.FromSqlRaw("EXEC sp_GetHardwareIdeal").ToListAsync();
+            var data = _context.HardwareIdeales.FromSqlRaw("EXEC sp_GetHardwareIdeal").AsEnumerable().ToList();
             return Ok(data);
         }
 
