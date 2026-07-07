@@ -29,26 +29,29 @@ namespace PermisosPuestosApi.Controllers
         {
             try
             {
-                var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
-                var usuarios = _context.UsuariosDto
-                    .FromSqlRaw("EXEC sp_Login @NombreUsuario", usernameParam)
-                    .AsEnumerable()
-                    .ToList();
+                // Ejecución del SP con mapeo directo
+                var usuarios = await _context.Database.SqlQueryRaw<UsuarioDto>(
+                    "EXEC sp_Login {0}", request.Username
+                ).ToListAsync();
+
                 var user = usuarios.FirstOrDefault();
 
                 if (user == null)
                 {
-                    return Unauthorized(new { message = "Usuario no encontrado o inactivo" });
+                    return Unauthorized(new { message = "Credenciales incorrectas" });
                 }
 
                 var hashToVerify = ComputeSha256Hash(request.Password);
 
                 if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
                 {
-                    return Unauthorized(new { message = "Contraseña incorrecta" });
+                    return Unauthorized(new { message = "Credenciales incorrectas" });
                 }
 
+                // Generación del token
                 var token = GenerateJwtToken(user);
+
+                Console.WriteLine("Login exitoso, token generado para: " + user.NombreUsuario);
 
                 return Ok(new
                 {
