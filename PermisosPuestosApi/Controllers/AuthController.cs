@@ -49,11 +49,17 @@ namespace PermisosPuestosApi.Controllers
 
             var token = GenerateJwtToken(user);
 
+            var roleIdParam = new SqlParameter("@RoleId", user.RolId);
+            var permisos = await _context.Set<PermisoDto>()
+                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
+                .ToListAsync();
+
             return Ok(new
             {
                 token = token,
                 username = user.NombreUsuario,
-                role = user.NombreRol
+                role = user.NombreRol,
+                permisos = permisos
             });
         }
 
