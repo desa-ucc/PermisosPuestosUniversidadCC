@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private permissionService: PermissionService
+    public permissionService: PermissionService
   ) {}
 
   ngOnInit() {
@@ -32,9 +32,7 @@ export class AppComponent implements OnInit {
           // If we just logged in, load permissions (and also load from storage on refresh)
           if (localStorage.getItem('token')) {
               this.permissionService.cargarPermisosDesdeStorage();
-              this.permissionService.cargarPermisosDelUsuarioLogueado().subscribe({
-                  error: err => console.error("Could not load permissions from API", err)
-              });
+
           }
       } else if (this.isLoggedIn) {
           // just a navigation event but we are already logged in, ensure we have permissions in state if they exist in storage
