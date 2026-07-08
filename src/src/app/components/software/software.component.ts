@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { PermissionService } from '../../services/permission.service';
 import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 
 @Component({
@@ -140,15 +141,17 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
                 <td>{{sw.version}}</td>
                 <td>{{sw.fabricante}}</td>
                 <td>
-                  <div class="flex justify-center gap-3"><button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
-  <span class="material-symbols-outlined">visibility</span>
-</button>
-<button (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-  <span class="material-symbols-outlined">edit</span>
-</button>
-                  <button (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-  <span class="material-symbols-outlined">delete</span>
-</button></div>
+                  <div class="flex justify-center gap-3">
+                    <button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button *ngIf="permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')" (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button *ngIf="permissionService.tienePermiso('SOFTWARE_LOCAL', 'ELIMINAR')" (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
@@ -290,7 +293,7 @@ export class SoftwareComponent implements OnInit {
   }
 
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.swForm = this.fb.group({
       empleadoId: [null, Validators.required],
       equipo: ['', Validators.required],
@@ -322,6 +325,10 @@ export class SoftwareComponent implements OnInit {
     data.empleadoId = Number(data.empleadoId);
 
     if (this.isEditing && this.currentId) {
+      if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+        alert('Acceso denegado: No tiene permisos para editar software local.');
+        return;
+      }
       this.api.updateSoftwareLocal(this.currentId, { ...data, id: this.currentId }).subscribe({
         next: () => {
           this.loadData();
@@ -330,6 +337,10 @@ export class SoftwareComponent implements OnInit {
         error: (err) => alert('Error al actualizar registro de software.')
       });
     } else {
+      if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'CREAR')) {
+        alert('Acceso denegado: No tiene permisos para crear software local.');
+        return;
+      }
       this.api.createSoftwareLocal(data).subscribe({
         next: () => {
           this.loadData();
@@ -341,6 +352,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   edit(sw: SoftwareLocal) {
+    if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+       alert('Acceso denegado');
+       return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = sw.id;
@@ -356,6 +371,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   delete(id: number) {
+    if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'ELIMINAR')) {
+       alert('Acceso denegado');
+       return;
+    }
     if(confirm('¿Está seguro de que desea eliminar este registro de software?')) {
       this.api.deleteSoftwareLocal(id).subscribe({
         next: () => this.loadData(),

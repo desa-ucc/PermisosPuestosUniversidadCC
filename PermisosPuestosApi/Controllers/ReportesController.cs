@@ -24,9 +24,9 @@ namespace PermisosPuestosApi.Controllers
         {
             var p1 = new SqlParameter("@CodigoPerfil", codigo);
             // ZERO LINQ RULE ENFORCED
-            var reporte = await _context.ReportesPerfilDto
+            var reporte = _context.ReportesPerfilDto
                 .FromSqlRaw("EXEC sp_GetReportePerfilTecnologico @CodigoPerfil", p1)
-                .ToListAsync();
+                .AsEnumerable().ToList();
 
             return Ok(reporte);
         }
@@ -38,17 +38,17 @@ namespace PermisosPuestosApi.Controllers
             var p2 = new SqlParameter("@TerminoBusqueda", termino);
             var p3 = new SqlParameter("@TerminoBusqueda", termino);
 
-            var hw = await _context.ReportesHardwareDto
+            var hw = _context.ReportesHardwareDto
                 .FromSqlRaw("EXEC sp_GetReporteIntegralHardware @TerminoBusqueda", p1)
-                .ToListAsync();
+                .AsEnumerable().ToList();
 
-            var sit = await _context.ReportesSitiosDto
+            var sit = _context.ReportesSitiosDto
                 .FromSqlRaw("EXEC sp_GetReporteIntegralSitios @TerminoBusqueda", p2)
-                .ToListAsync();
+                .AsEnumerable().ToList();
 
-            var plat = await _context.ReportesPlataformasDto
+            var plat = _context.ReportesPlataformasDto
                 .FromSqlRaw("EXEC sp_GetReporteIntegralPlataformas @TerminoBusqueda", p3)
-                .ToListAsync();
+                .AsEnumerable().ToList();
 
             var result = new ReporteIntegralResponse
             {

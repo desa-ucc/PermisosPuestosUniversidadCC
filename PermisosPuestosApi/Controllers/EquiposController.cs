@@ -18,7 +18,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Asignado")]
         public async Task<IActionResult> GetHardwareAsignado()
         {
-            var data = await _context.HardwareAsignados.FromSqlRaw("EXEC sp_GetHardwareAsignado").ToListAsync();
+            var data = _context.HardwareAsignados.FromSqlRaw("EXEC sp_GetHardwareAsignado").AsEnumerable().ToList();
             return Ok(data);
         }
 

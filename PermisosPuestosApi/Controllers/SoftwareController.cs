@@ -18,7 +18,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Local")]
         public async Task<IActionResult> GetSoftwareLocales()
         {
-            var data = await _context.SoftwareLocales.FromSqlRaw("EXEC sp_GetSoftwareLocales").ToListAsync();
+            var data = _context.SoftwareLocales.FromSqlRaw("EXEC sp_GetSoftwareLocales").AsEnumerable().ToList();
             return Ok(data);
         }
 

@@ -27,34 +27,44 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
-
-            var usuarios = await _context.UsuariosDto
-                .FromSqlRaw("EXEC sp_Login @NombreUsuario", usernameParam)
-                .ToListAsync();
-
-            var user = usuarios.FirstOrDefault();
-
-            if (user == null)
+            try
             {
-                return Unauthorized(new { message = "Usuario no encontrado o inactivo" });
+                // Ejecución del SP con mapeo directo
+                var usuarios = await _context.Database.SqlQueryRaw<UsuarioDto>(
+                    "EXEC sp_Login {0}", request.Username
+                ).ToListAsync();
+
+                var user = usuarios.FirstOrDefault();
+
+                if (user == null)
+                {
+                    return Unauthorized(new { message = "Credenciales incorrectas" });
+                }
+
+                var hashToVerify = ComputeSha256Hash(request.Password);
+
+                if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized(new { message = "Credenciales incorrectas" });
+                }
+
+                // Generación del token
+                var token = GenerateJwtToken(user);
+
+                Console.WriteLine("Login exitoso, token generado para: " + user.NombreUsuario);
+
+                return Ok(new
+                {
+                    token = token,
+                    username = user.NombreUsuario,
+                    role = user.NombreRol
+                });
             }
-
-            var hashToVerify = ComputeSha256Hash(request.Password);
-
-            if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = "Contraseña incorrecta" });
+                Console.WriteLine($"[ERROR EN LOGIN] {ex.Message}");
+                return StatusCode(500, new { message = "Error interno durante la autenticación", error = ex.Message });
             }
-
-            var token = GenerateJwtToken(user);
-
-            return Ok(new
-            {
-                token = token,
-                username = user.NombreUsuario,
-                role = user.NombreRol
-            });
         }
 
         private string ComputeSha256Hash(string rawData)
@@ -84,7 +94,8 @@ namespace PermisosPuestosApi.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.NombreUsuario),
-                    new Claim(ClaimTypes.Role, user.NombreRol)
+                    new Claim(ClaimTypes.Role, user.NombreRol),
+                    new Claim("RolId", user.RolId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -1,67 +1,16 @@
-**HardwareComponent Logic Template:**
+He realizado las correcciones de enrutamiento y red para el contenedor del frontend:
 
-```typescript
-  // Buscador Autocompletado: Empleados
-  showDropdownEmpleados = false;
-  searchTermEmpleados = '';
+1. **Configuración de Nginx (`nginx.conf`)**:
+   Modifiqué el archivo `nginx.conf` del frontend para añadir un bloque de proxy inverso hacia la red interna de Docker. Ahora cualquier petición a `/api/` en el frontend será redirigida automáticamente a `http://api:5000/api/` dentro de la red compartida, resolviendo así el bloqueo originado por las peticiones directas desde el navegador hacia el host.
+   ```nginx
+   location /api/ {
+       proxy_pass http://api:5000/api/;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+   }
+   ```
 
-  get empleadosFiltrados() {
-    return this.empleados.filter(e => e.nombreCompleto.toLowerCase().includes(this.searchTermEmpleados.toLowerCase()));
-  }
+2. **Ajuste de Variables en Servicios Angular (`api.service.ts` y `permission.service.ts`)**:
+   Actualicé la constante `apiUrl` en los servicios de Angular. En lugar de apuntar hardcoded a `http://localhost:5000/api`, ahora apunta a `/api`. Esto fuerza al cliente web a realizar la petición HTTP hacia el propio servidor Nginx que le sirvió la página, permitiendo que Nginx intercepte la ruta y la enrute exitosamente a la API interna mediante el `proxy_pass`.
 
-  seleccionarEmpleado(empleado: Empleado | null) {
-    if (empleado) {
-        this.hwForm.patchValue({ empleadoId: empleado.id });
-        this.searchTermEmpleados = empleado.nombreCompleto;
-    } else {
-        this.hwForm.patchValue({ empleadoId: null });
-        this.searchTermEmpleados = '';
-    }
-    this.showDropdownEmpleados = false;
-    this.onEmpleadoChange(null);
-  }
-
-  cerrarDropdownEmpleados() {
-    setTimeout(() => {
-      this.showDropdownEmpleados = false;
-      const currentId = this.hwForm.get('empleadoId')?.value;
-      if (!currentId) {
-          this.searchTermEmpleados = '';
-      } else {
-          const matched = this.empleados.find(e => e.id === currentId);
-          if (matched) this.searchTermEmpleados = matched.nombreCompleto;
-      }
-    }, 200);
-  }
-```
-
-**HardwareComponent HTML Template:**
-
-```html
-            <div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar empleado..."
-                     [(ngModel)]="searchTermEmpleados"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownEmpleados = true"
-                     (blur)="cerrarDropdownEmpleados()"
-                     [disabled]="isReadOnly">
-
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEmpleados || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarEmpleado(null)">
-                  Ninguno
-                </li>
-                @for(emp of empleadosFiltrados; track emp.id) {
-                  <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (click)="seleccionarEmpleado(emp)">
-                    {{emp.nombreCompleto}}
-                  </li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
-            </div>
-```
+Con este ajuste, Nginx actúa correctamente como un reverse proxy entre el cliente de Angular y el contenedor `api`, superando las limitaciones de visibilidad de red.

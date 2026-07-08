@@ -7,7 +7,7 @@ import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, Permi
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = '/api';
 
   constructor(private http: HttpClient) { }
 

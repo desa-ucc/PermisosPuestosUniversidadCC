@@ -17,7 +17,7 @@ namespace PermisosPuestosApi.Controllers
 
         // --- Ambientes ---
         [HttpGet("Ambientes")]
-        public async Task<IActionResult> GetAmbientes() => Ok(await _context.Cat_Ambientes.FromSqlRaw("EXEC sp_GetCatAmbientes").ToListAsync());
+        public async Task<IActionResult> GetAmbientes() => Ok(_context.Cat_Ambientes.FromSqlRaw("EXEC sp_GetCatAmbientes").AsEnumerable().ToList());
 
         [HttpPost("Ambientes")]
         public async Task<IActionResult> CreateAmbiente([FromBody] Cat_Ambiente cat)
@@ -37,7 +37,7 @@ namespace PermisosPuestosApi.Controllers
 
         // --- Sitios ---
         [HttpGet("Sitios")]
-        public async Task<IActionResult> GetSitios() => Ok(await _context.Cat_Sitios.FromSqlRaw("EXEC sp_GetCatSitios").ToListAsync());
+        public async Task<IActionResult> GetSitios() => Ok(_context.Cat_Sitios.FromSqlRaw("EXEC sp_GetCatSitios").AsEnumerable().ToList());
 
         [HttpPost("Sitios")]
         public async Task<IActionResult> CreateSitio([FromBody] Cat_Sitio cat)
@@ -57,7 +57,7 @@ namespace PermisosPuestosApi.Controllers
 
         // --- Plataformas ---
         [HttpGet("Plataformas")]
-        public async Task<IActionResult> GetPlataformas() => Ok(await _context.Cat_Plataformas.FromSqlRaw("EXEC sp_GetCatPlataformas").ToListAsync());
+        public async Task<IActionResult> GetPlataformas() => Ok(_context.Cat_Plataformas.FromSqlRaw("EXEC sp_GetCatPlataformas").AsEnumerable().ToList());
 
         [HttpPost("Plataformas")]
         public async Task<IActionResult> CreatePlataforma([FromBody] Cat_Plataforma cat)
@@ -77,12 +77,12 @@ namespace PermisosPuestosApi.Controllers
 
         // --- Nuevos Catálogos (Read-Only) ---
         [HttpGet("NivelesAcceso")]
-        public async Task<IActionResult> GetNivelesAcceso() => Ok(await _context.Cat_NivelesAccesos.FromSqlRaw("EXEC sp_GetNivelesAcceso").ToListAsync());
+        public async Task<IActionResult> GetNivelesAcceso() => Ok(_context.Cat_NivelesAccesos.FromSqlRaw("EXEC sp_GetNivelesAcceso").AsEnumerable().ToList());
 
         [HttpGet("PlataformasNombres")]
-        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("EXEC sp_GetPlataformasNombres").ToListAsync());
+        public async Task<IActionResult> GetPlataformasNombres() => Ok(_context.Cat_PlataformasNombres.FromSqlRaw("EXEC sp_GetPlataformasNombres").AsEnumerable().ToList());
 
         [HttpGet("TiposLicencia")]
-        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("EXEC sp_GetTiposLicencia").ToListAsync());
+        public async Task<IActionResult> GetTiposLicencia() => Ok(_context.Cat_TiposLicencias.FromSqlRaw("EXEC sp_GetTiposLicencia").AsEnumerable().ToList());
     }
 }

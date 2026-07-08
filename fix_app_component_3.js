@@ -1,25 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs/operators';
-import { PermissionService } from './services/permission.service';
+const fs = require('fs');
+const path = require('path');
 
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
-})
-export class AppComponent implements OnInit {
-  title = 'ProyectoPermisosXPuesto';
-  isLoggedIn = false;
+const filePath = path.join('src', 'src', 'app', 'app.component.ts');
+let content = fs.readFileSync(filePath, 'utf8');
 
-  constructor(
-    private router: Router,
-    public permissionService: PermissionService
-  ) {}
-
+// replace ngOnInit
+const newNgOnInit = `
   ngOnInit() {
     // Rehidratación de Estado inmediata (para refrescos de página)
     const token = localStorage.getItem('token');
@@ -30,9 +16,8 @@ export class AppComponent implements OnInit {
              this.permissionService.cargarPermisosDesdeStorage();
              this.isLoggedIn = true;
         } else {
-             if(window.location.pathname !== '/login') {
-                 this.logout();
-             }
+             // Redireccionar a login porque se perdieron los permisos globales en sessionStorage (ej. refresh duro)
+             this.logout();
         }
     } else {
         this.isLoggedIn = false;
@@ -54,11 +39,9 @@ export class AppComponent implements OnInit {
       }
     });
   }
+`;
 
-  logout() {
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('permisos');
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
-  }
-}
+content = content.replace(/ngOnInit\(\) \{[\s\S]*?\}\);[\n\r\s]*\}/g, newNgOnInit.trim());
+
+fs.writeFileSync(filePath, content);
+console.log("app.component updated");

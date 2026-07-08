@@ -1,4 +1,8 @@
-server {
+const fs = require('fs');
+const path = require('path');
+
+const filePath = path.join('src', 'nginx.conf');
+const newContent = `server {
     listen 80;
     server_name localhost;
     root /usr/share/nginx/html;
@@ -14,3 +18,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 }
+`;
+
+fs.writeFileSync(filePath, newContent);
+console.log("Nginx config updated");

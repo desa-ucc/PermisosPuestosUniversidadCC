@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-const environment = { apiUrl: 'http://localhost:5000/api' };
+const environment = { apiUrl: '/api' };
 
 export interface Permiso {
   id?: number;
@@ -28,13 +28,13 @@ export class PermissionService {
     return this.http.get<Permiso[]>(`${this.apiUrl}/seguridad/mis-permisos`).pipe(
       tap(permisos => {
         this.permisosSubject.next(permisos);
-        localStorage.setItem('permisos', JSON.stringify(permisos));
+        sessionStorage.setItem('permisos', JSON.stringify(permisos));
       })
     );
   }
 
   cargarPermisosDesdeStorage(): void {
-    const permisosStr = localStorage.getItem('permisos');
+    const permisosStr = sessionStorage.getItem('permisos');
     if (permisosStr) {
       try {
         const permisos = JSON.parse(permisosStr);
