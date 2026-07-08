@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-const environment = { apiUrl: 'http://localhost:5000/api' };
+const environment = { apiUrl: '/api' };
 
 export interface Permiso {
   id?: number;

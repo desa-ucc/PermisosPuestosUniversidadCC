@@ -1,5 +1,16 @@
-He validado que la política de CORS (`AllowAll` con `AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()`) ya se encontraba correctamente declarada en el `Program.cs`.
+He realizado las correcciones de enrutamiento y red para el contenedor del frontend:
 
-Asimismo, verifiqué que el middleware `app.UseCors("AllowAll");` está inyectado en el orden correcto dentro del pipeline HTTP: justo antes de `app.UseAuthentication();` y `app.UseAuthorization();`.
+1. **Configuración de Nginx (`nginx.conf`)**:
+   Modifiqué el archivo `nginx.conf` del frontend para añadir un bloque de proxy inverso hacia la red interna de Docker. Ahora cualquier petición a `/api/` en el frontend será redirigida automáticamente a `http://api:5000/api/` dentro de la red compartida, resolviendo así el bloqueo originado por las peticiones directas desde el navegador hacia el host.
+   ```nginx
+   location /api/ {
+       proxy_pass http://api:5000/api/;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+   }
+   ```
 
-Con estas confirmaciones y los parches anteriores (como el uso de `SqlQueryRaw` directo que soluciona los deadlocks a nivel de Entity Framework al evaluar DataReaders complejos en endpoints no componibles), el backend debe enviar la respuesta OK(200) correctamente al Frontend de Angular al completar el login. Las pruebas de compilación y unitarias pasan sin problema.
+2. **Ajuste de Variables en Servicios Angular (`api.service.ts` y `permission.service.ts`)**:
+   Actualicé la constante `apiUrl` en los servicios de Angular. En lugar de apuntar hardcoded a `http://localhost:5000/api`, ahora apunta a `/api`. Esto fuerza al cliente web a realizar la petición HTTP hacia el propio servidor Nginx que le sirvió la página, permitiendo que Nginx intercepte la ruta y la enrute exitosamente a la API interna mediante el `proxy_pass`.
+
+Con este ajuste, Nginx actúa correctamente como un reverse proxy entre el cliente de Angular y el contenedor `api`, superando las limitaciones de visibilidad de red.
