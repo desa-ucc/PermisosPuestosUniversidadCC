@@ -278,6 +278,14 @@ export class PuestosComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
+    if (!this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'CREAR')) {
+      alert('Acceso denegado: No tienes permiso para crear.');
+      return;
+    }
     this.puestoForm.markAllAsTouched();
     if (this.puestoForm.invalid) return;
 
@@ -303,6 +311,10 @@ export class PuestosComponent implements OnInit {
   }
 
   edit(puesto: Puesto) {
+    if (!this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = puesto.id;
@@ -315,6 +327,10 @@ export class PuestosComponent implements OnInit {
   }
 
   delete(id: number) {
+    if (!this.permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
+      alert('Acceso denegado: No tienes permiso para eliminar.');
+      return;
+    }
     if(confirm('¿Está seguro de que desea eliminar este puesto?')) {
       this.api.deletePuesto(id).subscribe({
         next: () => this.loadData(),
