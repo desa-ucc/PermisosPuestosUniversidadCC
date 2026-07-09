@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { Catalogo } from '../../models/models';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-catalogos',
@@ -96,6 +97,7 @@ import { Catalogo } from '../../models/models';
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
+                                                <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'ver'}" (click)="abrirDetalle(item)" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-lg transition-colors" title="Ver Detalle"><span class="material-symbols-outlined">visibility</span></button>
                                                 <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'eliminar'}" (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
                                             </div>
                                         </td>
@@ -179,7 +181,7 @@ export class CatalogosComponent implements OnInit {
   catForm: FormGroup;
   isSaving = false;
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, private permissionService: PermissionService) {
     this.catForm = this.fb.group({
       nombre: ['', Validators.required]
     });
@@ -233,6 +235,14 @@ export class CatalogosComponent implements OnInit {
     } else if (this.activeTab === 'plataformas') {
       this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
     }
+  }
+
+  abrirDetalle(item: any) {
+    if (!this.permissionService.tienePermiso('CATALOGOS', 'ver')) {
+      console.error('Acceso denegado');
+      return;
+    }
+    console.log('Abriendo detalle para:', item);
   }
 
   onSubmit() {
