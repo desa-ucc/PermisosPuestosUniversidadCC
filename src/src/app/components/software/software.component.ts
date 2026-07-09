@@ -3,11 +3,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { SoftwareLocal, HardwareAsignado } from '../../models/models';
+import { PermisoDirective } from '../../directives/permiso.directive';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-software',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Software Local</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -92,7 +94,7 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
 
         <div class="mt-4">
           @if(!isReadOnly) {
-  <button type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
+  <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
     @if(isEditing) {
       Actualizar
     } @else {
@@ -143,10 +145,10 @@ import { SoftwareLocal, HardwareAsignado } from '../../models/models';
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
 </button>
-<button (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+<button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'EDITAR'}" (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
   <span class="material-symbols-outlined">edit</span>
 </button>
-                  <button (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                  <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'ELIMINAR'}" (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
   <span class="material-symbols-outlined">delete</span>
 </button></div>
                 </td>
@@ -290,7 +292,7 @@ export class SoftwareComponent implements OnInit {
   }
 
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.swForm = this.fb.group({
       empleadoId: [null, Validators.required],
       equipo: ['', Validators.required],
@@ -315,6 +317,14 @@ export class SoftwareComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isEditing && !this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
+    if (!this.isEditing && !this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'CREAR')) {
+      alert('Acceso denegado: No tienes permiso para crear.');
+      return;
+    }
     this.swForm.markAllAsTouched();
     if (this.swForm.invalid) return;
 
@@ -341,6 +351,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   edit(sw: SoftwareLocal) {
+    if (!this.permissionService.tienePermiso('SOFTWARE_LOCAL', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = sw.id;
