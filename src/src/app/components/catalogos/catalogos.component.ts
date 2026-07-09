@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { PermisoDirective } from '../../directives/permiso.directive';
 import { Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-catalogos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PermisoDirective],
   template: `
 <div class="p-gutter max-w-container-max-width mx-auto">
     <!-- Page Header -->
@@ -48,7 +49,7 @@ import { Catalogo } from '../../models/models';
                               <span class="text-ucc-error text-xs mt-1 block">El nombre es requerido.</span>
                             }
                         </div>
-                        <button type="submit" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
+                        <button type="submit" *appPermiso="{pantalla: 'CATALOGOS', accion: 'crear'}" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
                             @if(isSaving) {
                                 <span class="material-symbols-outlined animate-spin">sync</span>
                                 Guardando...
@@ -95,7 +96,7 @@ import { Catalogo } from '../../models/models';
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
+                                                <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'eliminar'}" (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
                                             </div>
                                         </td>
                                     </tr>
