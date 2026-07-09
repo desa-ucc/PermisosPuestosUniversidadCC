@@ -49,17 +49,11 @@ namespace PermisosPuestosApi.Controllers
 
             var token = GenerateJwtToken(user);
 
-            var roleIdParam = new SqlParameter("@RoleId", user.RolId);
-            var permisos = await _context.Set<PermisoDto>()
-                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
-                .ToListAsync();
-
             return Ok(new
             {
                 token = token,
                 username = user.NombreUsuario,
-                role = user.NombreRol,
-                permisos = permisos
+                role = user.NombreRol
             });
         }
 
@@ -90,8 +84,7 @@ namespace PermisosPuestosApi.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.NombreUsuario),
-                    new Claim(ClaimTypes.Role, user.NombreRol),
-                    new Claim("RolId", user.RolId.ToString())
+                    new Claim(ClaimTypes.Role, user.NombreRol)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

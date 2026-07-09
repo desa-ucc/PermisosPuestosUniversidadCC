@@ -2,14 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { PermisoDirective } from '../../directives/permiso.directive';
-import { PermissionService } from '../../services/permission.service';
 import { Empleado, Puesto } from '../../models/models';
 
 @Component({
   selector: 'app-colaboradores',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8">
@@ -84,7 +82,7 @@ import { Empleado, Puesto } from '../../models/models';
 
           <div class="flex gap-4 mt-6">
             @if(!isReadOnly) {
-  <button *appPermiso="{pantalla: 'COLABORADORES', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
+  <button type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
     @if(isEditing) {
       <span class="material-symbols-outlined">save</span> Actualizar
     } @else {
@@ -154,10 +152,10 @@ import { Empleado, Puesto } from '../../models/models';
                     <button (click)="verDetalle(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
 <span class="material-symbols-outlined">visibility</span>
 </button>
-<button *appPermiso="{pantalla: 'COLABORADORES', accion: 'EDITAR'}" (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+<button (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
-                    <button *appPermiso="{pantalla: 'COLABORADORES', accion: 'ELIMINAR'}" (click)="delete(emp.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                    <button (click)="delete(emp.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
                       <span class="material-symbols-outlined">delete</span>
                     </button>
                   </div>
@@ -297,7 +295,7 @@ export class ColaboradoresComponent implements OnInit {
   }
 
 
-  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
+  constructor(private api: ApiService, private fb: FormBuilder) {
     this.empleadoForm = this.fb.group({
       codigoEmpleado: ['', Validators.required],
       nombreCompleto: ['', Validators.required],
@@ -323,14 +321,6 @@ export class ColaboradoresComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.isEditing && !this.permissionService.tienePermiso('COLABORADORES', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
-    if (!this.isEditing && !this.permissionService.tienePermiso('COLABORADORES', 'CREAR')) {
-      alert('Acceso denegado: No tienes permiso para crear.');
-      return;
-    }
     this.empleadoForm.markAllAsTouched();
     if (this.empleadoForm.invalid) return;
 
@@ -356,10 +346,6 @@ export class ColaboradoresComponent implements OnInit {
   }
 
   edit(emp: Empleado) {
-    if (!this.permissionService.tienePermiso('COLABORADORES', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = emp.id;
@@ -381,10 +367,6 @@ export class ColaboradoresComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (!this.permissionService.tienePermiso('COLABORADORES', 'ELIMINAR')) {
-      alert('Acceso denegado: No tienes permiso para eliminar.');
-      return;
-    }
     if(confirm('¿Está seguro de que desea eliminar este colaborador?')) {
       this.api.deleteEmpleado(id).subscribe({
         next: () => this.loadData(),

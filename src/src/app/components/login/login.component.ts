@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { PermissionService } from '../../services/permission.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -48,8 +47,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
-    private router: Router,
-    private permissionService: PermissionService
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -63,9 +61,6 @@ export class LoginComponent {
       this.api.login(this.loginForm.value).subscribe({
         next: (res) => {
           localStorage.setItem('token', res.token);
-          if (res.permisos) {
-            this.permissionService.setPermisos(res.permisos);
-          }
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {

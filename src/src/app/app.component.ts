@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { filter, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { PermissionService } from './services/permission.service';
 
 @Component({
@@ -15,27 +14,11 @@ import { PermissionService } from './services/permission.service';
 export class AppComponent implements OnInit {
   title = 'ProyectoPermisosXPuesto';
   isLoggedIn = false;
-  menuItems = [
-    { link: '/dashboard', label: 'Dashboard', icon: 'dashboard', pantallaId: 'DASHBOARD' },
-    { link: '/puestos', label: 'Puestos', icon: 'badge', pantallaId: 'PUESTOS' },
-    { link: '/colaboradores', label: 'Colaboradores', icon: 'group', pantallaId: 'COLABORADORES' },
-    { link: '/hardware-ideal', label: 'Equipo Ideal', icon: 'verified_user', pantallaId: 'EQUIPO_IDEAL' },
-    { link: '/hardware', label: 'Hardware Asignado', icon: 'computer', pantallaId: 'HARDWARE' },
-    { link: '/software', label: 'Software Local', icon: 'terminal', pantallaId: 'SOFTWARE_LOCAL' },
-    { link: '/sitios', label: 'Permisos Sitios', icon: 'location_on', pantallaId: 'PERMISOS_SITIOS' },
-    { link: '/plataformas', label: 'Plataformas', icon: 'cloud_done', pantallaId: 'PLATAFORMAS' },
-    { link: '/reportes', label: 'Reportes', icon: 'analytics', pantallaId: 'REPORTES' }
-  ];
-  filteredMenu$: Observable<any[]>;
 
-constructor(
+  constructor(
     private router: Router,
-    public permissionService: PermissionService
-  ) {
-    this.filteredMenu$ = this.permissionService.permisos$.pipe(
-      map(permisos => this.menuItems.filter(item => this.permissionService.tienePermiso(item.pantallaId, 'VER')))
-    );
-  }
+    private permissionService: PermissionService
+  ) {}
 
   ngOnInit() {
     this.router.events.pipe(
@@ -49,7 +32,9 @@ constructor(
           // If we just logged in, load permissions (and also load from storage on refresh)
           if (localStorage.getItem('token')) {
               this.permissionService.cargarPermisosDesdeStorage();
-
+              this.permissionService.cargarPermisosDelUsuarioLogueado().subscribe({
+                  error: err => console.error("Could not load permissions from API", err)
+              });
           }
       } else if (this.isLoggedIn) {
           // just a navigation event but we are already logged in, ensure we have permissions in state if they exist in storage

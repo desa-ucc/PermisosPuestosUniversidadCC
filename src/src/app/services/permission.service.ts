@@ -33,11 +33,6 @@ export class PermissionService {
     );
   }
 
-  setPermisos(permisos: Permiso[]): void {
-    this.permisosSubject.next(permisos);
-    localStorage.setItem('permisos', JSON.stringify(permisos));
-  }
-
   cargarPermisosDesdeStorage(): void {
     const permisosStr = localStorage.getItem('permisos');
     if (permisosStr) {

@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Catalogo } from '../../models/models';
+import { PermissionService } from '../../services/permission.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalogos',
@@ -178,7 +180,7 @@ export class CatalogosComponent implements OnInit {
   catForm: FormGroup;
   isSaving = false;
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, private permissionService: PermissionService, private router: Router) {
     this.catForm = this.fb.group({
       nombre: ['', Validators.required]
     });
@@ -192,6 +194,10 @@ export class CatalogosComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (!this.permissionService.tienePermiso('CATALOGOS', 'VER')) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
     this.loadAllData();
   }
 

@@ -2,14 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { PermisoDirective } from '../../directives/permiso.directive';
-import { PermissionService } from '../../services/permission.service';
 import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-sitios',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Permisos por Sitio</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -114,7 +112,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 
         <div class="mt-4">
           @if(!isReadOnly) {
-  <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
+  <button type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
     @if(isEditing) {
       Actualizar
     } @else {
@@ -177,10 +175,10 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
 </button>
-<button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'EDITAR'}" (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+<button (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
   <span class="material-symbols-outlined">edit</span>
 </button>
-                  <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'ELIMINAR'}" (click)="delete(sitio.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                  <button (click)="delete(sitio.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
   <span class="material-symbols-outlined">delete</span>
 </button></div>
                 </td>
@@ -396,7 +394,7 @@ export class SitiosComponent implements OnInit {
   ambientesOpciones: Catalogo[] = [];
   sitiosOpciones: Catalogo[] = [];
 
-  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
+  constructor(private api: ApiService, private fb: FormBuilder) {
     this.sitioForm = this.fb.group({
       empleadoId: [null, Validators.required],
       sitio: ['', Validators.required],
@@ -443,14 +441,6 @@ export class SitiosComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.isEditing && !this.permissionService.tienePermiso('PERMISOS_SITIOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
-    if (!this.isEditing && !this.permissionService.tienePermiso('PERMISOS_SITIOS', 'CREAR')) {
-      alert('Acceso denegado: No tienes permiso para crear.');
-      return;
-    }
     this.sitioForm.markAllAsTouched();
     if (this.sitioForm.invalid) return;
 
@@ -477,10 +467,6 @@ export class SitiosComponent implements OnInit {
   }
 
   edit(sitio: PermisosSitio) {
-    if (!this.permissionService.tienePermiso('PERMISOS_SITIOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = sitio.id;
@@ -503,10 +489,6 @@ export class SitiosComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (!this.permissionService.tienePermiso('PERMISOS_SITIOS', 'ELIMINAR')) {
-      alert('Acceso denegado: No tienes permiso para eliminar.');
-      return;
-    }
     if(confirm('¿Está seguro de que desea eliminar este permiso?')) {
       this.api.deletePermisosSitio(id).subscribe({
         next: () => this.loadData(),

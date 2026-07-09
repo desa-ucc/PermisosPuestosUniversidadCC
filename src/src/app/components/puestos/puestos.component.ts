@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { PermissionService } from '../../services/permission.service';
 import { Puesto } from '../../models/models';
 
 @Component({
@@ -48,7 +47,7 @@ import { Puesto } from '../../models/models';
 <input formControlName="descripcion" class="ucc-input" placeholder="Breve resumen..." type="text"/>
 </div>
 <div class="flex flex-col items-center h-full pt-4 md:pt-0 gap-2">
-@if(!isReadOnly && ((!isEditing && permissionService.tienePermiso('PUESTOS', 'CREAR')) || (isEditing && permissionService.tienePermiso('PUESTOS', 'EDITAR')))) {
+@if(!isReadOnly) {
   <button type="submit" [disabled]="puestoForm.invalid" class="w-full ucc-btn-primary w-full">
   @if(isEditing) {
       <span class="material-symbols-outlined" data-icon="save">save</span>
@@ -104,16 +103,12 @@ import { Puesto } from '../../models/models';
 <button (click)="verDetalle(puesto)" class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all" title="Ver Detalles">
 <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
 </button>
-@if (permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
 <button (click)="edit(puesto)" class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all" title="Editar">
 <span class="material-symbols-outlined" data-icon="edit">edit</span>
 </button>
-}
-@if (permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
 <button (click)="delete(puesto.id)" class="p-2 text-error hover:bg-error/10 rounded-full transition-all" title="Eliminar">
 <span class="material-symbols-outlined" data-icon="delete">delete</span>
 </button>
-}
 </div>
 </td>
 </tr>
@@ -255,7 +250,7 @@ export class PuestosComponent implements OnInit {
   }
 
 
-  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
+  constructor(private api: ApiService, private fb: FormBuilder) {
     this.puestoForm = this.fb.group({
       codigoPuesto: ['', Validators.required],
       nombrePuesto: ['', Validators.required],
@@ -278,14 +273,6 @@ export class PuestosComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
-    if (!this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'CREAR')) {
-      alert('Acceso denegado: No tienes permiso para crear.');
-      return;
-    }
     this.puestoForm.markAllAsTouched();
     if (this.puestoForm.invalid) return;
 
@@ -311,10 +298,6 @@ export class PuestosComponent implements OnInit {
   }
 
   edit(puesto: Puesto) {
-    if (!this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = puesto.id;
@@ -327,10 +310,6 @@ export class PuestosComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (!this.permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
-      alert('Acceso denegado: No tienes permiso para eliminar.');
-      return;
-    }
     if(confirm('¿Está seguro de que desea eliminar este puesto?')) {
       this.api.deletePuesto(id).subscribe({
         next: () => this.loadData(),
