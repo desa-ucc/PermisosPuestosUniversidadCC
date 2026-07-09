@@ -11,19 +11,20 @@ import { PlataformasComponent } from './components/plataformas/plataformas.compo
 import { ReportesComponent } from './components/reportes/reportes.component';
 import { CatalogosComponent } from './components/catalogos/catalogos.component';
 import { AuthGuard } from './guards/auth.guard';
+import { permissionGuard } from './guards/permission.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'catalogos', component: CatalogosComponent, canActivate: [AuthGuard] },
-  { path: 'puestos', component: PuestosComponent, canActivate: [AuthGuard] },
-  { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard] },
-  { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard] },
-  { path: 'hardware-ideal', component: HardwareIdealComponent, canActivate: [AuthGuard] },
-  { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard] },
-  { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
-  { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },
-  { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'DASHBOARD' } },
+  { path: 'catalogos', component: CatalogosComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'CATALOGOS' } },
+  { path: 'puestos', component: PuestosComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'PUESTOS' } },
+  { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'COLABORADORES' } },
+  { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'HARDWARE' } },
+  { path: 'hardware-ideal', component: HardwareIdealComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'EQUIPO_IDEAL' } },
+  { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'SOFTWARE_LOCAL' } },
+  { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'PERMISOS_SITIOS' } },
+  { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'PLATAFORMAS' } },
+  { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard, permissionGuard], data: { pantallaId: 'REPORTES' } },
 
   // Ruta por defecto explícita
   { path: '', redirectTo: 'login', pathMatch: 'full' },
