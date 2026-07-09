@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { PermisoDirective } from '../../directives/permiso.directive';
+import { PermissionService } from '../../services/permission.service';
 import { HardwareIdeal, Puesto } from '../../models/models';
 
 @Component({
   selector: 'app-hardware-ideal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Especificaciones: Equipo Ideal</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -104,7 +106,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 
         <div class="mt-4">
           @if(!isReadOnly) {
-  <button type="submit" [disabled]="hwIdealForm.invalid" class="ucc-btn-primary">
+  <button *appPermiso="{pantalla: 'EQUIPO_IDEAL', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="hwIdealForm.invalid" class="ucc-btn-primary">
     @if(isEditing) {
       Actualizar
     } @else {
@@ -155,10 +157,10 @@ import { HardwareIdeal, Puesto } from '../../models/models';
                   <button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
 </button>
-<button (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+<button *appPermiso="{pantalla: 'EQUIPO_IDEAL', accion: 'EDITAR'}" (click)="edit(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
   <span class="material-symbols-outlined">edit</span>
 </button>
-                  <button (click)="delete(hw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                  <button *appPermiso="{pantalla: 'EQUIPO_IDEAL', accion: 'ELIMINAR'}" (click)="delete(hw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
   <span class="material-symbols-outlined">delete</span>
 </button>
                 </td>
@@ -298,7 +300,7 @@ export class HardwareIdealComponent implements OnInit {
   }
 
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.hwIdealForm = this.fb.group({
       puestoId: [null, Validators.required],
       tipoEquipo: ['', Validators.required],
@@ -328,6 +330,14 @@ export class HardwareIdealComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isEditing && !this.permissionService.tienePermiso('EQUIPO_IDEAL', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
+    if (!this.isEditing && !this.permissionService.tienePermiso('EQUIPO_IDEAL', 'CREAR')) {
+      alert('Acceso denegado: No tienes permiso para crear.');
+      return;
+    }
     this.hwIdealForm.markAllAsTouched();
     if (this.hwIdealForm.invalid) return;
 
@@ -354,6 +364,10 @@ export class HardwareIdealComponent implements OnInit {
   }
 
   edit(hw: HardwareIdeal) {
+    if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = hw.id;
@@ -368,6 +382,10 @@ export class HardwareIdealComponent implements OnInit {
   }
 
   delete(id: number) {
+    if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'ELIMINAR')) {
+      alert('Acceso denegado: No tienes permiso para eliminar.');
+      return;
+    }
     if(confirm('¿Está seguro de que desea eliminar este equipo ideal?')) {
       this.api.deleteHardwareIdeal(id).subscribe({
         next: () => this.loadData(),

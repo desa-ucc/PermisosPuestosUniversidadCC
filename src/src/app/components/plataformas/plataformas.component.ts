@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { PermisoDirective } from '../../directives/permiso.directive';
+import { PermissionService } from '../../services/permission.service';
 import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-plataformas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Plataformas y Licencias</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -148,7 +150,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
         <div class="mt-4">
           @if(!isReadOnly) {
-  <button type="submit" [disabled]="plataformaForm.invalid" class="ucc-btn-primary">
+  <button *appPermiso="{pantalla: 'PLATAFORMAS', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="plataformaForm.invalid" class="ucc-btn-primary">
     @if(isEditing) {
       Actualizar
     } @else {
@@ -216,10 +218,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
 </button>
-<button (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+<button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'EDITAR'}" (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
   <span class="material-symbols-outlined">edit</span>
 </button>
-                  <button (click)="delete(plat.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                  <button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'ELIMINAR'}" (click)="delete(plat.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
   <span class="material-symbols-outlined">delete</span>
 </button></div>
                 </td>
@@ -474,7 +476,7 @@ export class PlataformasComponent implements OnInit {
   plataformasNombres: Catalogo[] = [];
   tiposLicencia: Catalogo[] = [];
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.plataformaForm = this.fb.group({
       empleadoId: [null, Validators.required],
       licencias: ['', Validators.required],
@@ -528,6 +530,14 @@ export class PlataformasComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.isEditing && !this.permissionService.tienePermiso('PLATAFORMAS', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
+    if (!this.isEditing && !this.permissionService.tienePermiso('PLATAFORMAS', 'CREAR')) {
+      alert('Acceso denegado: No tienes permiso para crear.');
+      return;
+    }
     this.plataformaForm.markAllAsTouched();
     if (this.plataformaForm.invalid) return;
 
@@ -554,6 +564,10 @@ export class PlataformasComponent implements OnInit {
   }
 
   edit(plat: Plataforma) {
+    if (!this.permissionService.tienePermiso('PLATAFORMAS', 'EDITAR')) {
+      alert('Acceso denegado: No tienes permiso para editar.');
+      return;
+    }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = plat.id;
@@ -579,6 +593,10 @@ export class PlataformasComponent implements OnInit {
   }
 
   delete(id: number) {
+    if (!this.permissionService.tienePermiso('PLATAFORMAS', 'ELIMINAR')) {
+      alert('Acceso denegado: No tienes permiso para eliminar.');
+      return;
+    }
     if(confirm('¿Está seguro de que desea eliminar este registro?')) {
       this.api.deletePlataforma(id).subscribe({
         next: () => this.loadData(),
