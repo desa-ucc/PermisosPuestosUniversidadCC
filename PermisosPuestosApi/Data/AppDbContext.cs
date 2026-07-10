@@ -8,6 +8,9 @@ namespace PermisosPuestosApi.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<UsuarioDto> UsuariosDto { get; set; }
+        public DbSet<Rol> Roles { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Permiso> Permisos { get; set; }
         public DbSet<Puesto> Puestos { get; set; }
         public DbSet<EmpleadoDto> EmpleadosDto { get; set; }
         public DbSet<Empleado> Empleados { get; set; }
