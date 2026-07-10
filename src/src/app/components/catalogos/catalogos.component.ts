@@ -97,9 +97,9 @@ import { PermissionService } from '../../services/permission.service';
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
-                                                <ng-container *appPermiso="{pantalla: 'CATALOGOS', accion: 'ver'}">
+                                                <span class="inline-flex" *appPermiso="{pantalla: 'CATALOGOS', accion: 'ver'}">
                                                     <button (click)="abrirDetalle(item)" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-lg transition-colors" title="Ver Detalle"><span class="material-symbols-outlined">visibility</span></button>
-                                                </ng-container>
+                                                </span>
                                                 <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'eliminar'}" (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
                                             </div>
                                         </td>
@@ -240,6 +240,7 @@ export class CatalogosComponent implements OnInit {
   }
 
   abrirDetalle(item: any) {
+    console.log('Botón clicado');
     console.log('Intento de abrir detalle:', item);
     if (!this.permissionService.tienePermiso('CATALOGOS', 'ver')) {
       console.warn('Acceso denegado - validación de seguridad fallida');
