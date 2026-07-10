@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PermissionService, Permiso } from '../../services/permission.service';
+import { PermisoDirective } from '../../directives/permiso.directive';
 
 @Component({
   selector: 'app-seguridad',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PermisoDirective],
   template: `
 <main class="p-gutter max-w-container-max-width mx-auto space-y-8">
   <!-- Heading -->
@@ -44,7 +45,7 @@ import { PermissionService, Permiso } from '../../services/permission.service';
               <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">{{rol.nombre}}</td>
               <td class="py-4 px-6">
                 <div class="flex justify-center gap-3">
-                  <button (click)="abrirModalPermisos(rol)" class="ucc-btn-primary flex items-center gap-2 px-3 py-1 text-sm rounded-full">
+                  <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'EDITAR'}" (click)="abrirModalPermisos(rol)" class="ucc-btn-primary flex items-center gap-2 px-3 py-1 text-sm rounded-full">
                     <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Editar Permisos
                   </button>
                 </div>
