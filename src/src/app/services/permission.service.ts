@@ -97,4 +97,12 @@ export class PermissionService {
   guardarPermisos(roleId: number, permisos: Permiso[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/seguridad/roles/${roleId}/permisos`, permisos);
   }
+
+  gestionarPermiso(permiso: Permiso): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seguridad/permisos`, permiso);
+  }
+
+  actualizarRolUsuario(usuarioId: number, rolId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/seguridad/usuarios/${usuarioId}/rol`, rolId, { headers: { 'Content-Type': 'application/json' } });
+  }
 }
