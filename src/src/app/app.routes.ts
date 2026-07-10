@@ -12,6 +12,10 @@ import { ReportesComponent } from './components/reportes/reportes.component';
 import { CatalogosComponent } from './components/catalogos/catalogos.component';
 import { AuthGuard } from './guards/auth.guard';
 
+import { SeguridadComponent } from './components/seguridad/seguridad.component';
+import { PermissionGuard } from './guards/permission.guard';
+
+
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -24,6 +28,8 @@ export const routes: Routes = [
   { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
   { path: 'plataformas', component: PlataformasComponent, canActivate: [AuthGuard] },
   { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard] },
+  { path: 'seguridad', component: SeguridadComponent, canActivate: [AuthGuard, PermissionGuard], data: { pantallaId: 'SEGURIDAD' } },
+
 
   // Ruta por defecto explícita
   { path: '', redirectTo: 'login', pathMatch: 'full' },

@@ -25,7 +25,9 @@ export class AppComponent implements OnInit {
     { link: '/software', label: 'Software Local', icon: 'terminal', pantallaId: 'SOFTWARE_LOCAL' },
     { link: '/sitios', label: 'Permisos Sitios', icon: 'location_on', pantallaId: 'PERMISOS_SITIOS' },
     { link: '/plataformas', label: 'Plataformas', icon: 'cloud_done', pantallaId: 'PLATAFORMAS' },
-    { link: '/reportes', label: 'Reportes', icon: 'analytics', pantallaId: 'REPORTES' }
+    { link: '/reportes', label: 'Reportes', icon: 'analytics', pantallaId: 'REPORTES' },
+    { link: '/seguridad', label: 'Seguridad y Accesos', icon: 'security', pantallaId: 'SEGURIDAD' }
+
   ];
   filteredMenu$: Observable<any[]>;
 
