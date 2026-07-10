@@ -30,6 +30,9 @@ namespace PermisosPuestosApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
+            modelBuilder.Entity<RolDto>().HasNoKey();
+            modelBuilder.Entity<UsuarioResponseDto>().HasNoKey();
+
             modelBuilder.Entity<PermisoDto>().HasNoKey();
             modelBuilder.Entity<EmpleadoDto>().HasNoKey();
 
