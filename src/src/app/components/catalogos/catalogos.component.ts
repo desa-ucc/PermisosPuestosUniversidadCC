@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { PermisoDirective } from '../../directives/permiso.directive';
 import { Catalogo } from '../../models/models';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-catalogos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PermisoDirective],
   template: `
 <div class="p-gutter max-w-container-max-width mx-auto">
     <!-- Page Header -->
@@ -37,7 +39,7 @@ import { Catalogo } from '../../models/models';
                 <div class="p-6">
                     <div class="flex items-center gap-3 mb-6">
                         <span class="material-symbols-outlined text-ucc-primary-container p-2 bg-ucc-primary-container/10 rounded-lg">add_circle</span>
-                        <h3 class="font-title-lg text-title-lg text-ucc-secondary">Registrar Nuevo {{ getTabName() }}</h3>
+                        <h3 class="font-title-lg text-title-lg text-ucc-secondary">{{ editingId ? 'Editar' : 'Registrar Nuevo' }} {{ getTabName() }}</h3>
                     </div>
 
                     <form [formGroup]="catForm" (ngSubmit)="onSubmit()" class="flex flex-col md:flex-row gap-4 items-end">
@@ -48,15 +50,27 @@ import { Catalogo } from '../../models/models';
                               <span class="text-ucc-error text-xs mt-1 block">El nombre es requerido.</span>
                             }
                         </div>
-                        <button type="submit" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
-                            @if(isSaving) {
-                                <span class="material-symbols-outlined animate-spin">sync</span>
-                                Guardando...
-                            } @else {
-                                <span class="material-symbols-outlined">save</span>
-                                Agregar
-                            }
-                        </button>
+                        @if(editingId) {
+                            <button type="submit" *appPermiso="{pantalla: 'CATALOGOS', accion: 'editar'}" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
+                                @if(isSaving) {
+                                    <span class="material-symbols-outlined animate-spin">sync</span>
+                                    Guardando...
+                                } @else {
+                                    <span class="material-symbols-outlined">save</span>
+                                    Guardar Cambios
+                                }
+                            </button>
+                        } @else {
+                            <button type="submit" *appPermiso="{pantalla: 'CATALOGOS', accion: 'crear'}" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
+                                @if(isSaving) {
+                                    <span class="material-symbols-outlined animate-spin">sync</span>
+                                    Guardando...
+                                } @else {
+                                    <span class="material-symbols-outlined">save</span>
+                                    Agregar
+                                }
+                            </button>
+                        }
                     </form>
                 </div>
             </div>
@@ -95,7 +109,8 @@ import { Catalogo } from '../../models/models';
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
+                                                <button [style.display]="permissionService.tienePermiso('CATALOGOS', 'ver') ? 'block' : 'none'" (click)="abrirDetalle(item)" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-lg transition-colors" title="Ver Detalle"><span class="material-symbols-outlined">visibility</span></button>
+                                                <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'eliminar'}" (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -177,8 +192,9 @@ export class CatalogosComponent implements OnInit {
 
   catForm: FormGroup;
   isSaving = false;
+  editingId: number | null = null;
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.catForm = this.fb.group({
       nombre: ['', Validators.required]
     });
@@ -198,6 +214,7 @@ export class CatalogosComponent implements OnInit {
   setTab(tab: 'ambientes' | 'sitios' | 'plataformas') {
     this.activeTab = tab;
     this.catForm.reset();
+    this.editingId = null;
   }
 
   getTabName(): string {
@@ -234,6 +251,30 @@ export class CatalogosComponent implements OnInit {
     }
   }
 
+  abrirDetalle(item: any) {
+    console.log('Evento recibido:', item);
+
+    if (!this.permissionService.tienePermiso('CATALOGOS', 'ver')) {
+      console.warn('Acceso denegado - validación de seguridad fallida');
+      return;
+    }
+
+    this.editingId = item.id;
+
+    const request$ = this.activeTab === 'ambientes' ? this.api.getAmbiente(item.id) :
+                     this.activeTab === 'sitios' ? this.api.getSitioCat(item.id) :
+                     this.api.getPlataformaCat(item.id);
+
+    request$.subscribe({
+      next: (data) => {
+        this.catForm.patchValue({ nombre: data.nombre });
+      },
+      error: () => {
+        this.editingId = null;
+      }
+    });
+  }
+
   onSubmit() {
     this.catForm.markAllAsTouched();
     if (this.catForm.invalid) return;
@@ -241,9 +282,13 @@ export class CatalogosComponent implements OnInit {
     this.isSaving = true;
     const data = this.catForm.value;
 
-    const request$ = this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
-                     this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
-                     this.api.createPlataformaCat(data);
+    const request$ = this.editingId
+      ? (this.activeTab === 'ambientes' ? this.api.updateAmbiente(this.editingId, data) :
+         this.activeTab === 'sitios' ? this.api.updateSitioCat(this.editingId, data) :
+         this.api.updatePlataformaCat(this.editingId, data))
+      : (this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
+         this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
+         this.api.createPlataformaCat(data));
 
     request$.subscribe({
       next: () => {
@@ -251,6 +296,7 @@ export class CatalogosComponent implements OnInit {
           this.isSaving = false;
           this.loadActiveTabData();
           this.catForm.reset();
+          this.editingId = null;
         }, 500);
       },
       error: () => {

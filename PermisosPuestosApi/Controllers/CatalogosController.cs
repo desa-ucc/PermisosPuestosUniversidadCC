@@ -19,11 +19,30 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Ambientes")]
         public async Task<IActionResult> GetAmbientes() => Ok(await _context.Cat_Ambientes.FromSqlRaw("EXEC sp_GetCatAmbientes").ToListAsync());
 
+        [HttpGet("Ambientes/{id}")]
+        public async Task<IActionResult> GetAmbiente(int id)
+        {
+            var p = new SqlParameter("@Id", id);
+            var res = await _context.Cat_Ambientes.FromSqlRaw("EXEC sp_GetCatAmbientePorId @Id", p).ToListAsync();
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
         [HttpPost("Ambientes")]
         public async Task<IActionResult> CreateAmbiente([FromBody] Cat_Ambiente cat)
         {
             var p = new SqlParameter("@Nombre", cat.Nombre);
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateCatAmbiente @Nombre", p);
+            return Ok();
+        }
+
+        [HttpPut("Ambientes/{id}")]
+        public async Task<IActionResult> UpdateAmbiente(int id, [FromBody] Cat_Ambiente cat)
+        {
+            var p1 = new SqlParameter("@Id", id);
+            var p2 = new SqlParameter("@Nombre", cat.Nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateCatAmbiente @Id, @Nombre", p1, p2);
             return Ok();
         }
 
@@ -39,11 +58,30 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Sitios")]
         public async Task<IActionResult> GetSitios() => Ok(await _context.Cat_Sitios.FromSqlRaw("EXEC sp_GetCatSitios").ToListAsync());
 
+        [HttpGet("Sitios/{id}")]
+        public async Task<IActionResult> GetSitio(int id)
+        {
+            var p = new SqlParameter("@Id", id);
+            var res = await _context.Cat_Sitios.FromSqlRaw("EXEC sp_GetCatSitioPorId @Id", p).ToListAsync();
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
         [HttpPost("Sitios")]
         public async Task<IActionResult> CreateSitio([FromBody] Cat_Sitio cat)
         {
             var p = new SqlParameter("@Nombre", cat.Nombre);
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateCatSitio @Nombre", p);
+            return Ok();
+        }
+
+        [HttpPut("Sitios/{id}")]
+        public async Task<IActionResult> UpdateSitio(int id, [FromBody] Cat_Sitio cat)
+        {
+            var p1 = new SqlParameter("@Id", id);
+            var p2 = new SqlParameter("@Nombre", cat.Nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateCatSitio @Id, @Nombre", p1, p2);
             return Ok();
         }
 
@@ -59,11 +97,30 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Plataformas")]
         public async Task<IActionResult> GetPlataformas() => Ok(await _context.Cat_Plataformas.FromSqlRaw("EXEC sp_GetCatPlataformas").ToListAsync());
 
+        [HttpGet("Plataformas/{id}")]
+        public async Task<IActionResult> GetPlataforma(int id)
+        {
+            var p = new SqlParameter("@Id", id);
+            var res = await _context.Cat_Plataformas.FromSqlRaw("EXEC sp_GetCatPlataformaPorId @Id", p).ToListAsync();
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
         [HttpPost("Plataformas")]
         public async Task<IActionResult> CreatePlataforma([FromBody] Cat_Plataforma cat)
         {
             var p = new SqlParameter("@Nombre", cat.Nombre);
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateCatPlataforma @Nombre", p);
+            return Ok();
+        }
+
+        [HttpPut("Plataformas/{id}")]
+        public async Task<IActionResult> UpdatePlataforma(int id, [FromBody] Cat_Plataforma cat)
+        {
+            var p1 = new SqlParameter("@Id", id);
+            var p2 = new SqlParameter("@Nombre", cat.Nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateCatPlataforma @Id, @Nombre", p1, p2);
             return Ok();
         }
 

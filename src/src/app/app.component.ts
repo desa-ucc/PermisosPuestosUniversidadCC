@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   title = 'ProyectoPermisosXPuesto';
   isLoggedIn = false;
   menuItems = [
+    { link: '/catalogos', label: 'Catálogos Base', icon: 'folder_shared', pantallaId: 'CATALOGOS' },
     { link: '/dashboard', label: 'Dashboard', icon: 'dashboard', pantallaId: 'DASHBOARD' },
     { link: '/puestos', label: 'Puestos', icon: 'badge', pantallaId: 'PUESTOS' },
     { link: '/colaboradores', label: 'Colaboradores', icon: 'group', pantallaId: 'COLABORADORES' },

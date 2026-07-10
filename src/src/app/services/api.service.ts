@@ -65,15 +65,21 @@ export class ApiService {
 
   // --- Catalogos ---
   getAmbientes(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Ambientes`, { headers: this.getHeaders() }); }
+  getAmbiente(id: number): Observable<Catalogo> { return this.http.get<Catalogo>(`${this.apiUrl}/Catalogos/Ambientes/${id}`, { headers: this.getHeaders() }); }
   createAmbiente(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Ambientes`, data, { headers: this.getHeaders() }); }
+  updateAmbiente(id: number, data: Partial<Catalogo>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/Ambientes/${id}`, data, { headers: this.getHeaders() }); }
   deleteAmbiente(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Ambientes/${id}`, { headers: this.getHeaders() }); }
 
   getSitiosCat(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Sitios`, { headers: this.getHeaders() }); }
+  getSitioCat(id: number): Observable<Catalogo> { return this.http.get<Catalogo>(`${this.apiUrl}/Catalogos/Sitios/${id}`, { headers: this.getHeaders() }); }
   createSitioCat(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Sitios`, data, { headers: this.getHeaders() }); }
+  updateSitioCat(id: number, data: Partial<Catalogo>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/Sitios/${id}`, data, { headers: this.getHeaders() }); }
   deleteSitioCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Sitios/${id}`, { headers: this.getHeaders() }); }
 
   getPlataformasCat(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Plataformas`, { headers: this.getHeaders() }); }
+  getPlataformaCat(id: number): Observable<Catalogo> { return this.http.get<Catalogo>(`${this.apiUrl}/Catalogos/Plataformas/${id}`, { headers: this.getHeaders() }); }
   createPlataformaCat(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Plataformas`, data, { headers: this.getHeaders() }); }
+  updatePlataformaCat(id: number, data: Partial<Catalogo>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/Plataformas/${id}`, data, { headers: this.getHeaders() }); }
   deletePlataformaCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Plataformas/${id}`, { headers: this.getHeaders() }); }
 
   getNivelesAcceso(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/NivelesAcceso`, { headers: this.getHeaders() }); }
