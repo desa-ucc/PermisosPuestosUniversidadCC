@@ -238,8 +238,9 @@ export class CatalogosComponent implements OnInit {
   }
 
   abrirDetalle(item: any) {
+    console.log('Clic detectado');
     if (!this.permissionService.tienePermiso('CATALOGOS', 'ver')) {
-      console.error('Acceso denegado');
+      console.warn('Acceso denegado - validación de seguridad fallida');
       return;
     }
     console.log('Abriendo detalle para:', item);
