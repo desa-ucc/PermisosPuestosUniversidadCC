@@ -15,11 +15,11 @@ export class SeguridadComponent implements OnInit {
   activeTab: 'roles' | 'usuarios' | 'permisos' = 'roles';
 
   // Data
-  roles: any[] = [];
+  listaRoles: any[] = [];
   rolesFiltrados: any[] = [];
   filtrosRoles = { nombre: '' };
 
-  usuarios: any[] = [];
+  listaUsuarios: any[] = [];
   usuariosFiltrados: any[] = [];
   filtrosUsuarios = { nombreUsuario: '' };
 
@@ -60,7 +60,8 @@ export class SeguridadComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
+    console.log('Iniciando carga de datos...');
     this.cargarRoles();
     this.cargarUsuarios();
   }
@@ -71,21 +72,19 @@ export class SeguridadComponent implements OnInit {
 
   // --- ROLES ---
   cargarRoles() {
-    this.permissionService.getAllRoles().subscribe(res => {
-      this.roles = res;
-      if (!this.roles || this.roles.length === 0) {
-        console.log('Roles API returned empty data:', res);
-      }
-      this.aplicarFiltrosRoles();
-    });
+    this.permissionService.getRoles().subscribe(data => {
+        console.log('Roles recibidos:', data);
+        this.listaRoles = data;
+        this.rolesFiltrados = [...this.listaRoles];
+    }, error => console.error('Error cargando roles', error));
   }
 
   aplicarFiltrosRoles() {
     if (!this.filtrosRoles.nombre) {
-      this.rolesFiltrados = [...this.roles];
+      this.rolesFiltrados = [...this.listaRoles];
     } else {
       const search = this.filtrosRoles.nombre.toLowerCase();
-      this.rolesFiltrados = this.roles.filter(r => r.nombre.toLowerCase().includes(search));
+      this.rolesFiltrados = this.listaRoles.filter(r => r.nombre.toLowerCase().includes(search));
     }
   }
 
@@ -135,20 +134,17 @@ export class SeguridadComponent implements OnInit {
   // --- USUARIOS ---
   cargarUsuarios() {
     this.permissionService.getUsuarios().subscribe(res => {
-      this.usuarios = res;
-      if (!this.usuarios || this.usuarios.length === 0) {
-        console.log('Usuarios API returned empty data:', res);
-      }
-      this.aplicarFiltrosUsuarios();
-    });
+      this.listaUsuarios = res;
+      this.usuariosFiltrados = [...this.listaUsuarios];
+    }, error => console.error('Error cargando usuarios', error));
   }
 
   aplicarFiltrosUsuarios() {
     if (!this.filtrosUsuarios.nombreUsuario) {
-      this.usuariosFiltrados = [...this.usuarios];
+      this.usuariosFiltrados = [...this.listaUsuarios];
     } else {
       const search = this.filtrosUsuarios.nombreUsuario.toLowerCase();
-      this.usuariosFiltrados = this.usuarios.filter(u => u.nombreUsuario.toLowerCase().includes(search));
+      this.usuariosFiltrados = this.listaUsuarios.filter(u => u.nombreUsuario.toLowerCase().includes(search));
     }
   }
 

@@ -21,7 +21,7 @@
         <button (click)="limpiarFiltrosRoles()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
           <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
         </button>
-        <button (click)="abrirModalRol()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+        <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'CREAR'}" (click)="abrirModalRol()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
           <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Rol
         </button>
       </div>
@@ -44,8 +44,8 @@
                 <td class="py-4 px-6">{{rol.descripcion}}</td>
                 <td class="py-4 px-6">
                   <div class="flex justify-center gap-3">
-                    <button (click)="abrirModalRol(rol)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
-                    <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                    <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'EDITAR'}" (click)="abrirModalRol(rol)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
+                    <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'ELIMINAR'}" (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
                   </div>
                 </td>
               </tr>
@@ -65,7 +65,7 @@
         <button (click)="limpiarFiltrosUsuarios()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
           <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
         </button>
-        <button (click)="abrirModalUsuario()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+        <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'CREAR'}" (click)="abrirModalUsuario()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
           <span class="material-symbols-outlined text-[18px]">person_add</span> Nuevo Usuario
         </button>
       </div>
@@ -94,8 +94,8 @@
                 </td>
                 <td class="py-4 px-6">
                   <div class="flex justify-center gap-3">
-                    <button (click)="abrirModalUsuario(usuario)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
-                    <button (click)="eliminarUsuario(usuario.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                    <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'EDITAR'}" (click)="abrirModalUsuario(usuario)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
+                    <button *appPermiso="{pantalla: 'SEGURIDAD', accion: 'ELIMINAR'}" (click)="eliminarUsuario(usuario.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
                   </div>
                 </td>
               </tr>
@@ -113,7 +113,7 @@
         <label class="font-semibold text-secondary">Seleccione un Rol:</label>
         <select [(ngModel)]="rolSeleccionadoId" (change)="cargarPermisosRol()" class="form-select block w-64 rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
           <option [ngValue]="null">-- Seleccionar Rol --</option>
-          @for (rol of roles; track rol.id) {
+          @for (rol of listaRoles; track rol.id) {
             <option [value]="rol.id">{{rol.nombre}}</option>
           }
         </select>
@@ -195,7 +195,7 @@
               <label class="block text-sm font-medium text-gray-700">Rol</label>
               <select formControlName="rolId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
                 <option [ngValue]="null">-- Seleccionar Rol --</option>
-                @for (rol of roles; track rol.id) {
+                @for (rol of listaRoles; track rol.id) {
                   <option [value]="rol.id">{{rol.nombre}}</option>
                 }
               </select>

@@ -68,7 +68,7 @@ namespace PermisosPuestosApi.Controllers
             await _context.Database.ExecuteSqlRawAsync(
                 "EXEC sp_GestionarUsuarios @Accion='INSERT', @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
                 new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
-                new SqlParameter("@PasswordHash", usuario.PasswordHash),
+                new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
                 new SqlParameter("@Email", usuario.Email),
                 new SqlParameter("@RolId", usuario.RolId),
                 new SqlParameter("@Activo", usuario.Activo));

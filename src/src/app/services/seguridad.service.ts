@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SeguridadService {
-  private apiUrl = 'http://localhost:5000/api/Seguridad';
+  private apiUrl = 'http://localhost:5000/api/seguridad'; // Should use environment ideally
 
   constructor(private http: HttpClient) {}
 

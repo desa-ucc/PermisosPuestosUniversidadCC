@@ -82,7 +82,7 @@ export class PermissionService {
   }
 
   // Métodos CRUD para administrar la seguridad (usados por el SeguridadComponent)
-  getAllRoles(): Observable<any[]> {
+  getRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/seguridad/roles`);
   }
 

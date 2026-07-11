@@ -1,18 +1,15 @@
-# Seguridad y Accesos Module - Fase 3 (Bugfix Carga de Datos)
+# Seguridad y Accesos Module - Fase 3 (Bugfix Carga de Datos y DBNull)
 
 ## Architecture & State
-- Fix issue where Data Tables were rendering empty despite `SeguridadComponent` loading.
-- Discovered that the component injected `SeguridadService` correctly, but the user's manual validation steps implicitly expect `PermissionService` to be utilized to retrieve data.
-- Refactored `ngOnInit` initialization flow in `seguridad.component.ts`. `cargarRoles()` and `cargarUsuarios()` now explicitly invoke `permissionService.getAllRoles()` and `permissionService.getUsuarios()`, logging empty arrays appropriately as requested by the user.
+- Handled edge case in `SeguridadController.cs` where creating a user with an empty password hash would cause a crash due to ADO.NET failing to infer the type of a raw `null`. Replaced it with `DBNull.Value`.
 
 ## Steps Executed
-1. Read existing component architecture.
-2. Verified backend endpoints execute `@Accion='SELECT'`.
-3. Updated `seguridad.component.ts` constructor to inject `PermissionService`.
-4. Re-routed API GET queries to use `PermissionService` matching `permission.service.ts` function signatures (`getAllRoles()`, `getUsuarios()`).
-5. Re-ran `ng build` and unit tests successfully.
+1. Read existing Controller logic.
+2. Appended coalescing operator (`?? (object)DBNull.Value`) to the `SqlParameter` handling `PasswordHash` during `CreateUsuario`.
+3. Verified compilation with `dotnet build`.
 
 ## Audit
-- Code adheres to database constraints using exact parameter names.
+- Code adheres to database constraints using exact parameter names and safely passes null types.
 - Backend/Frontend builds passed.
+- RBAC UI restrictions applied safely on client actions.
 - "The House Way" documented via this PLAN.md
