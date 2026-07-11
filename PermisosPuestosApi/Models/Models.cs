@@ -1,8 +1,40 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PermisosPuestosApi.Models
 {
+
+    [Table("pt_Roles")]
+    public class Rol
+    {
+        [Key] public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+    }
+
+    [Table("pt_Usuarios")]
+    public class Usuario
+    {
+        [Key] public int Id { get; set; }
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int RolId { get; set; }
+        public bool Activo { get; set; }
+    }
+
+    [Table("pt_Permisos")]
+    public class Permiso
+    {
+        [Key] public int Id { get; set; }
+        public int RoleId { get; set; }
+        public string PantallaId { get; set; } = string.Empty;
+        public bool PuedeCrear { get; set; }
+        public bool PuedeEditar { get; set; }
+        public bool PuedeEliminar { get; set; }
+        public bool PuedeVer { get; set; }
+    }
     public class Puesto
     {
         [Key] public int Id { get; set; }

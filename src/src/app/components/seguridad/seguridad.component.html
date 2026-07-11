@@ -1,0 +1,216 @@
+<main class="p-gutter max-w-container-max-width mx-auto space-y-8">
+  <div class="mb-8">
+    <h2 class="font-headline-lg text-headline-lg text-secondary">Seguridad y Accesos</h2>
+    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-1">
+      Administre roles, usuarios y permisos del sistema.
+    </p>
+  </div>
+
+  <div class="flex border-b border-outline-variant/30 mb-4">
+    <button (click)="setTab('roles')" [class.border-ucc-primary]="activeTab === 'roles'" [class.text-ucc-primary]="activeTab === 'roles'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Roles</button>
+    <button (click)="setTab('usuarios')" [class.border-ucc-primary]="activeTab === 'usuarios'" [class.text-ucc-primary]="activeTab === 'usuarios'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Usuarios</button>
+    <button (click)="setTab('permisos')" [class.border-ucc-primary]="activeTab === 'permisos'" [class.text-ucc-primary]="activeTab === 'permisos'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Matriz de Permisos</button>
+  </div>
+
+  <!-- TAB: ROLES -->
+  @if (activeTab === 'roles') {
+    <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative">
+      <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+        <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
+        <input type="text" placeholder="Filtrar por Nombre..." [(ngModel)]="filtrosRoles.nombre" (input)="aplicarFiltrosRoles()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+        <button (click)="limpiarFiltrosRoles()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+          <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
+        </button>
+        <button (click)="abrirModalRol()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+          <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Rol
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="ucc-table w-full">
+          <thead>
+            <tr>
+              <th class="py-4 px-6 text-left">ID</th>
+              <th class="py-4 px-6 text-left">Nombre</th>
+              <th class="py-4 px-6 text-left">Descripción</th>
+              <th class="py-4 px-6 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (rol of rolesFiltrados; track rol.id) {
+              <tr class="hover:bg-surface-container-lowest transition-colors border-b border-outline-variant/10">
+                <td class="py-4 px-6">{{rol.id}}</td>
+                <td class="py-4 px-6 font-semibold">{{rol.nombre}}</td>
+                <td class="py-4 px-6">{{rol.descripcion}}</td>
+                <td class="py-4 px-6">
+                  <div class="flex justify-center gap-3">
+                    <button (click)="abrirModalRol(rol)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
+                    <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- TAB: USUARIOS -->
+  @if (activeTab === 'usuarios') {
+    <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative">
+      <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
+        <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
+        <input type="text" placeholder="Filtrar por Usuario..." [(ngModel)]="filtrosUsuarios.nombreUsuario" (input)="aplicarFiltrosUsuarios()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
+        <button (click)="limpiarFiltrosUsuarios()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+          <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
+        </button>
+        <button (click)="abrirModalUsuario()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+          <span class="material-symbols-outlined text-[18px]">person_add</span> Nuevo Usuario
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="ucc-table w-full">
+          <thead>
+            <tr>
+              <th class="py-4 px-6 text-left">Usuario</th>
+              <th class="py-4 px-6 text-left">Email</th>
+              <th class="py-4 px-6 text-left">Rol</th>
+              <th class="py-4 px-6 text-center">Estado</th>
+              <th class="py-4 px-6 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of usuariosFiltrados; track usuario.id) {
+              <tr class="hover:bg-surface-container-lowest transition-colors border-b border-outline-variant/10">
+                <td class="py-4 px-6 font-semibold">{{usuario.nombreUsuario}}</td>
+                <td class="py-4 px-6">{{usuario.email}}</td>
+                <td class="py-4 px-6"><span class="bg-ucc-primary/10 text-ucc-primary px-2 py-1 rounded text-xs font-bold">{{usuario.nombreRol}}</span></td>
+                <td class="py-4 px-6 text-center">
+                  <span class="px-2 py-1 rounded text-xs font-bold" [ngClass]="usuario.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                    {{usuario.activo ? 'Activo' : 'Inactivo'}}
+                  </span>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="flex justify-center gap-3">
+                    <button (click)="abrirModalUsuario(usuario)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
+                    <button (click)="eliminarUsuario(usuario.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- TAB: PERMISOS MATRIZ -->
+  @if (activeTab === 'permisos') {
+    <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative p-6">
+      <div class="mb-6 flex items-center gap-4">
+        <label class="font-semibold text-secondary">Seleccione un Rol:</label>
+        <select [(ngModel)]="rolSeleccionadoId" (change)="cargarPermisosRol()" class="form-select block w-64 rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+          <option [ngValue]="null">-- Seleccionar Rol --</option>
+          @for (rol of roles; track rol.id) {
+            <option [value]="rol.id">{{rol.nombre}}</option>
+          }
+        </select>
+      </div>
+
+      @if (rolSeleccionadoId) {
+        <div class="grid grid-cols-5 gap-4 bg-surface-container-highest p-3 rounded-t-lg border-b border-outline-variant/20">
+          <div class="font-label-md font-bold text-secondary uppercase tracking-wider pl-2">Pantalla</div>
+          <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Ver</div>
+          <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Crear</div>
+          <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Editar</div>
+          <div class="font-label-md font-bold text-secondary uppercase tracking-wider text-center">Eliminar</div>
+        </div>
+
+        <div class="bg-white">
+          @for (permiso of permisosActuales; track permiso.pantallaId) {
+            <div class="grid grid-cols-5 gap-4 items-center p-3 border-b border-outline-variant/10 hover:bg-surface-container transition-colors">
+              <div class="font-body-md font-bold text-secondary pl-2">{{permiso.pantallaId}}</div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeVer" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeCrear" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEditar" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEliminar" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="py-12 text-center text-on-surface-variant font-medium bg-surface-container-lowest rounded-lg border border-dashed border-outline-variant/30">
+          Por favor, seleccione un rol para visualizar y editar sus permisos.
+        </div>
+      }
+    </div>
+  }
+
+  <!-- MODAL ROL -->
+  @if (isRolModalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h3 class="font-title-lg text-title-lg mb-4">{{ isEditMode ? 'Editar' : 'Nuevo' }} Rol</h3>
+        <form [formGroup]="rolForm" (ngSubmit)="guardarRol()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Nombre</label>
+              <input type="text" formControlName="nombre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Descripción</label>
+              <textarea formControlName="descripcion" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50"></textarea>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button type="button" (click)="cerrarModalRol()" class="ucc-btn-secondary px-4 py-2">Cancelar</button>
+            <button type="submit" [disabled]="rolForm.invalid" class="ucc-btn-primary px-4 py-2">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL USUARIO -->
+  @if (isUsuarioModalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h3 class="font-title-lg text-title-lg mb-4">{{ isEditMode ? 'Editar' : 'Nuevo' }} Usuario</h3>
+        <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+              <input type="text" formControlName="nombreUsuario" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" formControlName="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Contraseña {{ isEditMode ? '(Dejar en blanco para no cambiar)' : '' }}</label>
+              <input type="password" formControlName="passwordHash" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Rol</label>
+              <select formControlName="rolId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+                <option [ngValue]="null">-- Seleccionar Rol --</option>
+                @for (rol of roles; track rol.id) {
+                  <option [value]="rol.id">{{rol.nombre}}</option>
+                }
+              </select>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" formControlName="activo" class="h-4 w-4 text-ucc-primary focus:ring-ucc-primary border-gray-300 rounded">
+              <label class="ml-2 block text-sm text-gray-900">Usuario Activo</label>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button type="button" (click)="cerrarModalUsuario()" class="ucc-btn-secondary px-4 py-2">Cancelar</button>
+            <button type="submit" [disabled]="usuarioForm.invalid" class="ucc-btn-primary px-4 py-2">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</main>
