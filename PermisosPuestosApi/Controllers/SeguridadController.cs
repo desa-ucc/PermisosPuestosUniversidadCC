@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using PermisosPuestosApi.Data;
 using PermisosPuestosApi.Models;
 
@@ -21,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion='LEER'").ToListAsync();
+            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion='SELECT'").ToListAsync();
             return Ok(roles);
         }
 
@@ -29,8 +30,9 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> CreateRol([FromBody] Rol rol)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='CREAR', @Nombre={0}, @Descripcion={1}",
-                rol.Nombre, rol.Descripcion ?? (object)DBNull.Value);
+                "EXEC sp_GestionarRoles @Accion='INSERT', @Nombre=@Nombre, @Descripcion=@Descripcion",
+                new SqlParameter("@Nombre", rol.Nombre),
+                new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
             return Ok(new { message = "Rol creado exitosamente" });
         }
 
@@ -38,8 +40,10 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> UpdateRol(int id, [FromBody] Rol rol)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='ACTUALIZAR', @Id={0}, @Nombre={1}, @Descripcion={2}",
-                id, rol.Nombre, rol.Descripcion ?? (object)DBNull.Value);
+                "EXEC sp_GestionarRoles @Accion='UPDATE', @Id=@Id, @Nombre=@Nombre, @Descripcion=@Descripcion",
+                new SqlParameter("@Id", id),
+                new SqlParameter("@Nombre", rol.Nombre),
+                new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
             return Ok(new { message = "Rol actualizado exitosamente" });
         }
 
@@ -47,14 +51,14 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> DeleteRol(int id)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='ELIMINAR', @Id={0}", id);
+                "EXEC sp_GestionarRoles @Accion='DELETE', @Id=@Id", new SqlParameter("@Id", id));
             return Ok(new { message = "Rol eliminado exitosamente" });
         }
 
         [HttpGet("usuarios")]
         public async Task<IActionResult> GetUsuarios()
         {
-            var usuarios = await _context.Usuarios.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion='LEER'").ToListAsync();
+            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion='SELECT'").ToListAsync();
             return Ok(usuarios);
         }
 
@@ -62,8 +66,12 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> CreateUsuario([FromBody] Usuario usuario)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='CREAR', @NombreUsuario={0}, @PasswordHash={1}, @Email={2}, @RolId={3}, @Activo={4}",
-                usuario.NombreUsuario, usuario.PasswordHash, usuario.Email, usuario.RolId, usuario.Activo);
+                "EXEC sp_GestionarUsuarios @Accion='INSERT', @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
+                new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
+                new SqlParameter("@PasswordHash", usuario.PasswordHash),
+                new SqlParameter("@Email", usuario.Email),
+                new SqlParameter("@RolId", usuario.RolId),
+                new SqlParameter("@Activo", usuario.Activo));
             return Ok(new { message = "Usuario creado exitosamente" });
         }
 
@@ -71,8 +79,13 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> UpdateUsuario(int id, [FromBody] Usuario usuario)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='ACTUALIZAR', @Id={0}, @NombreUsuario={1}, @PasswordHash={2}, @Email={3}, @RolId={4}, @Activo={5}",
-                id, usuario.NombreUsuario, usuario.PasswordHash ?? (object)DBNull.Value, usuario.Email, usuario.RolId, usuario.Activo);
+                "EXEC sp_GestionarUsuarios @Accion='UPDATE', @Id=@Id, @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
+                new SqlParameter("@Id", id),
+                new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
+                new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
+                new SqlParameter("@Email", usuario.Email),
+                new SqlParameter("@RolId", usuario.RolId),
+                new SqlParameter("@Activo", usuario.Activo));
             return Ok(new { message = "Usuario actualizado exitosamente" });
         }
 
@@ -80,7 +93,7 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> DeleteUsuario(int id)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='ELIMINAR', @Id={0}", id);
+                "EXEC sp_GestionarUsuarios @Accion='DELETE', @Id=@Id", new SqlParameter("@Id", id));
             return Ok(new { message = "Usuario eliminado exitosamente" });
         }
 
@@ -88,7 +101,7 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> GetPermisos(int rolId)
         {
             var permisos = await _context.Permisos.FromSqlRaw(
-                "EXEC sp_GestionarPermisos @Accion='LEER', @RoleId={0}", rolId).ToListAsync();
+                "EXEC sp_GestionarPermisos @Accion='SELECT', @RolId=@RolId", new SqlParameter("@RolId", rolId)).ToListAsync();
             return Ok(permisos);
         }
 
@@ -96,8 +109,13 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> UpdatePermiso([FromBody] Permiso permiso)
         {
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarPermisos @Accion='ACTUALIZAR', @RoleId={0}, @PantallaId={1}, @PuedeCrear={2}, @PuedeEditar={3}, @PuedeEliminar={4}, @PuedeVer={5}",
-                permiso.RoleId, permiso.PantallaId, permiso.PuedeCrear, permiso.PuedeEditar, permiso.PuedeEliminar, permiso.PuedeVer);
+                "EXEC sp_GestionarPermisos @Accion='UPDATE', @RolId=@RolId, @PantallaId=@PantallaId, @PuedeCrear=@PuedeCrear, @PuedeEditar=@PuedeEditar, @PuedeEliminar=@PuedeEliminar, @PuedeVer=@PuedeVer",
+                new SqlParameter("@RolId", permiso.RoleId),
+                new SqlParameter("@PantallaId", permiso.PantallaId),
+                new SqlParameter("@PuedeCrear", permiso.PuedeCrear),
+                new SqlParameter("@PuedeEditar", permiso.PuedeEditar),
+                new SqlParameter("@PuedeEliminar", permiso.PuedeEliminar),
+                new SqlParameter("@PuedeVer", permiso.PuedeVer));
             return Ok(new { message = "Permiso actualizado exitosamente" });
         }
     }
