@@ -42,6 +42,7 @@ export class SeguridadComponent implements OnInit {
   ];
 
   constructor(
+    private permissionService: PermissionService,
     private seguridadService: SeguridadService,
     private fb: FormBuilder
   ) {
@@ -70,8 +71,11 @@ export class SeguridadComponent implements OnInit {
 
   // --- ROLES ---
   cargarRoles() {
-    this.seguridadService.getRoles().subscribe(res => {
+    this.permissionService.getAllRoles().subscribe(res => {
       this.roles = res;
+      if (!this.roles || this.roles.length === 0) {
+        console.log('Roles API returned empty data:', res);
+      }
       this.aplicarFiltrosRoles();
     });
   }
@@ -130,8 +134,11 @@ export class SeguridadComponent implements OnInit {
 
   // --- USUARIOS ---
   cargarUsuarios() {
-    this.seguridadService.getUsuarios().subscribe(res => {
+    this.permissionService.getUsuarios().subscribe(res => {
       this.usuarios = res;
+      if (!this.usuarios || this.usuarios.length === 0) {
+        console.log('Usuarios API returned empty data:', res);
+      }
       this.aplicarFiltrosUsuarios();
     });
   }
