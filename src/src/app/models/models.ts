@@ -24,6 +24,8 @@ export interface Empleado {
 export interface HardwareIdeal {
   id: number;
   puestoId: number;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
   tipoEquipo: string;
   procesador: string;
   memoria: string;
@@ -36,6 +38,8 @@ export interface HardwareIdeal {
 export interface HardwareAsignado {
   id: number;
   empleadoId: number;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
   tipoEquipo: string;
   procesador: string;
   memoria: string;
@@ -49,6 +53,8 @@ export interface HardwareAsignado {
 export interface SoftwareLocal {
   id: number;
   empleadoId: number;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
   equipo: string;
   gruposAD: string;
   nombreSoftware: string;
@@ -59,6 +65,8 @@ export interface SoftwareLocal {
 export interface PermisosSitio {
   id: number;
   empleadoId: number;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
   sitio: string;
   ambiente: string;
   gruposPermisos: string;
@@ -67,6 +75,8 @@ export interface PermisosSitio {
 export interface Plataforma {
   id: number;
   empleadoId: number;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
   nombrePlataforma: string;
   licencias: string;
   modulos: string;

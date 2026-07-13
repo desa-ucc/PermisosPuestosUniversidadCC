@@ -137,6 +137,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 <table class="ucc-table">
           <thead>
             <tr>
+              <th>Código Puesto</th>
               <th>Persona</th>
               <th>Puesto</th>
               <th>Sitio</th>
@@ -146,6 +147,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPersona" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroSitio" placeholder="Filtrar Sitio..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -159,8 +161,9 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
           <tbody>
             @for(sitio of paginatedList; track sitio.id) {
               <tr>
+                <td>{{ sitio.codigoPuesto }}</td>
                 <td>{{ getEmpleadoName(sitio.empleadoId) }}</td>
-                <td>{{ getPuestoByEmpleado(sitio.empleadoId) }}</td>
+                <td>{{ sitio.nombrePuesto || getPuestoByEmpleado(sitio.empleadoId) }}</td>
                 <td>{{ sitio.sitio }}</td>
                 <td>
                   <span class="px-2 py-1 rounded text-xs font-semibold"
@@ -187,7 +190,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                <td colspan="7" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay permisos de sitio registrados en el sistema.
                 </td>
               </tr>
@@ -222,6 +225,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
 export class SitiosComponent implements OnInit {
 
   // Filtros de Tabla
+  filtroCodigoPuesto: string = '';
   filtroPersona: string = '';
   filtroPuesto: string = '';
   filtroSitio: string = '';
@@ -231,19 +235,22 @@ export class SitiosComponent implements OnInit {
   get listaFiltradaTabla() {
     return this.permisosSitios.filter(sitio => {
       const personaNombre = this.getEmpleadoName(sitio.empleadoId);
-      const puestoNombre = this.getPuestoByEmpleado(sitio.empleadoId);
+      const codigoPuesto = sitio.codigoPuesto || '';
+      const puestoNombre = sitio.nombrePuesto || this.getPuestoByEmpleado(sitio.empleadoId);
 
       const matchPersona = personaNombre.toLowerCase().includes(this.filtroPersona.toLowerCase());
+      const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
       const matchSitio = sitio.sitio?.toLowerCase().includes(this.filtroSitio.toLowerCase()) ?? true;
       const matchAmbiente = sitio.ambiente?.toLowerCase().includes(this.filtroAmbiente.toLowerCase()) ?? true;
       const matchGrupos = sitio.gruposPermisos?.toLowerCase().includes(this.filtroGrupos.toLowerCase()) ?? true;
 
-      return matchPersona && matchPuesto && matchSitio && matchAmbiente && matchGrupos;
+      return matchCodigoPuesto && matchPersona && matchPuesto && matchSitio && matchAmbiente && matchGrupos;
     });
   }
 
   limpiarFiltrosTabla() {
+    this.filtroCodigoPuesto = '';
     this.filtroPersona = '';
     this.filtroPuesto = '';
     this.filtroSitio = '';

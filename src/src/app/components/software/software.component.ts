@@ -117,6 +117,8 @@ import { PermissionService } from '../../services/permission.service';
 <table class="ucc-table">
           <thead>
             <tr>
+              <th>Código Puesto</th>
+              <th>Puesto</th>
               <th>Equipo Asignado</th>
               <th>Software</th>
               <th>Versión</th>
@@ -125,6 +127,8 @@ import { PermissionService } from '../../services/permission.service';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroSoftware" placeholder="Filtrar Software..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroVersion" placeholder="Filtrar Versión..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -137,6 +141,8 @@ import { PermissionService } from '../../services/permission.service';
           <tbody>
             @for(sw of paginatedList; track sw.id) {
               <tr>
+                <td>{{sw.codigoPuesto}}</td>
+                <td>{{sw.nombrePuesto || getPuestoByEmpleadoId(sw.empleadoId)}}</td>
                 <td>{{getEquipoPlaca(sw.empleadoId)}}</td>
                 <td>{{sw.nombreSoftware}}</td>
                 <td>{{sw.version}}</td>
@@ -155,7 +161,7 @@ import { PermissionService } from '../../services/permission.service';
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                <td colspan="7" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay registros de software local.
                 </td>
               </tr>
@@ -190,6 +196,8 @@ import { PermissionService } from '../../services/permission.service';
 export class SoftwareComponent implements OnInit {
 
   // Filtros de Tabla
+  filtroCodigoPuesto: string = '';
+  filtroPuesto: string = '';
   filtroEquipo: string = '';
   filtroSoftware: string = '';
   filtroVersion: string = '';
@@ -198,17 +206,23 @@ export class SoftwareComponent implements OnInit {
   get listaFiltradaTabla() {
     return this.softwareList.filter(sw => {
       const equipoNombre = this.getEquipoPlaca(sw.empleadoId);
+      const codigoPuesto = sw.codigoPuesto || '';
+      const puesto = sw.nombrePuesto || this.getPuestoByEmpleadoId(sw.empleadoId);
 
       const matchEquipo = equipoNombre.toLowerCase().includes(this.filtroEquipo.toLowerCase());
+      const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
+      const matchPuesto = puesto.toLowerCase().includes(this.filtroPuesto.toLowerCase());
       const matchSoftware = sw.nombreSoftware?.toLowerCase().includes(this.filtroSoftware.toLowerCase()) ?? true;
       const matchVersion = sw.version?.toLowerCase().includes(this.filtroVersion.toLowerCase()) ?? true;
       const matchFabricante = sw.fabricante?.toLowerCase().includes(this.filtroFabricante.toLowerCase()) ?? true;
 
-      return matchEquipo && matchSoftware && matchVersion && matchFabricante;
+      return matchCodigoPuesto && matchPuesto && matchEquipo && matchSoftware && matchVersion && matchFabricante;
     });
   }
 
   limpiarFiltrosTabla() {
+    this.filtroCodigoPuesto = '';
+    this.filtroPuesto = '';
     this.filtroEquipo = '';
     this.filtroSoftware = '';
     this.filtroVersion = '';
@@ -310,6 +324,11 @@ export class SoftwareComponent implements OnInit {
   loadData() {
     this.api.getSoftwareLocales().subscribe(res => this.softwareList = res);
     this.api.getHardwareAsignado().subscribe(res => this.equipos = res);
+  }
+
+  getPuestoByEmpleadoId(empleadoId: number): string {
+    const hw = this.equipos.find(e => e.empleadoId === empleadoId);
+    return hw && hw.nombrePuesto ? hw.nombrePuesto : 'N/A';
   }
 
   getEquipoPlaca(empleadoId: number): string {
