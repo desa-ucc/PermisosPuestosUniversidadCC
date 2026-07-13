@@ -173,6 +173,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 <table class="ucc-table">
           <thead>
             <tr>
+              <th>Código Puesto</th>
               <th>Persona</th>
               <th>Puesto</th>
               <th>Licencia</th>
@@ -184,6 +185,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPersona" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroLicencia" placeholder="Filtrar Licencia..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -199,8 +201,9 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
           <tbody>
             @for(plat of paginatedList; track plat.id) {
               <tr>
+                <td>{{ plat.codigoPuesto }}</td>
                 <td>{{ getEmpleadoName(plat.empleadoId) }}</td>
-                <td>{{ getPuestoByEmpleado(plat.empleadoId) }}</td>
+                <td>{{ plat.nombrePuesto || getPuestoByEmpleado(plat.empleadoId) }}</td>
                 <td>
                   <span class="px-2 py-1 rounded text-xs font-semibold"
                         [ngClass]="{
@@ -228,7 +231,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
               </tr>
             } @empty {
               <tr>
-                <td colspan="8" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                <td colspan="9" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay plataformas registradas en el sistema.
                 </td>
               </tr>
@@ -263,6 +266,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 export class PlataformasComponent implements OnInit {
 
   // Filtros de Tabla
+  filtroCodigoPuesto: string = '';
   filtroPersona: string = '';
   filtroPuesto: string = '';
   filtroLicencia: string = '';
@@ -274,9 +278,11 @@ export class PlataformasComponent implements OnInit {
   get listaFiltradaTabla() {
     return this.plataformas.filter(plat => {
       const personaNombre = this.getEmpleadoName(plat.empleadoId);
-      const puestoNombre = this.getPuestoByEmpleado(plat.empleadoId);
+      const codigoPuesto = plat.codigoPuesto || '';
+      const puestoNombre = plat.nombrePuesto || this.getPuestoByEmpleado(plat.empleadoId);
 
       const matchPersona = personaNombre.toLowerCase().includes(this.filtroPersona.toLowerCase());
+      const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
       const matchLicencia = plat.licencias?.toLowerCase().includes(this.filtroLicencia.toLowerCase()) ?? true;
       const matchPlataforma = plat.nombrePlataforma?.toLowerCase().includes(this.filtroPlataforma.toLowerCase()) ?? true;
@@ -284,11 +290,12 @@ export class PlataformasComponent implements OnInit {
       const matchAccesos = plat.accesosPermisos?.toLowerCase().includes(this.filtroAccesos.toLowerCase()) ?? true;
       const matchNivel = plat.nivelAcceso?.toLowerCase().includes(this.filtroNivel.toLowerCase()) ?? true;
 
-      return matchPersona && matchPuesto && matchLicencia && matchPlataforma && matchModulos && matchAccesos && matchNivel;
+      return matchCodigoPuesto && matchPersona && matchPuesto && matchLicencia && matchPlataforma && matchModulos && matchAccesos && matchNivel;
     });
   }
 
   limpiarFiltrosTabla() {
+    this.filtroCodigoPuesto = '';
     this.filtroPersona = '';
     this.filtroPuesto = '';
     this.filtroLicencia = '';

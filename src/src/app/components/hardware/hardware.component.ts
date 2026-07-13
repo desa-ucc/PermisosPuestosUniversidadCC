@@ -138,6 +138,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 <table class="ucc-table">
           <thead>
             <tr>
+              <th>Código Puesto</th>
               <th>Puesto</th>
               <th>Nombre de persona</th>
               <th>Equipo</th>
@@ -147,6 +148,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroEmpleado" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -160,7 +162,8 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
           <tbody>
             @for(hw of paginatedList; track hw.id) {
               <tr>
-                <td>{{getPuestoByEmpleado(hw.empleadoId)}}</td>
+                <td>{{hw.codigoPuesto}}</td>
+                <td>{{hw.nombrePuesto || getPuestoByEmpleado(hw.empleadoId)}}</td>
                 <td>{{getEmpleadoName(hw.empleadoId)}}</td>
                 <td>{{hw.tipoEquipo}}</td>
                 <td>{{hw.marcaPC}}</td>
@@ -179,7 +182,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                <td colspan="7" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay hardware registrado en el sistema.
                 </td>
               </tr>
@@ -214,6 +217,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 export class HardwareComponent implements OnInit {
 
   // Filtros de Tabla
+  filtroCodigoPuesto: string = '';
   filtroPuesto: string = '';
   filtroEmpleado: string = '';
   filtroEquipo: string = '';
@@ -222,20 +226,23 @@ export class HardwareComponent implements OnInit {
 
   get listaFiltradaTabla() {
     return this.equipos.filter(hw => {
-      const puestoNombre = this.getPuestoByEmpleado(hw.empleadoId);
+      const puestoNombre = hw.nombrePuesto || this.getPuestoByEmpleado(hw.empleadoId);
+      const codigoPuesto = hw.codigoPuesto || '';
       const empleadoNombre = this.getEmpleadoName(hw.empleadoId);
 
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
+      const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
       const matchEmpleado = empleadoNombre.toLowerCase().includes(this.filtroEmpleado.toLowerCase());
       const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
       const matchMarca = hw.marcaPC?.toLowerCase().includes(this.filtroMarca.toLowerCase()) ?? true;
       const matchPlaca = hw.placa?.toLowerCase().includes(this.filtroPlaca.toLowerCase()) ?? true;
 
-      return matchPuesto && matchEmpleado && matchEquipo && matchMarca && matchPlaca;
+      return matchCodigoPuesto && matchPuesto && matchEmpleado && matchEquipo && matchMarca && matchPlaca;
     });
   }
 
   limpiarFiltrosTabla() {
+    this.filtroCodigoPuesto = '';
     this.filtroPuesto = '';
     this.filtroEmpleado = '';
     this.filtroEquipo = '';

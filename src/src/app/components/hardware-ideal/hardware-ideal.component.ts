@@ -129,6 +129,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 <table class="ucc-table">
           <thead>
             <tr>
+              <th>Código Puesto</th>
               <th>Puesto Relacionado</th>
               <th>Equipo Base</th>
               <th>Procesador</th>
@@ -137,6 +138,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
+            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPuestoRel" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroProcesador" placeholder="Filtrar Procesador..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -149,7 +151,8 @@ import { HardwareIdeal, Puesto } from '../../models/models';
           <tbody>
             @for(hw of paginatedList; track hw.id) {
               <tr>
-                <td>{{getPuestoName(hw.puestoId)}}</td>
+                <td>{{hw.codigoPuesto}}</td>
+                <td>{{hw.nombrePuesto || getPuestoName(hw.puestoId)}}</td>
                 <td>{{hw.tipoEquipo}}</td>
                 <td>{{hw.procesador}}</td>
                 <td>{{hw.memoria}}</td>
@@ -167,7 +170,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                <td colspan="6" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
                   No hay especificaciones de equipo ideal registradas.
                 </td>
               </tr>
@@ -202,6 +205,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 export class HardwareIdealComponent implements OnInit {
 
   // Filtros de Tabla
+  filtroCodigoPuesto: string = '';
   filtroPuestoRel: string = '';
   filtroEquipo: string = '';
   filtroProcesador: string = '';
@@ -220,6 +224,7 @@ export class HardwareIdealComponent implements OnInit {
   }
 
   limpiarFiltrosTabla() {
+    this.filtroCodigoPuesto = '';
     this.filtroPuestoRel = '';
     this.filtroEquipo = '';
     this.filtroProcesador = '';
