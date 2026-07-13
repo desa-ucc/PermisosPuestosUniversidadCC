@@ -53,7 +53,12 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Equipo (Tipo ej. Desktop)</label>
-<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Desktop)" class="ucc-input">
+<select id="tipoHardwareId" formControlName="tipoHardwareId" (change)="onTipoHardwareChange($any($event.target).value)" class="ucc-input">
+              <option [ngValue]="null">Seleccione un tipo...</option>
+              @for(t of tiposHardware; track t.id) {
+                <option [value]="t.id">{{t.nombre}}</option>
+              }
+            </select>
             @if(hwIdealForm.get('tipoEquipo')?.invalid && hwIdealForm.get('tipoEquipo')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
@@ -414,6 +419,7 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = null;
     this.hwIdealForm.reset({
       puestoId: null,
+      tipoHardwareId: null,
       tipoEquipo: '',
       procesador: '',
       memoria: '',
@@ -423,5 +429,31 @@ export class HardwareIdealComponent implements OnInit {
       otrasConsideraciones: ''
     });
     this.hwIdealForm.enable();
+  }
+  onTipoHardwareChange(idStr: string | number) {
+    const id = Number(idStr);
+    const tipo = this.tiposHardware.find(t => t.id === id);
+    const requiresPCFields = tipo && (tipo.nombre.toLowerCase().includes('laptop') || tipo.nombre.toLowerCase().includes('desktop'));
+
+    const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
+    fields.forEach(f => {
+      const control = this.hwIdealForm.get(f);
+      if (control) {
+        if (requiresPCFields) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
+          control.setValue('');
+        }
+        control.updateValueAndValidity();
+      }
+    });
+  }
+
+  isPCFieldVisible(): boolean {
+    const id = this.hwIdealForm.get('tipoHardwareId')?.value;
+    if (!id) return false;
+    const tipo = this.tiposHardware.find(t => t.id === Number(id));
+    return tipo ? (tipo.nombre.toLowerCase().includes('laptop') || tipo.nombre.toLowerCase().includes('desktop')) : false;
   }
 }

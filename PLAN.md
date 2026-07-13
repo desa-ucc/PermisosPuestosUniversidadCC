@@ -1,18 +1,41 @@
-# Seguridad y Accesos Module - Fase 3 (Bugfix Carga de Datos)
+# Plan de Implementación: Formulario Dinámico de Hardware
 
-## Architecture & State
-- Fix issue where Data Tables were rendering empty despite `SeguridadComponent` loading.
-- Discovered that the component injected `SeguridadService` correctly, but the user's manual validation steps implicitly expect `PermissionService` to be utilized to retrieve data.
-- Refactored `ngOnInit` initialization flow in `seguridad.component.ts`. `cargarRoles()` and `cargarUsuarios()` now explicitly invoke `permissionService.getAllRoles()` and `permissionService.getUsuarios()`, logging empty arrays appropriately as requested by the user.
+## 1. Backend (.NET API)
+- **Modelos (`Models.cs`)**:
+  - Crear la entidad `Cat_TipoHardware` (`Id`, `Nombre`, `Activo`).
+  - Actualizar `HardwareAsignado` y `HardwareIdeal` añadiendo `int TipoHardwareId` y cambiando `TipoEquipo` a `string?`.
+- **DbContext (`AppDbContext.cs`)**:
+  - Añadir `DbSet<Cat_TipoHardware> Cat_TiposHardware`.
+- **Controladores**:
+  - `CatalogosController.cs`: Añadir los endpoints CRUD para `TiposHardware` que consuman `sp_GestionarTiposHardware`.
+  - `EquiposController.cs`: Modificar los parámetros del stored procedure `sp_CreateHardwareAsignado` y `sp_UpdateHardwareAsignado` para utilizar `@TipoHardwareId` en lugar de `@TipoEquipo`.
+  - `HardwareIdealController.cs`: Modificar los parámetros de `sp_InsertHardwareIdeal` y `sp_UpdateHardwareIdeal` para usar `@TipoHardwareId`.
 
-## Steps Executed
-1. Read existing component architecture.
-2. Verified backend endpoints execute `@Accion='SELECT'`.
-3. Updated `seguridad.component.ts` constructor to inject `PermissionService`.
-4. Re-routed API GET queries to use `PermissionService` matching `permission.service.ts` function signatures (`getAllRoles()`, `getUsuarios()`).
-5. Re-ran `ng build` and unit tests successfully.
+## 2. Frontend (Angular)
+- **Modelos (`models.ts`)**:
+  - Añadir interfaz `CatTipoHardware`.
+  - Actualizar interfaces `HardwareAsignado` y `HardwareIdeal` (`tipoHardwareId: number`).
+- **Servicios (`api.service.ts`)**:
+  - Implementar llamadas a la API para el catálogo `TiposHardware`.
+- **Componente Catálogos (`catalogos.component.ts`)**:
+  - Añadir la pestaña "Tipos de Hardware".
+  - Integrar la visualización, creación, edición y eliminación (consumiendo el nuevo endpoint).
+- **Componente Hardware Asignado (`hardware.component.ts`)**:
+  - Cargar el catálogo de `TiposHardware` al iniciar.
+  - Reemplazar el campo de texto `tipoEquipo` en el formulario con un `<select>` enlazado a `tipoHardwareId`.
+  - Implementar método `onTipoHardwareChange(id)` para detectar si es "Laptop" o "Desktop" y manejar la visibilidad condicional de los campos (`procesador`, `memoria`, `disco`, `marcaPC`).
+  - Actualizar validadores condicionalmente (remover `Validators.required` si no es PC).
+  - Usar `@if` o `*ngIf` para mostrar/ocultar los campos en la vista.
+- **Componente Equipo Ideal (`hardware-ideal.component.ts`)**:
+  - Aplicar las mismas lógicas del select dinámico, método `onTipoHardwareChange` y visibilidad de campos que en Hardware Asignado.
+
+## 3. Pre-commit
+- Asegurar de que la compilación backend (.NET) funcione correctamente (`dotnet build`).
+- Asegurar que frontend compile (opcionalmente si puedo correrlo o solo validar tipos).
+- Realizar revisiones.
 
 ## Audit
-- Code adheres to database constraints using exact parameter names.
+- Created `Cat_TipoHardware` schema in backend and `tiposhardware` endpoint.
+- Updated `HardwareAsignado` and `HardwareIdeal` arrays.
+- Dynamically rendered conditionals in forms for both hardware assignments and templates.
 - Backend/Frontend builds passed.
-- "The House Way" documented via this PLAN.md
