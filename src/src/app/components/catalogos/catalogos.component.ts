@@ -31,6 +31,10 @@ import { PermissionService } from '../../services/permission.service';
                     <button (click)="setTab('sitios')" [ngClass]="activeTab === 'sitios' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">location_on</span> Sitios
                     </button>
+
+                    <button (click)="setTab('tiposHardware')" [ngClass]="activeTab === 'tiposHardware' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">devices</span> Tipos de Hardware
+                    </button>
                     <button (click)="setTab('plataformas')" [ngClass]="activeTab === 'plataformas' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">cloud_done</span> Plataformas
                     </button>
@@ -109,7 +113,7 @@ import { PermissionService } from '../../services/permission.service';
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button [style.display]="permissionService.tienePermiso('CATALOGOS', 'ver') ? 'block' : 'none'" (click)="abrirDetalle(item)" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-lg transition-colors" title="Ver Detalle"><span class="material-symbols-outlined">visibility</span></button>
+                                                <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'editar'}" (click)="abrirDetalle(item)" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-lg transition-colors" title="Editar"><span class="material-symbols-outlined">edit</span></button>
                                                 <button *appPermiso="{pantalla: 'CATALOGOS', accion: 'eliminar'}" (click)="delete(item.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-lg transition-colors" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
                                             </div>
                                         </td>
@@ -270,7 +274,7 @@ export class CatalogosComponent implements OnInit {
   abrirDetalle(item: any) {
     console.log('Evento recibido:', item);
 
-    if (!this.permissionService.tienePermiso('CATALOGOS', 'ver')) {
+    if (!this.permissionService.tienePermiso('CATALOGOS', 'editar')) {
       console.warn('Acceso denegado - validación de seguridad fallida');
       return;
     }
