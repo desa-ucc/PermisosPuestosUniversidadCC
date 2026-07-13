@@ -153,6 +153,7 @@ namespace PermisosPuestosApi.Models
         public string Nombre { get; set; } = string.Empty;
     }
 
+    public class Cat_TiposHardware : CatalogoBase { }
     public class Cat_Ambiente : CatalogoBase { }
     public class Cat_Sitio : CatalogoBase { }
     public class Cat_Plataforma : CatalogoBase { }

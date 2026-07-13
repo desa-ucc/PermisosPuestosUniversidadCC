@@ -151,6 +151,14 @@ import { PermissionService } from '../../services/permission.service';
                         </div>
                         <span class="text-xl font-bold text-ucc-secondary">{{ sitiosList.length || 0 }}</span>
                     </div>
+
+                    <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('tiposHardware')">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">devices</span>
+                            <span class="font-body-md text-ucc-neutral-variant font-semibold">Tipo de Hardware</span>
+                        </div>
+                        <span class="text-xl font-bold text-ucc-secondary">{{ tiposHardwareList.length || 0 }}</span>
+                    </div>
                     <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformas')">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">cloud_done</span>
@@ -184,9 +192,10 @@ import { PermissionService } from '../../services/permission.service';
   `
 })
 export class CatalogosComponent implements OnInit {
-  activeTab: 'ambientes' | 'sitios' | 'plataformas' = 'ambientes';
+  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' = 'ambientes';
 
   ambientesList: Catalogo[] = [];
+  tiposHardwareList: Catalogo[] = [];
   sitiosList: Catalogo[] = [];
   plataformasList: Catalogo[] = [];
 
@@ -204,6 +213,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'ambientes') return this.ambientesList;
     if (this.activeTab === 'sitios') return this.sitiosList;
     if (this.activeTab === 'plataformas') return this.plataformasList;
+    if (this.activeTab === 'tiposHardware') return this.tiposHardwareList;
     return [];
   }
 
@@ -211,7 +221,7 @@ export class CatalogosComponent implements OnInit {
     this.loadAllData();
   }
 
-  setTab(tab: 'ambientes' | 'sitios' | 'plataformas') {
+  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware') {
     this.activeTab = tab;
     this.catForm.reset();
     this.editingId = null;
@@ -220,18 +230,21 @@ export class CatalogosComponent implements OnInit {
   getTabName(): string {
     if (this.activeTab === 'ambientes') return 'Ambiente';
     if (this.activeTab === 'sitios') return 'Sitio';
+    if (this.activeTab === 'tiposHardware') return 'Tipo de Hardware';
     return 'Plataforma';
   }
 
   getTabNamePlural(): string {
     if (this.activeTab === 'ambientes') return 'Ambientes';
     if (this.activeTab === 'sitios') return 'Sitios';
+    if (this.activeTab === 'tiposHardware') return 'Tipos de Hardware';
     return 'Plataformas';
   }
 
   getPlaceholder(): string {
     if (this.activeTab === 'ambientes') return 'Ej: Producción, Sandbox, QA...';
     if (this.activeTab === 'sitios') return 'Ej: Avatar, Intranet, SharePoint...';
+    if (this.activeTab === 'tiposHardware') return 'Ej: Laptop, Desktop...';
     return 'Ej: Moodle, O365, AWS...';
   }
 
@@ -239,6 +252,7 @@ export class CatalogosComponent implements OnInit {
     this.api.getAmbientes().subscribe(res => this.ambientesList = res);
     this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
     this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
+    this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
   }
 
   loadActiveTabData() {
@@ -248,6 +262,8 @@ export class CatalogosComponent implements OnInit {
       this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
     } else if (this.activeTab === 'plataformas') {
       this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
+    } else if (this.activeTab === 'tiposHardware') {
+      this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
     }
   }
 
@@ -263,6 +279,7 @@ export class CatalogosComponent implements OnInit {
 
     const request$ = this.activeTab === 'ambientes' ? this.api.getAmbiente(item.id) :
                      this.activeTab === 'sitios' ? this.api.getSitioCat(item.id) :
+                     this.activeTab === 'tiposHardware' ? this.api.getTipoHardware(item.id) :
                      this.api.getPlataformaCat(item.id);
 
     request$.subscribe({
@@ -285,9 +302,11 @@ export class CatalogosComponent implements OnInit {
     const request$ = this.editingId
       ? (this.activeTab === 'ambientes' ? this.api.updateAmbiente(this.editingId, data) :
          this.activeTab === 'sitios' ? this.api.updateSitioCat(this.editingId, data) :
+         this.activeTab === 'tiposHardware' ? this.api.updateTipoHardware(this.editingId, data) :
          this.api.updatePlataformaCat(this.editingId, data))
       : (this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
          this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
+         this.activeTab === 'tiposHardware' ? this.api.createTipoHardware(data) :
          this.api.createPlataformaCat(data));
 
     request$.subscribe({
@@ -310,6 +329,7 @@ export class CatalogosComponent implements OnInit {
     if(confirm(`¿Está seguro de eliminar este registro del catálogo de ${this.getTabNamePlural()}?`)) {
       const request$ = this.activeTab === 'ambientes' ? this.api.deleteAmbiente(id) :
                        this.activeTab === 'sitios' ? this.api.deleteSitioCat(id) :
+                       this.activeTab === 'tiposHardware' ? this.api.deleteTipoHardware(id) :
                        this.api.deletePlataformaCat(id);
 
       request$.subscribe({
