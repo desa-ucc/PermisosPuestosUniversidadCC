@@ -19,6 +19,7 @@ namespace PermisosPuestosApi.Data
         public DbSet<SoftwareLocal> SoftwareLocales { get; set; }
         public DbSet<PermisosSitio> PermisosSitios { get; set; }
         public DbSet<Plataforma> Plataformas { get; set; }
+        public DbSet<Cat_TiposHardware> Cat_TiposHardware { get; set; }
         public DbSet<Cat_Ambiente> Cat_Ambientes { get; set; }
         public DbSet<Cat_Sitio> Cat_Sitios { get; set; }
         public DbSet<Cat_Plataforma> Cat_Plataformas { get; set; }

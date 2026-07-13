@@ -64,6 +64,13 @@ export class ApiService {
   deletePlataforma(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Plataformas/${id}`, { headers: this.getHeaders() }); }
 
   // --- Catalogos ---
+
+  getTiposHardware(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/TiposHardware`, { headers: this.getHeaders() }); }
+  getTipoHardware(id: number): Observable<Catalogo> { return this.http.get<Catalogo>(`${this.apiUrl}/Catalogos/TiposHardware/${id}`, { headers: this.getHeaders() }); }
+  createTipoHardware(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/TiposHardware`, data, { headers: this.getHeaders() }); }
+  updateTipoHardware(id: number, data: Partial<Catalogo>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/TiposHardware/${id}`, data, { headers: this.getHeaders() }); }
+  deleteTipoHardware(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/TiposHardware/${id}`, { headers: this.getHeaders() }); }
+
   getAmbientes(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/Ambientes`, { headers: this.getHeaders() }); }
   getAmbiente(id: number): Observable<Catalogo> { return this.http.get<Catalogo>(`${this.apiUrl}/Catalogos/Ambientes/${id}`, { headers: this.getHeaders() }); }
   createAmbiente(data: Partial<Catalogo>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/Ambientes`, data, { headers: this.getHeaders() }); }

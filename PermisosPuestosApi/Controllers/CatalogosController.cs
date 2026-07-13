@@ -15,6 +15,8 @@ namespace PermisosPuestosApi.Controllers
         private readonly AppDbContext _context;
         public CatalogosController(AppDbContext context) { _context = context; }
 
+
+
         // --- Ambientes ---
         [HttpGet("Ambientes")]
         public async Task<IActionResult> GetAmbientes() => Ok(await _context.Cat_Ambientes.FromSqlRaw("EXEC sp_GetCatAmbientes").ToListAsync());
@@ -129,6 +131,54 @@ namespace PermisosPuestosApi.Controllers
         {
             var p = new SqlParameter("@Id", id);
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteCatPlataforma @Id", p);
+            return NoContent();
+        }
+
+
+        // --- Tipos de Hardware ---
+        [HttpGet("TiposHardware")]
+        public async Task<IActionResult> GetTiposHardware()
+        {
+            var p = new SqlParameter("@Accion", "SELECT");
+            return Ok(await _context.Cat_TiposHardware.FromSqlRaw("EXEC sp_GestionarTiposHardware @Accion", p).ToListAsync());
+        }
+
+        [HttpGet("TiposHardware/{id}")]
+        public async Task<IActionResult> GetTipoHardware(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "SELECT");
+            var p2 = new SqlParameter("@Id", id);
+            var res = await _context.Cat_TiposHardware.FromSqlRaw("EXEC sp_GestionarTiposHardware @Accion, @Id", p1, p2).ToListAsync();
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
+
+        [HttpPost("TiposHardware")]
+        public async Task<IActionResult> CreateTipoHardware([FromBody] Cat_TiposHardware cat)
+        {
+            var p1 = new SqlParameter("@Accion", "INSERT");
+            var p2 = new SqlParameter("@Nombre", cat.Nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposHardware @Accion, NULL, @Nombre", p1, p2);
+            return Ok();
+        }
+
+        [HttpPut("TiposHardware/{id}")]
+        public async Task<IActionResult> UpdateTipoHardware(int id, [FromBody] Cat_TiposHardware cat)
+        {
+            var p1 = new SqlParameter("@Accion", "UPDATE");
+            var p2 = new SqlParameter("@Id", id);
+            var p3 = new SqlParameter("@Nombre", cat.Nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposHardware @Accion, @Id, @Nombre", p1, p2, p3);
+            return Ok();
+        }
+
+        [HttpDelete("TiposHardware/{id}")]
+        public async Task<IActionResult> DeleteTipoHardware(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "DELETE");
+            var p2 = new SqlParameter("@Id", id);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposHardware @Accion, @Id", p1, p2);
             return NoContent();
         }
 
