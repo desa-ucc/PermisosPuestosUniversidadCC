@@ -346,7 +346,10 @@ export class HardwareComponent implements OnInit {
   }
 
   loadData() {
-    this.api.getHardwareAsignado().subscribe(res => this.equipos = res);
+    this.api.getHardwareAsignado().subscribe(res => {
+      this.equipos = res;
+      console.log('Validacion Puesto - Hardware[0]:', this.equipos.length ? this.equipos[0] : 'Vacio');
+    });
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
   }
