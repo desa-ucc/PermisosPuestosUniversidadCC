@@ -19,6 +19,8 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> GetHardwareAsignado()
         {
             var data = await _context.HardwareAsignados.FromSqlRaw("EXEC sp_GetHardwareAsignado").ToListAsync();
+            System.Console.WriteLine($"Length of data: {data.Count}");
+            if(data.Count > 0) { System.Console.WriteLine($"CodigoPuesto: {data[0].CodigoPuesto}, NombrePuesto: {data[0].NombrePuesto}"); }
             return Ok(data);
         }
 
