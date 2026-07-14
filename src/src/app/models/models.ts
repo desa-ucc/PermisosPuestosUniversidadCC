@@ -26,6 +26,7 @@ export interface HardwareIdeal {
   puestoId: number;
   codigoPuesto?: string;
   nombrePuesto?: string;
+  tipoHardwareId?: number;
   tipoEquipo: string;
   procesador: string;
   memoria: string;
@@ -40,6 +41,7 @@ export interface HardwareAsignado {
   empleadoId: number;
   codigoPuesto?: string;
   nombrePuesto?: string;
+  tipoHardwareId?: number;
   tipoEquipo: string;
   procesador: string;
   memoria: string;

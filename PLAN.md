@@ -1,9 +1,13 @@
-# Payload Mapping for Stored Procedure Update (`sp_UpdateHardwareAsignado` & `sp_UpdateHardwareIdeal`)
+# Hardware Select Sync and Form Validation Patch
 
-## Issue
-The backend SQL stored procedures were updated to expect a numeric `@TipoHardwareId (INT)` instead of `@TipoEquipo (NVARCHAR)` for the update routines, causing failures when updating the form records. The forms still mapped their inner workings using the textual descriptions for initial UI bindings.
+## Context
+When loading data for tables, `sp_GetHardwareIdeal` and `sp_GetHardwareAsignado` omitted `TipoHardwareId`, failing to bind `<select>` dropdowns in edit mode accurately. Secondly, the tables continued displaying text directly populated into `TipoEquipo`, which may be inaccurate based on database data structures for the newly adopted `TipoHardwareId`.
 
-## Steps
-1. Updated `Models.cs` classes `HardwareAsignado` and `HardwareIdeal` with `public int? TipoHardwareId { get; set; }`.
-2. Replaced `@TipoEquipo` with `@TipoHardwareId` parameter in the execution methods of `EquiposController.cs` and `HardwareIdealController.cs`, utilizing DBNull safely if not parsed.
-3. Updated the Angular `onSubmit()` logic inside `HardwareComponent` and `HardwareIdealComponent` to explicitly inject `data.tipoHardwareId = this.selectedTipoHardwareId` before mapping the update call to the API.
+## Changes Made
+- Modified `sql_patch.sql` to explicitly add `h.TipoHardwareId` to the `SELECT` of the Stored Procedures.
+- Refactored `HardwareComponent` and `HardwareIdealComponent` HTML code to utilize `[value]="tipo.id"` alongside `formControlName="tipoHardwareId"`, mapping appropriately back to `Cat_TiposHardware.Id`.
+- Added a `getTipoName(tipoId: number | null | undefined, fallback: string): string` logic mapping for Angular templates.
+- Replaced direct string bindings (e.g. `{{hw.tipoEquipo}}`) with `{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}`.
+- Refactored filter mappings `matchEquipo` to look up matching characters directly from `this.getTipoName(...)`.
+- Added `tipoHardwareId?: number;` to both `HardwareAsignado` and `HardwareIdeal` interfaces inside `models.ts`.
+- Validated application compiles without errors.

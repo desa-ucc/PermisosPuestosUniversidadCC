@@ -54,13 +54,13 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
 
           <div class="flex flex-col">
             <label class="ucc-label">Equipo (Tipo ej. Laptop)</label>
-<select formControlName="tipoEquipo" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
+<select formControlName="tipoHardwareId" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
               <option value="" disabled selected>Seleccione un tipo</option>
               @for(tipo of tiposHardware; track tipo.id) {
-                <option [value]="tipo.nombre">{{tipo.nombre}}</option>
+                <option [value]="tipo.id">{{tipo.nombre}}</option>
               }
             </select>
-            @if(hwForm.get('tipoEquipo')?.invalid && hwForm.get('tipoEquipo')?.touched) {
+            @if(hwForm.get('tipoHardwareId')?.invalid && hwForm.get('tipoHardwareId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
@@ -178,7 +178,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
                 <td>{{hw.codigoPuesto}}</td>
                 <td>{{hw.nombrePuesto || getPuestoByEmpleado(hw.empleadoId)}}</td>
                 <td>{{getEmpleadoName(hw.empleadoId)}}</td>
-                <td>{{hw.tipoEquipo}}</td>
+                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}</td>
                 <td>{{hw.marcaPC}}</td>
                 <td>{{hw.placa}}</td>
                 <td>
@@ -231,6 +231,14 @@ export class HardwareComponent implements OnInit {
 
   tiposHardware: Catalogo[] = [];
   selectedTipoHardwareId: number | null = null;
+  getTipoName(tipoId: number | null | undefined, fallback: string): string {
+    if (tipoId) {
+      const tipo = this.tiposHardware.find(t => t.id === tipoId);
+      if (tipo) return tipo.nombre;
+    }
+    return fallback;
+  }
+
 
   get isPC(): boolean {
     if (!this.selectedTipoHardwareId) return false;
@@ -242,9 +250,7 @@ export class HardwareComponent implements OnInit {
 
   onTipoHardwareChangeSelect(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const nombreSeleccionado = target.value;
-    const tipo = this.tiposHardware.find(t => t.nombre === nombreSeleccionado);
-    this.selectedTipoHardwareId = tipo ? tipo.id : null;
+    this.selectedTipoHardwareId = target.value ? Number(target.value) : null;
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
   }
 
@@ -286,7 +292,7 @@ export class HardwareComponent implements OnInit {
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
       const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
       const matchEmpleado = empleadoNombre.toLowerCase().includes(this.filtroEmpleado.toLowerCase());
-      const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchEquipo = this.getTipoName(hw.tipoHardwareId, hw.tipoEquipo).toLowerCase().includes(this.filtroEquipo.toLowerCase());
       const matchMarca = hw.marcaPC?.toLowerCase().includes(this.filtroMarca.toLowerCase()) ?? true;
       const matchPlaca = hw.placa?.toLowerCase().includes(this.filtroPlaca.toLowerCase()) ?? true;
 
@@ -383,7 +389,8 @@ export class HardwareComponent implements OnInit {
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.hwForm = this.fb.group({
       empleadoId: [null, Validators.required],
-      tipoEquipo: ['', Validators.required],
+      tipoHardwareId: [null, Validators.required],
+      tipoEquipo: [''],
       procesador: ['', Validators.required],
       memoria: ['', Validators.required],
       disco: ['', Validators.required],
@@ -482,7 +489,7 @@ export class HardwareComponent implements OnInit {
     const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
     if (matchedTipo) {
-      this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+      this.hwForm.patchValue({ tipoHardwareId: matchedTipo.id });
     }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
@@ -515,7 +522,7 @@ export class HardwareComponent implements OnInit {
     const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
     if (matchedTipo) {
-      this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+      this.hwForm.patchValue({ tipoHardwareId: matchedTipo.id });
     }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.onEmpleadoChange(null);
@@ -537,6 +544,7 @@ export class HardwareComponent implements OnInit {
     this.onTipoHardwareChange(null);
     this.hwForm.reset({
       empleadoId: null,
+      tipoHardwareId: null,
       tipoEquipo: '',
       procesador: '',
       memoria: '',
