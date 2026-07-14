@@ -58,8 +58,17 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("usuarios")]
         public async Task<IActionResult> GetUsuarios()
         {
-            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
-            return Ok(usuarios);
+            try
+            {
+                var usuarios = await _context.UsuariosDto
+                    .FromSqlRaw("EXEC sp_GestionarUsuarios @Accion", new SqlParameter("@Accion", "SELECT"))
+                    .ToListAsync();
+                return Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error al cargar los usuarios.", error = ex.Message });
+            }
         }
 
         [HttpPost("usuarios")]
