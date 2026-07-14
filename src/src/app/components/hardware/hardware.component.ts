@@ -54,12 +54,19 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Equipo (Tipo ej. Laptop)</label>
-<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="ucc-input">
+<select (change)="onTipoHardwareChange($event)" class="ucc-input" [disabled]="isReadOnly">
+              <option value="">Seleccione...</option>
+              @for(tipo of tiposHardwareList; track tipo.id) {
+                <option [value]="tipo.id" [selected]="tipo.id == selectedTipoHardwareId">{{tipo.nombre}}</option>
+              }
+            </select>
+            <input type="hidden" formControlName="tipoEquipo">
             @if(hwForm.get('tipoEquipo')?.invalid && hwForm.get('tipoEquipo')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
 
+          @if(mostrarCamposComputo) {
           <div class="flex flex-col">
             <label class="ucc-label">Procesador</label>
 <input formControlName="procesador" placeholder="Procesador" class="ucc-input">
@@ -91,6 +98,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
           </div>
+          }
 
           <div class="flex flex-col">
             <label class="ucc-label">Placa de Activo</label>
@@ -252,6 +260,9 @@ export class HardwareComponent implements OnInit {
   }
 
   equipos: HardwareAsignado[] = [];
+  tiposHardwareList: Catalogo[] = [];
+  mostrarCamposComputo: boolean = false;
+  selectedTipoHardwareId: number | null = null;
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
   hwForm: FormGroup;
@@ -331,10 +342,10 @@ export class HardwareComponent implements OnInit {
     this.hwForm = this.fb.group({
       empleadoId: [null, Validators.required],
       tipoEquipo: ['', Validators.required],
-      procesador: ['', Validators.required],
-      memoria: ['', Validators.required],
-      disco: ['', Validators.required],
-      marcaPC: ['', Validators.required],
+      procesador: [''],
+      memoria: [''],
+      disco: [''],
+      marcaPC: [''],
       tecladoNumerico: [false],
       otrasConsideraciones: [''],
       placa: ['', Validators.required]
@@ -352,6 +363,7 @@ export class HardwareComponent implements OnInit {
     });
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
+    this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
   }
 
   onEmpleadoChange(event: any) {
@@ -362,6 +374,78 @@ export class HardwareComponent implements OnInit {
     } else {
       this.selectedEmpleadoPuestoId = null;
     }
+  }
+
+
+  onTipoHardwareChange(event: any) {
+    const target = event?.target as HTMLSelectElement;
+    const id = target ? Number(target.value) : null;
+
+    if (id) {
+        this.selectedTipoHardwareId = id;
+        const tipo = this.tiposHardwareList.find(t => t.id === id);
+        if (tipo) {
+            this.hwForm.patchValue({ tipoEquipo: tipo.nombre });
+            const lower = tipo.nombre.toLowerCase();
+            this.mostrarCamposComputo = lower.includes('laptop') || lower.includes('desktop');
+        }
+    } else {
+        this.selectedTipoHardwareId = null;
+        this.mostrarCamposComputo = false;
+        this.hwForm.patchValue({ tipoEquipo: '' });
+    }
+
+    if (!this.mostrarCamposComputo) {
+        if (!this.isReadOnly) {
+            this.hwForm.patchValue({ procesador: '', memoria: '', disco: '', marcaPC: '' });
+        }
+        this.hwForm.get('procesador')?.clearValidators();
+        this.hwForm.get('memoria')?.clearValidators();
+        this.hwForm.get('disco')?.clearValidators();
+        this.hwForm.get('marcaPC')?.clearValidators();
+    } else {
+        this.hwForm.get('procesador')?.setValidators([Validators.required]);
+        this.hwForm.get('memoria')?.setValidators([Validators.required]);
+        this.hwForm.get('disco')?.setValidators([Validators.required]);
+        this.hwForm.get('marcaPC')?.setValidators([Validators.required]);
+    }
+    this.hwForm.get('procesador')?.updateValueAndValidity();
+    this.hwForm.get('memoria')?.updateValueAndValidity();
+    this.hwForm.get('disco')?.updateValueAndValidity();
+    this.hwForm.get('marcaPC')?.updateValueAndValidity();
+  }
+
+  evaluateTipoHardwareReverseLookup(nombre: string) {
+    if (!nombre) {
+        this.selectedTipoHardwareId = null;
+        this.mostrarCamposComputo = false;
+    } else {
+        const tipo = this.tiposHardwareList.find(t => t.nombre === nombre);
+        if (tipo) {
+            this.selectedTipoHardwareId = tipo.id;
+            const lower = tipo.nombre.toLowerCase();
+            this.mostrarCamposComputo = lower.includes('laptop') || lower.includes('desktop');
+        } else {
+            this.selectedTipoHardwareId = null;
+            this.mostrarCamposComputo = false;
+        }
+    }
+
+    if (!this.mostrarCamposComputo) {
+        this.hwForm.get('procesador')?.clearValidators();
+        this.hwForm.get('memoria')?.clearValidators();
+        this.hwForm.get('disco')?.clearValidators();
+        this.hwForm.get('marcaPC')?.clearValidators();
+    } else {
+        this.hwForm.get('procesador')?.setValidators([Validators.required]);
+        this.hwForm.get('memoria')?.setValidators([Validators.required]);
+        this.hwForm.get('disco')?.setValidators([Validators.required]);
+        this.hwForm.get('marcaPC')?.setValidators([Validators.required]);
+    }
+    this.hwForm.get('procesador')?.updateValueAndValidity();
+    this.hwForm.get('memoria')?.updateValueAndValidity();
+    this.hwForm.get('disco')?.updateValueAndValidity();
+    this.hwForm.get('marcaPC')?.updateValueAndValidity();
   }
 
   getEmpleadoName(id: number): string {
@@ -423,7 +507,10 @@ export class HardwareComponent implements OnInit {
     this.currentId = hw.id;
     this.hwForm.enable();
     this.searchTermEmpleados = '';
+    this.selectedTipoHardwareId = null;
+    this.mostrarCamposComputo = false;
     this.hwForm.patchValue(hw);
+    this.evaluateTipoHardwareReverseLookup(hw.tipoEquipo);
     if (hw.empleadoId) {
         const matched = this.empleados.find(e => e.id === hw.empleadoId);
         if (matched) this.searchTermEmpleados = matched.nombreCompleto;
@@ -451,6 +538,7 @@ export class HardwareComponent implements OnInit {
     this.isEditing = false;
     this.currentId = hw.id;
     this.hwForm.patchValue(hw);
+    this.evaluateTipoHardwareReverseLookup(hw.tipoEquipo);
     this.onEmpleadoChange(null);
     this.hwForm.disable();
     if (hw.empleadoId) {
@@ -479,5 +567,7 @@ export class HardwareComponent implements OnInit {
     });
     this.hwForm.enable();
     this.searchTermEmpleados = '';
+    this.selectedTipoHardwareId = null;
+    this.mostrarCamposComputo = false;
   }
 }
