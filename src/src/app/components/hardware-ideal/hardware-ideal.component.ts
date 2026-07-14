@@ -415,6 +415,7 @@ export class HardwareIdealComponent implements OnInit {
         error: (err) => alert('Error al actualizar plantilla.')
       });
     } else {
+      console.log("Payload enviado:", data);
       this.api.createHardwareIdeal(data).subscribe({
         next: () => {
           this.loadData();

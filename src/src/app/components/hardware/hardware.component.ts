@@ -465,6 +465,7 @@ export class HardwareComponent implements OnInit {
         error: (err) => alert('Error al actualizar registro.')
       });
     } else {
+      console.log("Payload enviado:", data);
       this.api.createHardwareAsignado(data).subscribe({
         next: () => {
           this.loadData();

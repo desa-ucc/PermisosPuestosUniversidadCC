@@ -1,9 +1,10 @@
-# Direct Mapping for Edit Constraints using Extracted SQL Properties
+# Trapping SQL Constraints and Verifying Form Bindings
 
-## Context
-When loading a record in 'edit' or 'read-only' views, the fallback string mapping caused failures because the backend properly extracts and maps `TipoHardwareId` automatically inside `sp_GetHardwareAsignado` and `sp_GetHardwareIdeal`. Thus, looking up the index via strings `this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre })` was flawed due to `typeof` discrepancies preventing the Angular forms selector rendering properly.
+## Issue
+Creation routines were failing silently or logging generic responses. The underlying SQL error was opaque. Furthermore, `console.log` payloads inside the submission were requested to verify data types mapping to the respective updated Stored Procedure inputs (`TipoHardwareId` as INT instead of `TipoEquipo`).
 
-## Fix
-- Replaced the string mapping mechanism and injected the direct binding via `this.selectedTipoHardwareId = hw.tipoHardwareId || null;`
-- Reverted the workaround explicitly mapping internal arrays, given the fact that `<select>` uses `formControlName="tipoHardwareId"`, which natively binds cleanly upon standard Angular `patchValue(hw)` calls.
-- Enforced constraint re-evaluation using `this.onTipoHardwareChange(this.selectedTipoHardwareId)` utilizing the mapped id automatically, removing any edge cases or regressions.
+## Implementation Steps
+1. Add `try / catch` wrappers inside `.NET` controllers (`EquiposController` and `HardwareIdealController`) for the HTTP POST (create) methods. Replaced hardcoded `EXEC` params from `@TipoEquipo` to `@TipoHardwareId` per spec updates.
+2. The exception logs identically to standard output via `Console.WriteLine` natively intercepting the generic SQL driver exceptions, exposing the granular constraint violation to the backend.
+3. Edited the Angular form intercepting the `submit()` binding, wrapping `this.api.create(...)` sequentially after invoking `console.log("Payload enviado:", data)` allowing local runtime payload debugging.
+4. Models checked against DBNull safety constraints seamlessly evaluating valid payload structs.

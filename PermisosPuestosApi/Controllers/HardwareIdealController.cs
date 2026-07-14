@@ -37,9 +37,14 @@ namespace PermisosPuestosApi.Controllers
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
 
             // Execute the renamed Stored Procedure to match exact requirement
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_InsertHardwareIdeal @PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
+            try {
+                await _context.Database.ExecuteSqlRawAsync("EXEC sp_InsertHardwareIdeal @PuestoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
             return Ok();
-        }
+
+            } catch (Exception ex) {
+                Console.WriteLine($"Error SQL al crear Equipo Ideal: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }}
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateHardwareIdeal(int id, [FromBody] HardwareIdeal h)

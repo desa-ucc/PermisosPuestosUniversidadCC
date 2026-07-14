@@ -35,9 +35,14 @@ namespace PermisosPuestosApi.Controllers
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
             var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            try {
+                await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p3, p4, p5, p6, p7, p8, p9);
             return Ok();
-        }
+
+            } catch (Exception ex) {
+                Console.WriteLine($"Error SQL al crear Hardware Asignado: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }}
 
         [HttpPut("Asignado/{id}")]
         public async Task<IActionResult> UpdateHardwareAsignado(int id, [FromBody] HardwareAsignado h)
