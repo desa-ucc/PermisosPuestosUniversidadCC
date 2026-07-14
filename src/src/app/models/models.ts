@@ -32,7 +32,6 @@ export interface HardwareIdeal {
   memoria: string;
   disco: string;
   marcaPC: string;
-  tecladoNumerico: boolean;
   otrasConsideraciones: string;
 }
 
@@ -47,7 +46,6 @@ export interface HardwareAsignado {
   memoria: string;
   disco: string;
   marcaPC: string;
-  tecladoNumerico: boolean;
   otrasConsideraciones: string;
   placa: string;
 }
@@ -113,7 +111,6 @@ export interface ReporteHardware {
   memoria: string;
   disco: string;
   marcaPC: string;
-  tecladoNumerico: boolean;
   otrasConsideraciones: string;
 }
 

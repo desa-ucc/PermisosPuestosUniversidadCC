@@ -54,18 +54,20 @@ namespace PermisosPuestosApi.Models
     }
 
     public class HardwareIdeal
-    {
-        [Key] public int Id { get; set; }
-        public int PuestoId { get; set; }
-        public int? TipoHardwareId { get; set; }
-        public string TipoEquipo { get; set; } = string.Empty;
-        public string Procesador { get; set; } = string.Empty;
-        public string Memoria { get; set; } = string.Empty;
-        public string Disco { get; set; } = string.Empty;
-        public string MarcaPC { get; set; } = string.Empty;
-        public bool TecladoNumerico { get; set; }
-        public string? OtrasConsideraciones { get; set; }
-    }
+{
+    [Key] public int Id { get; set; }
+    public int PuestoId { get; set; }
+    public int? TipoHardwareId { get; set; }
+    public string TipoEquipo { get; set; } = string.Empty;
+    
+    // Cambiamos a 'string?' para permitir que el JSON envíe null
+    public string? Procesador { get; set; } 
+    public string? Memoria { get; set; }
+    public string? Disco { get; set; }
+    public string? MarcaPC { get; set; }
+    
+    public string? OtrasConsideraciones { get; set; }
+}
 
     public class HardwareAsignado
     {
@@ -73,11 +75,10 @@ namespace PermisosPuestosApi.Models
         public int EmpleadoId { get; set; }
         public int? TipoHardwareId { get; set; }
         public string TipoEquipo { get; set; } = string.Empty;
-        public string Procesador { get; set; } = string.Empty;
-        public string Memoria { get; set; } = string.Empty;
-        public string Disco { get; set; } = string.Empty;
-        public string MarcaPC { get; set; } = string.Empty;
-        public bool TecladoNumerico { get; set; }
+        public string? Procesador { get; set; } 
+        public string? Memoria { get; set; }
+        public string? Disco { get; set; }
+        public string? MarcaPC { get; set; }
         public string? OtrasConsideraciones { get; set; }
         public string Placa { get; set; } = string.Empty;
     }
@@ -187,7 +188,6 @@ namespace PermisosPuestosApi.Models
         public string Memoria { get; set; } = string.Empty;
         public string Disco { get; set; } = string.Empty;
         public string MarcaPC { get; set; } = string.Empty;
-        public bool TecladoNumerico { get; set; }
         public string OtrasConsideraciones { get; set; } = string.Empty;
     }
 

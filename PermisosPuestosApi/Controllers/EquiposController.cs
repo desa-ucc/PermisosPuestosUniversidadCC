@@ -28,16 +28,16 @@ namespace PermisosPuestosApi.Controllers
             var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
             var p2 = new SqlParameter("@TipoHardwareId", h.TipoHardwareId ?? (object)DBNull.Value);
             var p2b = new SqlParameter("@TipoEquipo", h.TipoEquipo ?? (object)DBNull.Value);
-            var p3 = new SqlParameter("@Procesador", h.Procesador);
-            var p4 = new SqlParameter("@Memoria", h.Memoria);
-            var p5 = new SqlParameter("@Disco", h.Disco);
-            var p6 = new SqlParameter("@MarcaPC", h.MarcaPC);
-            var p7 = new SqlParameter("@TecladoNumerico", h.TecladoNumerico);
+           // Cambia tus parámetros de string así:
+            var p3 = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? DBNull.Value : (object)h.Procesador);
+            var p4 = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? DBNull.Value : (object)h.Memoria);
+            var p5 = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? DBNull.Value : (object)h.Disco);
+            var p6 = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? DBNull.Value : (object)h.MarcaPC);
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
             var p9 = new SqlParameter("@Placa", h.Placa);
 
             try {
-                await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p2b, p3, p4, p5, p6, p7, p8, p9);
+                await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa", p1, p2, p2b, p3, p4, p5, p6, p8, p9);
             return Ok();
 
             } catch (Exception ex) {
@@ -52,15 +52,15 @@ namespace PermisosPuestosApi.Controllers
             var pId = new SqlParameter("@Id", id);
             var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
             var p2 = new SqlParameter("@TipoHardwareId", h.TipoHardwareId ?? (object)DBNull.Value);
-            var p3 = new SqlParameter("@Procesador", h.Procesador);
-            var p4 = new SqlParameter("@Memoria", h.Memoria);
-            var p5 = new SqlParameter("@Disco", h.Disco);
-            var p6 = new SqlParameter("@MarcaPC", h.MarcaPC);
-            var p7 = new SqlParameter("@TecladoNumerico", h.TecladoNumerico);
+            // Cambia tus parámetros de string así:
+            var p3 = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? DBNull.Value : (object)h.Procesador);
+            var p4 = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? DBNull.Value : (object)h.Memoria);
+            var p5 = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? DBNull.Value : (object)h.Disco);
+            var p6 = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? DBNull.Value : (object)h.MarcaPC);
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
             var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareAsignado @Id, @EmpleadoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", pId, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareAsignado @Id, @EmpleadoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa", pId, p1, p2, p3, p4, p5, p6, p8, p9);
             return NoContent();
         }
 

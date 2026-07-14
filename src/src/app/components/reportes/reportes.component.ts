@@ -146,7 +146,6 @@ import * as XLSX from 'xlsx';
                     <th>Memoria</th>
                     <th>Disco</th>
                     <th>Marca PC</th>
-                    <th>Teclado Num.</th>
                     <th>Otras Consideraciones</th>
                   </tr>
                 </thead>
@@ -160,13 +159,6 @@ import * as XLSX from 'xlsx';
                       <td>{{hw.memoria || 'N/A'}}</td>
                       <td>{{hw.disco || 'N/A'}}</td>
                       <td>{{hw.marcaPC || 'N/A'}}</td>
-                      <td>
-                        @if(hw.equipo) {
-                           {{hw.tecladoNumerico ? 'Sí' : 'No'}}
-                        } @else {
-                           N/A
-                        }
-                      </td>
                       <td>{{hw.otrasConsideraciones || 'N/A'}}</td>
                     </tr>
                   } @empty {
@@ -563,7 +555,6 @@ hardwareCurrentPage: number = 1;
         'MEMORIA': row.memoria,
         'DISCO': row.disco,
         'MARCA PC': row.marcaPC,
-        'TECLADO NUM.': row.tecladoNumerico ? 'Sí' : 'No',
         'OTRAS CONSIDERACIONES': row.otrasConsideraciones
       }));
       const wsHw: XLSX.WorkSheet = XLSX.utils.json_to_sheet(hwData);

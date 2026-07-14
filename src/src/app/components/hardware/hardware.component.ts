@@ -113,12 +113,6 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
             }
           </div>
 
-          <div class="flex items-center pt-2">
-            <label class="flex items-center text-white cursor-pointer select-none">
-              <input type="checkbox" formControlName="tecladoNumerico" class="mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
-              Teclado Numérico
-            </label>
-          </div>
 
           <div class="flex flex-col lg:col-span-3">
             <label class="ucc-label">Otras Consideraciones</label>
@@ -395,7 +389,6 @@ export class HardwareComponent implements OnInit {
       memoria: ['', Validators.required],
       disco: ['', Validators.required],
       marcaPC: ['', Validators.required],
-      tecladoNumerico: [false],
       otrasConsideraciones: [''],
       placa: ['', Validators.required]
     });
@@ -478,17 +471,27 @@ export class HardwareComponent implements OnInit {
   }
 
   edit(hw: HardwareAsignado) {
-    if (!this.permissionService.tienePermiso('HARDWARE', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
-    this.isEditing = true;
-    this.isReadOnly = false;
-    this.currentId = hw.id;
-    this.hwForm.enable();
-    this.searchTermEmpleados = '';
-    this.hwForm.patchValue(hw);
-    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+  this.isEditing = true;
+  this.isReadOnly = false;
+  this.currentId = hw.id;
+  this.hwForm.enable();
+
+  // Asignación explícita (Mapeo manual)
+  this.hwForm.patchValue({
+    empleadoId: hw.empleadoId,
+    tipoHardwareId: hw.tipoHardwareId,
+    tipoEquipo: hw.tipoEquipo,
+    procesador: hw.procesador,
+    memoria: hw.memoria,
+    disco: hw.disco,
+    marcaPC: hw.marcaPC,
+    otrasConsideraciones: hw.otrasConsideraciones,
+    placa: hw.placa
+  });
+
+  this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+  
+  // IMPORTANTE: Debes llamar a esto para que el formulario sepa si mostrar los inputs de PC
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
         const matched = this.empleados.find(e => e.id === hw.empleadoId);
@@ -544,7 +547,6 @@ export class HardwareComponent implements OnInit {
       memoria: '',
       disco: '',
       marcaPC: '',
-      tecladoNumerico: false,
       otrasConsideraciones: '',
       placa: ''
     });

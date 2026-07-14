@@ -98,13 +98,6 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
             }
           </div>
 
-          <div class="flex items-center pt-2">
-            <label class="flex items-center text-white cursor-pointer select-none">
-              <input type="checkbox" formControlName="tecladoNumerico" class="mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-gray-800">
-              Requiere Teclado Numérico
-            </label>
-          </div>
-
           <div class="flex flex-col lg:col-span-2">
             <label class="ucc-label">Otras Consideraciones / Periféricos</label>
 <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones / Periféricos" class="ucc-input">
@@ -367,7 +360,6 @@ export class HardwareIdealComponent implements OnInit {
       memoria: ['', Validators.required],
       disco: ['', Validators.required],
       marcaPC: ['', Validators.required],
-      tecladoNumerico: [false],
       otrasConsideraciones: ['']
     });
   }
@@ -491,7 +483,6 @@ export class HardwareIdealComponent implements OnInit {
       memoria: '',
       disco: '',
       marcaPC: '',
-      tecladoNumerico: false,
       otrasConsideraciones: ''
     });
     this.hwIdealForm.enable();

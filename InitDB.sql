@@ -75,7 +75,6 @@ BEGIN
         Memoria NVARCHAR(50) NOT NULL,
         Disco NVARCHAR(50) NOT NULL,
         MarcaPC NVARCHAR(100) NOT NULL,
-        TecladoNumerico BIT NOT NULL,
         OtrasConsideraciones NVARCHAR(MAX)
     );
 END
@@ -90,7 +89,6 @@ BEGIN
         Memoria NVARCHAR(50) NOT NULL,
         Disco NVARCHAR(50) NOT NULL,
         MarcaPC NVARCHAR(100) NOT NULL,
-        TecladoNumerico BIT NOT NULL,
         OtrasConsideraciones NVARCHAR(MAX),
         Placa NVARCHAR(100) NOT NULL UNIQUE
     );
@@ -231,18 +229,18 @@ GO
 
 IF OBJECT_ID('sp_Insertpt_HardwareIdeal', 'P') IS NOT NULL DROP PROCEDURE sp_Insertpt_HardwareIdeal;
 GO
-CREATE PROCEDURE sp_Insertpt_HardwareIdeal @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX) AS
+CREATE PROCEDURE sp_Insertpt_HardwareIdeal @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100),  @OtrasConsideraciones NVARCHAR(MAX) AS
 BEGIN
-    INSERT INTO pt_HardwareIdeal (PuestoId, TipoEquipo, Procesador, Memoria, Disco, MarcaPC, TecladoNumerico, OtrasConsideraciones)
-    VALUES (@PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones);
+    INSERT INTO pt_HardwareIdeal (PuestoId, TipoEquipo, Procesador, Memoria, Disco, MarcaPC, OtrasConsideraciones)
+    VALUES (@PuestoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones);
 END;
 GO
 
 IF OBJECT_ID('sp_Updatept_HardwareIdeal', 'P') IS NOT NULL DROP PROCEDURE sp_Updatept_HardwareIdeal;
 GO
-CREATE PROCEDURE sp_Updatept_HardwareIdeal @Id INT, @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX) AS
+CREATE PROCEDURE sp_Updatept_HardwareIdeal @Id INT, @PuestoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @OtrasConsideraciones NVARCHAR(MAX) AS
 BEGIN
-    UPDATE pt_HardwareIdeal SET PuestoId=@PuestoId, TipoEquipo=@TipoEquipo, Procesador=@Procesador, Memoria=@Memoria, Disco=@Disco, MarcaPC=@MarcaPC, TecladoNumerico=@TecladoNumerico, OtrasConsideraciones=@OtrasConsideraciones WHERE Id = @Id;
+    UPDATE pt_HardwareIdeal SET PuestoId=@PuestoId, TipoEquipo=@TipoEquipo, Procesador=@Procesador, Memoria=@Memoria, Disco=@Disco, MarcaPC=@MarcaPC, OtrasConsideraciones=@OtrasConsideraciones WHERE Id = @Id;
 END;
 GO
 
@@ -259,18 +257,18 @@ GO
 
 IF OBJECT_ID('sp_Creatept_HardwareAsignado', 'P') IS NOT NULL DROP PROCEDURE sp_Creatept_HardwareAsignado;
 GO
-CREATE PROCEDURE sp_Creatept_HardwareAsignado @EmpleadoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX), @Placa NVARCHAR(100) AS
+CREATE PROCEDURE sp_Creatept_HardwareAsignado @EmpleadoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100),  @OtrasConsideraciones NVARCHAR(MAX), @Placa NVARCHAR(100) AS
 BEGIN
-    INSERT INTO pt_HardwareAsignado (EmpleadoId, TipoEquipo, Procesador, Memoria, Disco, MarcaPC, TecladoNumerico, OtrasConsideraciones, Placa)
-    VALUES (@EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa);
+    INSERT INTO pt_HardwareAsignado (EmpleadoId, TipoEquipo, Procesador, Memoria, Disco, MarcaPC, OtrasConsideraciones, Placa)
+    VALUES (@EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa);
 END;
 GO
 
 IF OBJECT_ID('sp_Updatept_HardwareAsignado', 'P') IS NOT NULL DROP PROCEDURE sp_Updatept_HardwareAsignado;
 GO
-CREATE PROCEDURE sp_Updatept_HardwareAsignado @Id INT, @EmpleadoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100), @TecladoNumerico BIT, @OtrasConsideraciones NVARCHAR(MAX), @Placa NVARCHAR(100) AS
+CREATE PROCEDURE sp_Updatept_HardwareAsignado @Id INT, @EmpleadoId INT, @TipoEquipo NVARCHAR(100), @Procesador NVARCHAR(100), @Memoria NVARCHAR(50), @Disco NVARCHAR(50), @MarcaPC NVARCHAR(100),  @OtrasConsideraciones NVARCHAR(MAX), @Placa NVARCHAR(100) AS
 BEGIN
-    UPDATE pt_HardwareAsignado SET EmpleadoId=@EmpleadoId, TipoEquipo=@TipoEquipo, Procesador=@Procesador, Memoria=@Memoria, Disco=@Disco, MarcaPC=@MarcaPC, TecladoNumerico=@TecladoNumerico, OtrasConsideraciones=@OtrasConsideraciones, Placa=@Placa WHERE Id = @Id;
+    UPDATE pt_HardwareAsignado SET EmpleadoId=@EmpleadoId, TipoEquipo=@TipoEquipo, Procesador=@Procesador, Memoria=@Memoria, Disco=@Disco, MarcaPC=@MarcaPC, OtrasConsideraciones=@OtrasConsideraciones, Placa=@Placa WHERE Id = @Id;
 END;
 GO
 
@@ -560,7 +558,6 @@ BEGIN
         H.Memoria,
         H.Disco,
         H.MarcaPC,
-        H.TecladoNumerico,
         H.OtrasConsideraciones
     FROM pt_Empleados E
     INNER JOIN pt_Puestos P ON E.PuestoId = P.Id
@@ -630,7 +627,6 @@ BEGIN
         H.Memoria,
         H.Disco,
         H.MarcaPC,
-        H.TecladoNumerico,
         ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
@@ -699,7 +695,6 @@ BEGIN
         H.Memoria,
         H.Disco,
         H.MarcaPC,
-        H.TecladoNumerico,
         ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
@@ -764,7 +759,6 @@ BEGIN
         ISNULL(H.Memoria, '') AS Memoria,
         ISNULL(H.Disco, '') AS Disco,
         ISNULL(H.MarcaPC, '') AS MarcaPC,
-        ISNULL(H.TecladoNumerico, 0) AS TecladoNumerico,
         ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id

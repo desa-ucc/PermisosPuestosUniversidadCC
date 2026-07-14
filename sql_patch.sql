@@ -10,7 +10,6 @@ BEGIN
         h.Memoria,
         h.Disco,
         h.MarcaPC,
-        h.TecladoNumerico,
         h.OtrasConsideraciones,
         h.Placa,
         e.CodigoEmpleado AS CodigoPuesto,
@@ -34,7 +33,6 @@ BEGIN
         h.Memoria,
         h.Disco,
         h.MarcaPC,
-        h.TecladoNumerico,
         h.OtrasConsideraciones,
         p.CodigoPuesto AS CodigoPuesto,
         p.NombrePuesto AS NombrePuesto
