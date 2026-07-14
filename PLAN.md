@@ -37,3 +37,15 @@ Additionally, when switching tabs using `setTab`, the system did not automatical
 ### Changes
 - Fixed `GetRoles` and `GetUsuarios` inside `SeguridadController.cs` to correctly instantiate `new SqlParameter("@Accion", "SELECT")`.
 - Implemented data reloading logic in `setTab` natively inside `seguridad.component.ts`.
+
+## Fix Seguridad backend mapping and hash logic
+
+### Issue
+The user needed to handle password hashing securely via C# when calling `sp_GestionarUsuarios`, to reuse the SP logic cleanly, and to ensure EF Core maps fields correctly for `UsuarioDto`.
+
+### Changes
+- Updated `UsuarioDto` to include `Activo` and `Email` properties natively to match the SQL response schema from `pt_Usuarios`.
+- Implemented `HashPassword(string password)` inside `SeguridadController.cs` utilizing standard `SHA256` hashing and base64.
+- Handled SQL parameter injection internally utilizing a helper method `EjecutarSpUsuario` and conditionally replacing empty plain-text hashing before updating database targets.
+- Verified tab loading routines mapped correctly inside Angular.
+- Add `reset` logic onto modal close inside Angular controller to prevent hashed variables from getting caught inside editing pipelines natively.

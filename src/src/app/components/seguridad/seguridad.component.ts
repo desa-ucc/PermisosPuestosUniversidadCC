@@ -179,6 +179,7 @@ export class SeguridadComponent implements OnInit {
 
   cerrarModalUsuario() {
     this.isUsuarioModalOpen = false;
+    this.usuarioForm.reset();
   }
 
   guardarUsuario() {
