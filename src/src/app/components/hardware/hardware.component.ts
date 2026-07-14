@@ -455,6 +455,7 @@ export class HardwareComponent implements OnInit {
     const data = this.hwForm.value;
     data.empleadoId = Number(data.empleadoId);
     data.tipoHardwareId = this.selectedTipoHardwareId;
+    data.tipoEquipo = this.getTipoName(this.selectedTipoHardwareId, data.tipoEquipo);
 
     if (this.isEditing && this.currentId) {
       this.api.updateHardwareAsignado(this.currentId, { ...data, id: this.currentId }).subscribe({

@@ -29,6 +29,7 @@ namespace PermisosPuestosApi.Controllers
             // The TecladoNumerico field is correctly mapped to a boolean via the Models.cs class
             var p1 = new SqlParameter("@PuestoId", h.PuestoId);
             var p2 = new SqlParameter("@TipoHardwareId", h.TipoHardwareId ?? (object)DBNull.Value);
+            var p2b = new SqlParameter("@TipoEquipo", h.TipoEquipo ?? (object)DBNull.Value);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
             var p4 = new SqlParameter("@Memoria", h.Memoria);
             var p5 = new SqlParameter("@Disco", h.Disco);
@@ -38,7 +39,7 @@ namespace PermisosPuestosApi.Controllers
 
             // Execute the renamed Stored Procedure to match exact requirement
             try {
-                await _context.Database.ExecuteSqlRawAsync("EXEC sp_InsertHardwareIdeal @PuestoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p3, p4, p5, p6, p7, p8);
+                await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareIdeal @PuestoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones", p1, p2, p2b, p3, p4, p5, p6, p7, p8);
             return Ok();
 
             } catch (Exception ex) {

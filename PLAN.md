@@ -1,10 +1,9 @@
-# Trapping SQL Constraints and Verifying Form Bindings
+# Address SQL Injection Failures on Creation
 
 ## Issue
-Creation routines were failing silently or logging generic responses. The underlying SQL error was opaque. Furthermore, `console.log` payloads inside the submission were requested to verify data types mapping to the respective updated Stored Procedure inputs (`TipoHardwareId` as INT instead of `TipoEquipo`).
+Upon submitting new items in `HardwareIdeal` and `HardwareAsignado`, SQL Server silently failed inserting via C# constraints. After logging the `try / catch` natively it became obvious that the user changed the creation SPs (`sp_CreateHardwareAsignado` and `sp_CreateHardwareIdeal`) to require BOTH `@TipoHardwareId` and `@TipoEquipo` simultaneously to satisfy NOT NULL configurations.
 
-## Implementation Steps
-1. Add `try / catch` wrappers inside `.NET` controllers (`EquiposController` and `HardwareIdealController`) for the HTTP POST (create) methods. Replaced hardcoded `EXEC` params from `@TipoEquipo` to `@TipoHardwareId` per spec updates.
-2. The exception logs identically to standard output via `Console.WriteLine` natively intercepting the generic SQL driver exceptions, exposing the granular constraint violation to the backend.
-3. Edited the Angular form intercepting the `submit()` binding, wrapping `this.api.create(...)` sequentially after invoking `console.log("Payload enviado:", data)` allowing local runtime payload debugging.
-4. Models checked against DBNull safety constraints seamlessly evaluating valid payload structs.
+## Changes
+- Addressed `EquiposController.cs` and `HardwareIdealController.cs` to supply both parameters to `ExecuteSqlRawAsync` sequentially ensuring SQL parameter bindings are not dropped.
+- Altered Angular `HardwareComponent` and `HardwareIdealComponent` controllers `onSubmit()` routine to resolve the textual representations and send `.tipoEquipo = this.getTipoName(...)` mapping to the ID selected.
+- Cleaned up pre-commit validation.
