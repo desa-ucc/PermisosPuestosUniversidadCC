@@ -4,6 +4,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 const environment = { apiUrl: 'http://localhost:5000/api' };
 
+export interface Usuario {
+  id: number;
+  nombreUsuario: string;
+  email: string;
+  nombreRol: string;
+  activo: boolean;
+  rolId: number;
+}
+
 export interface Permiso {
   id?: number;
   roleId: number;
@@ -86,8 +95,8 @@ export class PermissionService {
     return this.http.get<any[]>(`${this.apiUrl}/seguridad/roles`);
   }
 
-  getUsuarios(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/seguridad/usuarios`);
+  getUsuarios(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(`${this.apiUrl}/seguridad/usuarios`);
   }
 
   getPermisosPorRol(roleId: number): Observable<Permiso[]> {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PermissionService } from '../../services/permission.service';
+import { PermissionService, Usuario } from '../../services/permission.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { SeguridadService } from '../../services/seguridad.service';
 
@@ -19,8 +19,8 @@ export class SeguridadComponent implements OnInit {
   rolesFiltrados: any[] = [];
   filtrosRoles = { nombre: '' };
 
-  usuarios: any[] = [];
-  usuariosFiltrados: any[] = [];
+  usuarios: Usuario[] = [];
+  usuariosFiltrados: Usuario[] = [];
   filtrosUsuarios = { nombreUsuario: '' };
 
   // Forms
@@ -136,12 +136,14 @@ export class SeguridadComponent implements OnInit {
 
   // --- USUARIOS ---
   cargarUsuarios() {
-    this.permissionService.getUsuarios().subscribe(res => {
-      this.usuarios = res;
-      if (!this.usuarios || this.usuarios.length === 0) {
-        console.log('Usuarios API returned empty data:', res);
+    this.permissionService.getUsuarios().subscribe({
+      next: (res: Usuario[]) => {
+        this.usuarios = res || [];
+        this.aplicarFiltrosUsuarios();
+      },
+      error: (err) => {
+        console.error('Error cargando usuarios:', err);
       }
-      this.aplicarFiltrosUsuarios();
     });
   }
 
