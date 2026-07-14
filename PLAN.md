@@ -1,13 +1,9 @@
-# Hardware Select Sync and Form Validation Patch
+# Direct Mapping for Edit Constraints using Extracted SQL Properties
 
 ## Context
-When loading data for tables, `sp_GetHardwareIdeal` and `sp_GetHardwareAsignado` omitted `TipoHardwareId`, failing to bind `<select>` dropdowns in edit mode accurately. Secondly, the tables continued displaying text directly populated into `TipoEquipo`, which may be inaccurate based on database data structures for the newly adopted `TipoHardwareId`.
+When loading a record in 'edit' or 'read-only' views, the fallback string mapping caused failures because the backend properly extracts and maps `TipoHardwareId` automatically inside `sp_GetHardwareAsignado` and `sp_GetHardwareIdeal`. Thus, looking up the index via strings `this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre })` was flawed due to `typeof` discrepancies preventing the Angular forms selector rendering properly.
 
-## Changes Made
-- Modified `sql_patch.sql` to explicitly add `h.TipoHardwareId` to the `SELECT` of the Stored Procedures.
-- Refactored `HardwareComponent` and `HardwareIdealComponent` HTML code to utilize `[value]="tipo.id"` alongside `formControlName="tipoHardwareId"`, mapping appropriately back to `Cat_TiposHardware.Id`.
-- Added a `getTipoName(tipoId: number | null | undefined, fallback: string): string` logic mapping for Angular templates.
-- Replaced direct string bindings (e.g. `{{hw.tipoEquipo}}`) with `{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}`.
-- Refactored filter mappings `matchEquipo` to look up matching characters directly from `this.getTipoName(...)`.
-- Added `tipoHardwareId?: number;` to both `HardwareAsignado` and `HardwareIdeal` interfaces inside `models.ts`.
-- Validated application compiles without errors.
+## Fix
+- Replaced the string mapping mechanism and injected the direct binding via `this.selectedTipoHardwareId = hw.tipoHardwareId || null;`
+- Reverted the workaround explicitly mapping internal arrays, given the fact that `<select>` uses `formControlName="tipoHardwareId"`, which natively binds cleanly upon standard Angular `patchValue(hw)` calls.
+- Enforced constraint re-evaluation using `this.onTipoHardwareChange(this.selectedTipoHardwareId)` utilizing the mapped id automatically, removing any edge cases or regressions.
