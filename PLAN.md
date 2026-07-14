@@ -1,20 +1,13 @@
-# PLAN.md - Integración Completa Catálogo "Tipo de Hardware"
+# Hardware Type Select UI & Logic Updates
 
-## Objetivo
-Añadir la pestaña de navegación para "Tipo de Hardware" y verificar que las acciones CRUD respetan rigurosamente el modelo de seguridad RBAC.
+## Architecture
 
-## Arquitectura y Tareas Realizadas
+The system uses an Angular reactive form pattern for creating and editing 'Hardware' and 'Hardware Ideal' components.
+We migrated the manual string inputs for 'tipoEquipo' to a dynamic dropdown populated from the backend ('Cat_TiposHardware').
+Based on the selected string item in this dropdown, we derive an `isPC` boolean and conditionally mount fields (Procesador, Memoria RAM, Disco Duro, Marca de PC) using the `@if` syntax in the template. If the component mounts dynamically, we dynamically apply or clear `Validators.required` logic using `updateValueAndValidity()`.
 
-1. **Frontend (Angular 17)**
-   - **Navegación Superior:** Se añadió el botón `Tipos de Hardware` en el panel de navegación de `catalogos.component.ts`.
-   - **Seguridad en Botones de Acción:**
-     - Se actualizó el botón "Editar" (ojo/lápiz) de la tabla para requerir el permiso `editar` en lugar de `ver`. Se actualizó la lógica subyacente de la función `abrirDetalle(item)` para reflejar esta restricción de seguridad (`PermissionService.tienePermiso('CATALOGOS', 'editar')`).
-     - Se verificó que el botón "Registrar" y "Guardar Cambios" requiera correctamente `crear` y `editar` usando la directiva `*appPermiso`.
-     - El botón de eliminar (basurero) requiere el permiso `eliminar` como corresponde.
-
-## Auditoría
-- [x] Backend compila sin errores
-- [x] Angular se renderiza y pasa los tests correctamente
-- [x] Directivas `*appPermiso` correctamente configuradas en los botones Registrar, Editar, y Eliminar.
-
-Score de auditoría: 100/100
+## Changes Made
+- Added `getTiposHardware` integration inside `ngOnInit` via `loadData` for both components.
+- Modified HTML inputs into `<select>` binding to `formControlName="tipoEquipo"` emitting standard change events to evaluate logic.
+- Included logic that when `isPC == false`, residual string values are aggressively set to `null` by calling `patchValue(null)` to prevent validation constraints.
+- Pre-commit verifications validated compiling passes successfully and the frontend handles interactions logically.
