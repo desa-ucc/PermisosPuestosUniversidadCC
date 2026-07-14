@@ -17,8 +17,8 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
       <section class="ucc-card mb-8">
 <div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles del Equipo Ideal' : (isEditing ? 'Editar Plantilla' : 'Formulario de Registro') }}</h3></div>
 <form [formGroup]="hwIdealForm" (ngSubmit)="onSubmit()" >
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="flex flex-col">
+        <div class="flex flex-wrap gap-4">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Seleccione Opción</label>
 <div class="relative">
               <input type="text"
@@ -51,7 +51,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
             }
           </div>
 
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Equipo (Tipo ej. Desktop)</label>
 <select formControlName="tipoHardwareId" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
               <option value="" disabled selected>Seleccione un tipo</option>
@@ -65,7 +65,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           </div>
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Procesador (Mínimo recomendado)</label>
 <input formControlName="procesador" placeholder="Procesador (Mínimo recomendado)" class="ucc-input">
             @if(hwIdealForm.get('procesador')?.invalid && hwIdealForm.get('procesador')?.touched) {
@@ -75,7 +75,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Memoria RAM recomendada</label>
 <input formControlName="memoria" placeholder="Memoria RAM recomendada" class="ucc-input">
             @if(hwIdealForm.get('memoria')?.invalid && hwIdealForm.get('memoria')?.touched) {
@@ -85,7 +85,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Disco Duro</label>
 <input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
             @if(hwIdealForm.get('disco')?.invalid && hwIdealForm.get('disco')?.touched) {
@@ -95,7 +95,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Marca de PC Estándar</label>
 <input formControlName="marcaPC" placeholder="Marca de PC Estándar" class="ucc-input">
             @if(hwIdealForm.get('marcaPC')?.invalid && hwIdealForm.get('marcaPC')?.touched) {
@@ -104,7 +104,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           </div>
           }
 
-          <div class="flex flex-col lg:col-span-2">
+          <div class="flex flex-col w-full transition-all duration-300">
             <label class="ucc-label">Otras Consideraciones / Periféricos</label>
 <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones / Periféricos" class="ucc-input">
           </div>
@@ -159,9 +159,9 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <tr>
                 <td>{{hw.codigoPuesto}}</td>
                 <td>{{hw.nombrePuesto || getPuestoName(hw.puestoId)}}</td>
-                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}</td>
-                <td>{{hw.procesador}}</td>
-                <td>{{hw.memoria}}</td>
+                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) || 'N/A' }}</td>
+                <td>{{hw.procesador || 'N/A'}}</td>
+                <td>{{hw.memoria || 'N/A'}}</td>
                 <td>
                   <button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>

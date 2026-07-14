@@ -17,3 +17,13 @@ The fields 'Procesador', 'Memoria RAM', 'Disco Duro', and 'Marca de PC' were alw
 - Updated the `isPC` getter to include 'computadora' for both `HardwareComponent` and `HardwareIdealComponent`.
 - Wrapped 'Procesador', 'Memoria RAM', and 'Marca de PC' fields in the `HardwareIdealComponent` HTML template with `@if(isPC)` control flow to correctly toggle their visibility.
 - Updated `onTipoHardwareChange` in `HardwareIdealComponent` to explicitly null out hidden fields when `isPC` is false, removing the `!isEditing` condition to prevent hidden invalid states or backend SQL constraint violations.
+
+## Update Hardware Ideal UI and Data Presentation
+
+### Issue
+When specific components like Processor or Memory were hidden, the form layout appeared 'broken' due to fixed CSS Grid sizes. In the table, empty attributes were completely blank, making the presentation appear missing or incomplete.
+
+### Changes
+- Changed form grid layouts to `flex flex-wrap gap-4` and appended `flex-1 min-w-[250px]` with transition-all wrappers for form child `<div class="flex flex-col">` layouts to dynamically scale spacing natively without breaking.
+- Appended `|| 'N/A'` fallbacks in Hardware Ideal components Table loop display.
+- Matched Flex properties to `hardware.component.ts`.
