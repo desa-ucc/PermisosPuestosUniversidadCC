@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { PermissionService } from '../../services/permission.service';
-import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
+import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-hardware',
@@ -54,12 +54,18 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Equipo (Tipo ej. Laptop)</label>
-<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Laptop)" class="ucc-input">
-            @if(hwForm.get('tipoEquipo')?.invalid && hwForm.get('tipoEquipo')?.touched) {
+<select formControlName="tipoHardwareId" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
+              <option value="" disabled selected>Seleccione un tipo</option>
+              @for(tipo of tiposHardware; track tipo.id) {
+                <option [value]="tipo.id">{{tipo.nombre}}</option>
+              }
+            </select>
+            @if(hwForm.get('tipoHardwareId')?.invalid && hwForm.get('tipoHardwareId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Procesador</label>
 <input formControlName="procesador" placeholder="Procesador" class="ucc-input">
@@ -67,7 +73,9 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">El procesador es requerido.</span>
             }
           </div>
+          }
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Memoria RAM</label>
 <input formControlName="memoria" placeholder="Memoria RAM" class="ucc-input">
@@ -75,7 +83,9 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">La memoria es requerida.</span>
             }
           </div>
+          }
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Disco Duro</label>
 <input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
@@ -83,7 +93,9 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">El disco es requerido.</span>
             }
           </div>
+          }
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Marca de PC</label>
 <input formControlName="marcaPC" placeholder="Marca de PC" class="ucc-input">
@@ -91,6 +103,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
           </div>
+          }
 
           <div class="flex flex-col">
             <label class="ucc-label">Placa de Activo</label>
@@ -165,7 +178,7 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
                 <td>{{hw.codigoPuesto}}</td>
                 <td>{{hw.nombrePuesto || getPuestoByEmpleado(hw.empleadoId)}}</td>
                 <td>{{getEmpleadoName(hw.empleadoId)}}</td>
-                <td>{{hw.tipoEquipo}}</td>
+                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}</td>
                 <td>{{hw.marcaPC}}</td>
                 <td>{{hw.placa}}</td>
                 <td>
@@ -216,6 +229,52 @@ import { HardwareAsignado, Empleado, Puesto } from '../../models/models';
 })
 export class HardwareComponent implements OnInit {
 
+  tiposHardware: Catalogo[] = [];
+  selectedTipoHardwareId: number | null = null;
+  getTipoName(tipoId: number | null | undefined, fallback: string): string {
+    if (tipoId) {
+      const tipo = this.tiposHardware.find(t => t.id === tipoId);
+      if (tipo) return tipo.nombre;
+    }
+    return fallback;
+  }
+
+
+  get isPC(): boolean {
+    if (!this.selectedTipoHardwareId) return false;
+    const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
+    if (!tipo) return false;
+    const nombre = tipo.nombre.toLowerCase();
+    return nombre.includes('laptop') || nombre.includes('desktop');
+  }
+
+  onTipoHardwareChangeSelect(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedTipoHardwareId = target.value ? Number(target.value) : null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
+  }
+
+  onTipoHardwareChange(tipoId: number | null) {
+    this.selectedTipoHardwareId = tipoId;
+    const isPC = this.isPC;
+    const form = 'hwForm' in this ? (this as any).hwForm : (this as any).hwIdealForm;
+    const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
+
+    fields.forEach(field => {
+      const control = form.get(field);
+      if (control) {
+        if (isPC) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
+          control.patchValue(null);
+        }
+        control.updateValueAndValidity();
+      }
+    });
+  }
+
+
   // Filtros de Tabla
   filtroCodigoPuesto: string = '';
   filtroPuesto: string = '';
@@ -233,7 +292,7 @@ export class HardwareComponent implements OnInit {
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuesto.toLowerCase());
       const matchCodigoPuesto = codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase());
       const matchEmpleado = empleadoNombre.toLowerCase().includes(this.filtroEmpleado.toLowerCase());
-      const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchEquipo = this.getTipoName(hw.tipoHardwareId, hw.tipoEquipo).toLowerCase().includes(this.filtroEquipo.toLowerCase());
       const matchMarca = hw.marcaPC?.toLowerCase().includes(this.filtroMarca.toLowerCase()) ?? true;
       const matchPlaca = hw.placa?.toLowerCase().includes(this.filtroPlaca.toLowerCase()) ?? true;
 
@@ -330,7 +389,8 @@ export class HardwareComponent implements OnInit {
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.hwForm = this.fb.group({
       empleadoId: [null, Validators.required],
-      tipoEquipo: ['', Validators.required],
+      tipoHardwareId: [null, Validators.required],
+      tipoEquipo: [''],
       procesador: ['', Validators.required],
       memoria: ['', Validators.required],
       disco: ['', Validators.required],
@@ -351,6 +411,7 @@ export class HardwareComponent implements OnInit {
       console.log('Validacion Puesto - Hardware[0]:', this.equipos.length ? this.equipos[0] : 'Vacio');
     });
     this.api.getEmpleados().subscribe(res => this.empleados = res);
+    this.api.getTiposHardware().subscribe(res => this.tiposHardware = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
   }
 
@@ -393,6 +454,7 @@ export class HardwareComponent implements OnInit {
 
     const data = this.hwForm.value;
     data.empleadoId = Number(data.empleadoId);
+    data.tipoHardwareId = this.selectedTipoHardwareId;
 
     if (this.isEditing && this.currentId) {
       this.api.updateHardwareAsignado(this.currentId, { ...data, id: this.currentId }).subscribe({
@@ -403,6 +465,7 @@ export class HardwareComponent implements OnInit {
         error: (err) => alert('Error al actualizar registro.')
       });
     } else {
+      console.log("Payload enviado:", data);
       this.api.createHardwareAsignado(data).subscribe({
         next: () => {
           this.loadData();
@@ -424,6 +487,8 @@ export class HardwareComponent implements OnInit {
     this.hwForm.enable();
     this.searchTermEmpleados = '';
     this.hwForm.patchValue(hw);
+    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
         const matched = this.empleados.find(e => e.id === hw.empleadoId);
         if (matched) this.searchTermEmpleados = matched.nombreCompleto;
@@ -451,6 +516,8 @@ export class HardwareComponent implements OnInit {
     this.isEditing = false;
     this.currentId = hw.id;
     this.hwForm.patchValue(hw);
+    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.onEmpleadoChange(null);
     this.hwForm.disable();
     if (hw.empleadoId) {
@@ -466,8 +533,11 @@ export class HardwareComponent implements OnInit {
     this.isReadOnly = false;
     this.currentId = null;
     this.selectedEmpleadoPuestoId = null;
+    this.selectedTipoHardwareId = null;
+    this.onTipoHardwareChange(null);
     this.hwForm.reset({
       empleadoId: null,
+      tipoHardwareId: null,
       tipoEquipo: '',
       procesador: '',
       memoria: '',

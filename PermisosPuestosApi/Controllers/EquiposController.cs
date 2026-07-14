@@ -26,7 +26,7 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> CreateHardwareAsignado([FromBody] HardwareAsignado h)
         {
             var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
-            var p2 = new SqlParameter("@TipoEquipo", h.TipoEquipo);
+            var p2 = new SqlParameter("@TipoHardwareId", h.TipoHardwareId ?? (object)DBNull.Value);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
             var p4 = new SqlParameter("@Memoria", h.Memoria);
             var p5 = new SqlParameter("@Disco", h.Disco);
@@ -35,9 +35,14 @@ namespace PermisosPuestosApi.Controllers
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
             var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            try {
+                await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateHardwareAsignado @EmpleadoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", p1, p2, p3, p4, p5, p6, p7, p8, p9);
             return Ok();
-        }
+
+            } catch (Exception ex) {
+                Console.WriteLine($"Error SQL al crear Hardware Asignado: {ex.Message}");
+                return StatusCode(500, ex.Message);
+            }}
 
         [HttpPut("Asignado/{id}")]
         public async Task<IActionResult> UpdateHardwareAsignado(int id, [FromBody] HardwareAsignado h)
@@ -45,7 +50,7 @@ namespace PermisosPuestosApi.Controllers
             if (id != h.Id) return BadRequest();
             var pId = new SqlParameter("@Id", id);
             var p1 = new SqlParameter("@EmpleadoId", h.EmpleadoId);
-            var p2 = new SqlParameter("@TipoEquipo", h.TipoEquipo);
+            var p2 = new SqlParameter("@TipoHardwareId", h.TipoHardwareId ?? (object)DBNull.Value);
             var p3 = new SqlParameter("@Procesador", h.Procesador);
             var p4 = new SqlParameter("@Memoria", h.Memoria);
             var p5 = new SqlParameter("@Disco", h.Disco);
@@ -54,7 +59,7 @@ namespace PermisosPuestosApi.Controllers
             var p8 = new SqlParameter("@OtrasConsideraciones", h.OtrasConsideraciones ?? (object)DBNull.Value);
             var p9 = new SqlParameter("@Placa", h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareAsignado @Id, @EmpleadoId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", pId, p1, p2, p3, p4, p5, p6, p7, p8, p9);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateHardwareAsignado @Id, @EmpleadoId, @TipoHardwareId, @Procesador, @Memoria, @Disco, @MarcaPC, @TecladoNumerico, @OtrasConsideraciones, @Placa", pId, p1, p2, p3, p4, p5, p6, p7, p8, p9);
             return NoContent();
         }
 

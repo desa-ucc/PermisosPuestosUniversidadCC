@@ -1,20 +1,10 @@
-# PLAN.md - Integración Completa Catálogo "Tipo de Hardware"
+# Trapping SQL Constraints and Verifying Form Bindings
 
-## Objetivo
-Añadir la pestaña de navegación para "Tipo de Hardware" y verificar que las acciones CRUD respetan rigurosamente el modelo de seguridad RBAC.
+## Issue
+Creation routines were failing silently or logging generic responses. The underlying SQL error was opaque. Furthermore, `console.log` payloads inside the submission were requested to verify data types mapping to the respective updated Stored Procedure inputs (`TipoHardwareId` as INT instead of `TipoEquipo`).
 
-## Arquitectura y Tareas Realizadas
-
-1. **Frontend (Angular 17)**
-   - **Navegación Superior:** Se añadió el botón `Tipos de Hardware` en el panel de navegación de `catalogos.component.ts`.
-   - **Seguridad en Botones de Acción:**
-     - Se actualizó el botón "Editar" (ojo/lápiz) de la tabla para requerir el permiso `editar` en lugar de `ver`. Se actualizó la lógica subyacente de la función `abrirDetalle(item)` para reflejar esta restricción de seguridad (`PermissionService.tienePermiso('CATALOGOS', 'editar')`).
-     - Se verificó que el botón "Registrar" y "Guardar Cambios" requiera correctamente `crear` y `editar` usando la directiva `*appPermiso`.
-     - El botón de eliminar (basurero) requiere el permiso `eliminar` como corresponde.
-
-## Auditoría
-- [x] Backend compila sin errores
-- [x] Angular se renderiza y pasa los tests correctamente
-- [x] Directivas `*appPermiso` correctamente configuradas en los botones Registrar, Editar, y Eliminar.
-
-Score de auditoría: 100/100
+## Implementation Steps
+1. Add `try / catch` wrappers inside `.NET` controllers (`EquiposController` and `HardwareIdealController`) for the HTTP POST (create) methods. Replaced hardcoded `EXEC` params from `@TipoEquipo` to `@TipoHardwareId` per spec updates.
+2. The exception logs identically to standard output via `Console.WriteLine` natively intercepting the generic SQL driver exceptions, exposing the granular constraint violation to the backend.
+3. Edited the Angular form intercepting the `submit()` binding, wrapping `this.api.create(...)` sequentially after invoking `console.log("Payload enviado:", data)` allowing local runtime payload debugging.
+4. Models checked against DBNull safety constraints seamlessly evaluating valid payload structs.

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { PermissionService } from '../../services/permission.service';
-import { HardwareIdeal, Puesto } from '../../models/models';
+import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
 
 @Component({
   selector: 'app-hardware-ideal',
@@ -53,8 +53,13 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 
           <div class="flex flex-col">
             <label class="ucc-label">Equipo (Tipo ej. Desktop)</label>
-<input formControlName="tipoEquipo" placeholder="Equipo (Tipo ej. Desktop)" class="ucc-input">
-            @if(hwIdealForm.get('tipoEquipo')?.invalid && hwIdealForm.get('tipoEquipo')?.touched) {
+<select formControlName="tipoHardwareId" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
+              <option value="" disabled selected>Seleccione un tipo</option>
+              @for(tipo of tiposHardware; track tipo.id) {
+                <option [value]="tipo.id">{{tipo.nombre}}</option>
+              }
+            </select>
+            @if(hwIdealForm.get('tipoHardwareId')?.invalid && hwIdealForm.get('tipoHardwareId')?.touched) {
               <span class="text-red-400 text-xs mt-1">El tipo de equipo es requerido.</span>
             }
           </div>
@@ -75,6 +80,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
             }
           </div>
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Disco Duro</label>
 <input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
@@ -82,6 +88,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">El disco es requerido.</span>
             }
           </div>
+          }
 
           <div class="flex flex-col">
             <label class="ucc-label">Marca de PC Estándar</label>
@@ -153,7 +160,7 @@ import { HardwareIdeal, Puesto } from '../../models/models';
               <tr>
                 <td>{{hw.codigoPuesto}}</td>
                 <td>{{hw.nombrePuesto || getPuestoName(hw.puestoId)}}</td>
-                <td>{{hw.tipoEquipo}}</td>
+                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}</td>
                 <td>{{hw.procesador}}</td>
                 <td>{{hw.memoria}}</td>
                 <td>
@@ -204,6 +211,52 @@ import { HardwareIdeal, Puesto } from '../../models/models';
 })
 export class HardwareIdealComponent implements OnInit {
 
+  tiposHardware: Catalogo[] = [];
+  selectedTipoHardwareId: number | null = null;
+  getTipoName(tipoId: number | null | undefined, fallback: string): string {
+    if (tipoId) {
+      const tipo = this.tiposHardware.find(t => t.id === tipoId);
+      if (tipo) return tipo.nombre;
+    }
+    return fallback;
+  }
+
+
+  get isPC(): boolean {
+    if (!this.selectedTipoHardwareId) return false;
+    const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
+    if (!tipo) return false;
+    const nombre = tipo.nombre.toLowerCase();
+    return nombre.includes('laptop') || nombre.includes('desktop');
+  }
+
+  onTipoHardwareChangeSelect(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedTipoHardwareId = target.value ? Number(target.value) : null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
+  }
+
+  onTipoHardwareChange(tipoId: number | null) {
+    this.selectedTipoHardwareId = tipoId;
+    const isPC = this.isPC;
+    const form = 'hwForm' in this ? (this as any).hwForm : (this as any).hwIdealForm;
+    const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
+
+    fields.forEach(field => {
+      const control = form.get(field);
+      if (control) {
+        if (isPC) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
+          control.patchValue(null);
+        }
+        control.updateValueAndValidity();
+      }
+    });
+  }
+
+
   // Filtros de Tabla
   filtroCodigoPuesto: string = '';
   filtroPuestoRel: string = '';
@@ -215,7 +268,7 @@ export class HardwareIdealComponent implements OnInit {
     return this.equiposIdeales.filter(hw => {
       const puestoNombre = this.getPuestoName(hw.puestoId);
       const matchPuesto = puestoNombre.toLowerCase().includes(this.filtroPuestoRel.toLowerCase());
-      const matchEquipo = hw.tipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchEquipo = this.getTipoName(hw.tipoHardwareId, hw.tipoEquipo).toLowerCase().includes(this.filtroEquipo.toLowerCase());
       const matchProcesador = hw.procesador?.toLowerCase().includes(this.filtroProcesador.toLowerCase()) ?? true;
       const matchMemoria = hw.memoria?.toLowerCase().includes(this.filtroMemoria.toLowerCase()) ?? true;
 
@@ -308,7 +361,8 @@ export class HardwareIdealComponent implements OnInit {
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.hwIdealForm = this.fb.group({
       puestoId: [null, Validators.required],
-      tipoEquipo: ['', Validators.required],
+      tipoHardwareId: [null, Validators.required],
+      tipoEquipo: [''],
       procesador: ['', Validators.required],
       memoria: ['', Validators.required],
       disco: ['', Validators.required],
@@ -327,6 +381,7 @@ export class HardwareIdealComponent implements OnInit {
       next: (res) => this.equiposIdeales = res,
       error: (err) => console.error('Error al cargar equipos ideales', err)
     });
+    this.api.getTiposHardware().subscribe(res => this.tiposHardware = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
   }
 
@@ -348,6 +403,8 @@ export class HardwareIdealComponent implements OnInit {
 
     const data = this.hwIdealForm.value;
     data.puestoId = Number(data.puestoId);
+    data.tipoHardwareId = this.selectedTipoHardwareId;
+    data.tipoHardwareId = this.selectedTipoHardwareId;
 
     if (this.isEditing && this.currentId) {
       this.api.updateHardwareIdeal(this.currentId, { ...data, id: this.currentId }).subscribe({
@@ -358,6 +415,7 @@ export class HardwareIdealComponent implements OnInit {
         error: (err) => alert('Error al actualizar plantilla.')
       });
     } else {
+      console.log("Payload enviado:", data);
       this.api.createHardwareIdeal(data).subscribe({
         next: () => {
           this.loadData();
@@ -378,6 +436,8 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.enable();
     this.hwIdealForm.patchValue(hw);
+    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.puestoId) {
         const matched = this.puestos.find(p => p.id === hw.puestoId);
         if (matched) this.searchTermPuestos = matched.nombrePuesto;
@@ -404,6 +464,8 @@ export class HardwareIdealComponent implements OnInit {
     this.isEditing = false;
     this.currentId = hw.id;
     this.hwIdealForm.patchValue(hw);
+    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.hwIdealForm.disable();
     if (hw.puestoId) {
         const matched = this.puestos.find(p => p.id === hw.puestoId);
@@ -417,8 +479,11 @@ export class HardwareIdealComponent implements OnInit {
     this.isEditing = false;
     this.isReadOnly = false;
     this.currentId = null;
+    this.selectedTipoHardwareId = null;
+    this.onTipoHardwareChange(null);
     this.hwIdealForm.reset({
       puestoId: null,
+      tipoHardwareId: null,
       tipoEquipo: '',
       procesador: '',
       memoria: '',
