@@ -239,7 +239,7 @@ export class HardwareComponent implements OnInit {
     const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
     if (!tipo) return false;
     const nombre = tipo.nombre.toLowerCase();
-    return nombre.includes('laptop') || nombre.includes('desktop');
+    return nombre.includes('laptop') || nombre.includes('desktop') || nombre.includes('computadora');
   }
 
   onTipoHardwareChangeSelect(event: Event) {

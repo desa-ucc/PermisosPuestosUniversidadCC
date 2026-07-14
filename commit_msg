@@ -1,0 +1,5 @@
+Fix visibility logic for PC fields in Hardware Ideal
+
+- Updated `isPC` getter to include 'computadora' for both Hardware and Hardware Ideal components.
+- Added `@if(isPC)` wrappers around 'Procesador', 'Memoria RAM', and 'Marca de PC' fields in the `hardware-ideal.component.ts` HTML template.
+- Updated `onTipoHardwareChange` to explicitly null out hidden fields when `isPC` is false, removing the `!isEditing` condition to prevent hidden invalid states or backend SQL errors.

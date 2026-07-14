@@ -64,6 +64,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
             }
           </div>
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Procesador (Mínimo recomendado)</label>
 <input formControlName="procesador" placeholder="Procesador (Mínimo recomendado)" class="ucc-input">
@@ -71,7 +72,9 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">El procesador es requerido.</span>
             }
           </div>
+          }
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Memoria RAM recomendada</label>
 <input formControlName="memoria" placeholder="Memoria RAM recomendada" class="ucc-input">
@@ -79,6 +82,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">La memoria es requerida.</span>
             }
           </div>
+          }
 
           @if(isPC) {
           <div class="flex flex-col">
@@ -90,6 +94,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           </div>
           }
 
+          @if(isPC) {
           <div class="flex flex-col">
             <label class="ucc-label">Marca de PC Estándar</label>
 <input formControlName="marcaPC" placeholder="Marca de PC Estándar" class="ucc-input">
@@ -97,6 +102,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
           </div>
+          }
 
           <div class="flex flex-col lg:col-span-2">
             <label class="ucc-label">Otras Consideraciones / Periféricos</label>
@@ -220,7 +226,7 @@ export class HardwareIdealComponent implements OnInit {
     const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
     if (!tipo) return false;
     const nombre = tipo.nombre.toLowerCase();
-    return nombre.includes('laptop') || nombre.includes('desktop');
+    return nombre.includes('laptop') || nombre.includes('desktop') || nombre.includes('computadora');
   }
 
   onTipoHardwareChangeSelect(event: Event) {
@@ -242,7 +248,7 @@ export class HardwareIdealComponent implements OnInit {
           control.setValidators([Validators.required]);
         } else {
           control.clearValidators();
-          if (!isEditing) control.patchValue(null); // Solo limpia si NO estamos editando
+          control.patchValue(null);
         }
         control.updateValueAndValidity();
       }
