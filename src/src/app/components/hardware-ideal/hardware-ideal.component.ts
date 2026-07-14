@@ -229,10 +229,10 @@ export class HardwareIdealComponent implements OnInit {
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
   }
 
-  onTipoHardwareChange(tipoId: number | null) {
+  onTipoHardwareChange(tipoId: number | null, isEditing: boolean = false) {
     this.selectedTipoHardwareId = tipoId;
     const isPC = this.isPC;
-    const form = 'hwForm' in this ? (this as any).hwForm : (this as any).hwIdealForm;
+    const form = this.hwIdealForm; 
     const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
 
     fields.forEach(field => {
@@ -242,12 +242,12 @@ export class HardwareIdealComponent implements OnInit {
           control.setValidators([Validators.required]);
         } else {
           control.clearValidators();
-          control.patchValue(null);
+          if (!isEditing) control.patchValue(null); // Solo limpia si NO estamos editando
         }
         control.updateValueAndValidity();
       }
     });
-  }
+}
 
 
   // Filtros de Tabla
@@ -420,25 +420,31 @@ export class HardwareIdealComponent implements OnInit {
     }
   }
 
-  edit(hw: HardwareIdeal) {
-    if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
-      return;
-    }
-    this.isEditing = true;
-    this.isReadOnly = false;
-    this.currentId = hw.id;
-    this.hwIdealForm.enable();
-    this.hwIdealForm.patchValue(hw);
-    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
-    this.onTipoHardwareChange(this.selectedTipoHardwareId);
-    if (hw.puestoId) {
-        const matched = this.puestos.find(p => p.id === hw.puestoId);
-        if (matched) this.searchTermPuestos = matched.nombrePuesto;
-    } else {
-        this.searchTermPuestos = '';
-    }
-  }
+ edit(hw: HardwareIdeal) {
+  this.isEditing = true;
+  this.currentId = hw.id;
+  this.hwIdealForm.enable();
+
+  // Mapeo explícito: Asegúrate de que las propiedades a la derecha (hw.xxx) 
+  // coincidan con lo que realmente trae el objeto en la consola.
+  this.hwIdealForm.patchValue({
+    puestoId: hw.puestoId,
+    tipoHardwareId: hw.tipoHardwareId,
+    tipoEquipo: hw.tipoEquipo,
+    procesador: hw.procesador, // Si esto falla, prueba hw.Procesador
+    memoria: hw.memoria,       // Si esto falla, prueba hw.Memoria
+    disco: hw.disco,
+    marcaPC: hw.marcaPC,
+    otrasConsideraciones: hw.otrasConsideraciones
+  });
+
+  this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+  this.onTipoHardwareChange(this.selectedTipoHardwareId, true);
+  
+  // Refuerzo para el buscador de puestos
+  const matched = this.puestos.find(p => p.id === hw.puestoId);
+  this.searchTermPuestos = matched ? matched.nombrePuesto : '';
+}
 
   delete(id: number) {
     if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'ELIMINAR')) {

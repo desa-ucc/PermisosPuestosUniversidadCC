@@ -490,7 +490,7 @@ export class HardwareComponent implements OnInit {
   });
 
   this.selectedTipoHardwareId = hw.tipoHardwareId || null;
-  
+  console.log(hw);
   // IMPORTANTE: Debes llamar a esto para que el formulario sepa si mostrar los inputs de PC
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
