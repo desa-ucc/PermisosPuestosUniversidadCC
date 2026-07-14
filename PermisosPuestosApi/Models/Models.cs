@@ -57,6 +57,7 @@ namespace PermisosPuestosApi.Models
     {
         [Key] public int Id { get; set; }
         public int PuestoId { get; set; }
+        public int? TipoHardwareId { get; set; }
         public string TipoEquipo { get; set; } = string.Empty;
         public string Procesador { get; set; } = string.Empty;
         public string Memoria { get; set; } = string.Empty;
@@ -70,6 +71,7 @@ namespace PermisosPuestosApi.Models
     {
         [Key] public int Id { get; set; }
         public int EmpleadoId { get; set; }
+        public int? TipoHardwareId { get; set; }
         public string TipoEquipo { get; set; } = string.Empty;
         public string Procesador { get; set; } = string.Empty;
         public string Memoria { get; set; } = string.Empty;

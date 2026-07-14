@@ -1,13 +1,9 @@
-# Hardware Type Select UI & Logic Updates
+# Payload Mapping for Stored Procedure Update (`sp_UpdateHardwareAsignado` & `sp_UpdateHardwareIdeal`)
 
-## Architecture
+## Issue
+The backend SQL stored procedures were updated to expect a numeric `@TipoHardwareId (INT)` instead of `@TipoEquipo (NVARCHAR)` for the update routines, causing failures when updating the form records. The forms still mapped their inner workings using the textual descriptions for initial UI bindings.
 
-The system uses an Angular reactive form pattern for creating and editing 'Hardware' and 'Hardware Ideal' components.
-We migrated the manual string inputs for 'tipoEquipo' to a dynamic dropdown populated from the backend ('Cat_TiposHardware').
-Based on the selected string item in this dropdown, we derive an `isPC` boolean and conditionally mount fields (Procesador, Memoria RAM, Disco Duro, Marca de PC) using the `@if` syntax in the template. If the component mounts dynamically, we dynamically apply or clear `Validators.required` logic using `updateValueAndValidity()`.
-
-## Changes Made
-- Added `getTiposHardware` integration inside `ngOnInit` via `loadData` for both components.
-- Modified HTML inputs into `<select>` binding to `formControlName="tipoEquipo"` emitting standard change events to evaluate logic.
-- Included logic that when `isPC == false`, residual string values are aggressively set to `null` by calling `patchValue(null)` to prevent validation constraints.
-- Pre-commit verifications validated compiling passes successfully and the frontend handles interactions logically.
+## Steps
+1. Updated `Models.cs` classes `HardwareAsignado` and `HardwareIdeal` with `public int? TipoHardwareId { get; set; }`.
+2. Replaced `@TipoEquipo` with `@TipoHardwareId` parameter in the execution methods of `EquiposController.cs` and `HardwareIdealController.cs`, utilizing DBNull safely if not parsed.
+3. Updated the Angular `onSubmit()` logic inside `HardwareComponent` and `HardwareIdealComponent` to explicitly inject `data.tipoHardwareId = this.selectedTipoHardwareId` before mapping the update call to the API.

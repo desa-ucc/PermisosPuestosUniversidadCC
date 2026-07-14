@@ -396,6 +396,8 @@ export class HardwareIdealComponent implements OnInit {
 
     const data = this.hwIdealForm.value;
     data.puestoId = Number(data.puestoId);
+    data.tipoHardwareId = this.selectedTipoHardwareId;
+    data.tipoHardwareId = this.selectedTipoHardwareId;
 
     if (this.isEditing && this.currentId) {
       this.api.updateHardwareIdeal(this.currentId, { ...data, id: this.currentId }).subscribe({
