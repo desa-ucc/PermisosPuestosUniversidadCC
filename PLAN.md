@@ -27,3 +27,13 @@ When specific components like Processor or Memory were hidden, the form layout a
 - Changed form grid layouts to `flex flex-wrap gap-4` and appended `flex-1 min-w-[250px]` with transition-all wrappers for form child `<div class="flex flex-col">` layouts to dynamically scale spacing natively without breaking.
 - Appended `|| 'N/A'` fallbacks in Hardware Ideal components Table loop display.
 - Matched Flex properties to `hardware.component.ts`.
+
+## Fix Seguridad roles not loading
+
+### Issue
+The user noted that the Roles table is empty despite backend having records. The `SeguridadComponent` initializes properly with `ngOnInit` loading `this.cargarRoles()`, however the API endpoint `/api/seguridad/roles` throws a 500 server error silently to the console. This happens because the `SeguridadController` used raw string interpolation for `@Accion` instead of explicit SqlParameters which breaks EF Core strict configurations as required by memory.
+Additionally, when switching tabs using `setTab`, the system did not automatically fetch data if not loaded.
+
+### Changes
+- Fixed `GetRoles` and `GetUsuarios` inside `SeguridadController.cs` to correctly instantiate `new SqlParameter("@Accion", "SELECT")`.
+- Implemented data reloading logic in `setTab` natively inside `seguridad.component.ts`.

@@ -22,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion='SELECT'").ToListAsync();
+            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
             return Ok(roles);
         }
 
@@ -58,7 +58,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("usuarios")]
         public async Task<IActionResult> GetUsuarios()
         {
-            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion='SELECT'").ToListAsync();
+            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
             return Ok(usuarios);
         }
 

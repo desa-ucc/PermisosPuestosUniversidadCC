@@ -67,6 +67,8 @@ export class SeguridadComponent implements OnInit {
 
   setTab(tab: 'roles' | 'usuarios' | 'permisos') {
     this.activeTab = tab;
+    if (tab === 'roles') this.cargarRoles();
+    if (tab === 'usuarios') this.cargarUsuarios();
   }
 
   // --- ROLES ---
