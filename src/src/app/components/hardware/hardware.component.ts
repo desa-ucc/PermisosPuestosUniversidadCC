@@ -478,8 +478,11 @@ export class HardwareComponent implements OnInit {
     this.hwForm.enable();
     this.searchTermEmpleados = '';
     this.hwForm.patchValue(hw);
-    const matchedTipo = this.tiposHardware.find(t => t.nombre === hw.tipoEquipo);
+    const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
+    if (matchedTipo) {
+      this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+    }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
         const matched = this.empleados.find(e => e.id === hw.empleadoId);
@@ -508,8 +511,11 @@ export class HardwareComponent implements OnInit {
     this.isEditing = false;
     this.currentId = hw.id;
     this.hwForm.patchValue(hw);
-    const matchedTipo = this.tiposHardware.find(t => t.nombre === hw.tipoEquipo);
+    const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
+    if (matchedTipo) {
+      this.hwForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+    }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.onEmpleadoChange(null);
     this.hwForm.disable();

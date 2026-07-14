@@ -426,8 +426,11 @@ export class HardwareIdealComponent implements OnInit {
     this.currentId = hw.id;
     this.hwIdealForm.enable();
     this.hwIdealForm.patchValue(hw);
-    const matchedTipo = this.tiposHardware.find(t => t.nombre === hw.tipoEquipo);
+    const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
+    if (matchedTipo) {
+      this.hwIdealForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+    }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.puestoId) {
         const matched = this.puestos.find(p => p.id === hw.puestoId);
@@ -455,8 +458,11 @@ export class HardwareIdealComponent implements OnInit {
     this.isEditing = false;
     this.currentId = hw.id;
     this.hwIdealForm.patchValue(hw);
-    const matchedTipo = this.tiposHardware.find(t => t.nombre === hw.tipoEquipo);
+    const matchedTipo = this.tiposHardware.find(t => t.nombre.toLowerCase() === hw.tipoEquipo?.toLowerCase());
     this.selectedTipoHardwareId = matchedTipo ? matchedTipo.id : null;
+    if (matchedTipo) {
+      this.hwIdealForm.patchValue({ tipoEquipo: matchedTipo.nombre });
+    }
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.hwIdealForm.disable();
     if (hw.puestoId) {
