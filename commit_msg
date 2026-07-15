@@ -1,4 +1,7 @@
-Update Hardware layout grid to Flex and add table N/A fallbacks
+Implement Security Roles tab functionality
 
-- Changed form grid layouts to `flex flex-wrap gap-4` and appended `flex-1 min-w-[250px]` with transition-all wrappers for form child elements in Hardware Ideal and Hardware components. This naturally handles resizing and spacing gracefully when conditionally hiding PC-specific fields.
-- Appended `|| 'N/A'` fallbacks in Hardware Ideal components Table loop display to prevent empty columns which appear as missing attributes.
+- Backend: Rewrote `SeguridadController` to include robust try-catch blocks and explicit `SqlParameter` handling with `@Accion` for `sp_GestionarRoles` integration.
+- Frontend Service: Merged `seguridad.service.ts` into `permission.service.ts` to centralize all security endpoints and implemented `loadRoles()` method.
+- Frontend Component: Refactored `seguridad.component.ts` to consume `PermissionService`, populate roles properly and auto-refresh the list after changes.
+- Frontend HTML: Rebuilt the Roles table in `seguridad.component.html` adhering to the standard UI filter pattern.
+- Cleanup: Removed redundant `seguridad.service.ts` file.

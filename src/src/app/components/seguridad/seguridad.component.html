@@ -1,12 +1,12 @@
-<main class="p-gutter max-w-container-max-width mx-auto space-y-8">
-  <div class="mb-8">
-    <h2 class="font-headline-lg text-headline-lg text-secondary">Seguridad y Accesos</h2>
-    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-1">
-      Administre roles, usuarios y permisos del sistema.
-    </p>
+<main class="p-8 max-w-7xl mx-auto min-h-screen pt-20">
+  <div class="mb-8 relative flex items-center justify-between">
+    <div>
+      <h1 class="font-title-lg text-title-lg text-primary mb-2">Seguridad y Accesos</h1>
+      <p class="font-body-md text-on-surface-variant">Administre roles, usuarios y permisos del sistema.</p>
+    </div>
   </div>
 
-  <div class="flex border-b border-outline-variant/30 mb-4">
+  <div class="flex gap-4 mb-6 border-b border-outline-variant/30">
     <button (click)="setTab('roles')" [class.border-ucc-primary]="activeTab === 'roles'" [class.text-ucc-primary]="activeTab === 'roles'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Roles</button>
     <button (click)="setTab('usuarios')" [class.border-ucc-primary]="activeTab === 'usuarios'" [class.text-ucc-primary]="activeTab === 'usuarios'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Usuarios</button>
     <button (click)="setTab('permisos')" [class.border-ucc-primary]="activeTab === 'permisos'" [class.text-ucc-primary]="activeTab === 'permisos'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Matriz de Permisos</button>

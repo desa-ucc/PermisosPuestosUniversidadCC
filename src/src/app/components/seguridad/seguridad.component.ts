@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PermissionService } from '../../services/permission.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
-import { SeguridadService } from '../../services/seguridad.service';
 
 @Component({
   selector: 'app-seguridad',
@@ -43,7 +42,6 @@ export class SeguridadComponent implements OnInit {
 
   constructor(
     private permissionService: PermissionService,
-    private seguridadService: SeguridadService,
     private fb: FormBuilder
   ) {
     this.rolForm = this.fb.group({
@@ -73,12 +71,15 @@ export class SeguridadComponent implements OnInit {
 
   // --- ROLES ---
   cargarRoles() {
-    this.permissionService.getAllRoles().subscribe(res => {
-      this.roles = res;
-      if (!this.roles || this.roles.length === 0) {
-        console.log('Roles API returned empty data:', res);
+    this.permissionService.loadRoles().subscribe({
+      next: (res) => {
+        this.roles = res || [];
+        this.aplicarFiltrosRoles();
+      },
+      error: (err) => {
+        console.error('Error al cargar roles', err);
+        alert('Ocurrió un error al cargar los roles.');
       }
-      this.aplicarFiltrosRoles();
     });
   }
 
@@ -116,31 +117,46 @@ export class SeguridadComponent implements OnInit {
     if (this.rolForm.invalid) return;
 
     if (this.isEditMode && this.selectedId) {
-      this.seguridadService.updateRol(this.selectedId, this.rolForm.value).subscribe(() => {
-        this.cargarRoles();
-        this.cerrarModalRol();
+      this.permissionService.updateRol(this.selectedId, this.rolForm.value).subscribe({
+        next: () => {
+          this.cargarRoles();
+          this.cerrarModalRol();
+        },
+        error: (err) => {
+          console.error('Error al actualizar rol', err);
+          alert('Error al actualizar el rol.');
+        }
       });
     } else {
-      this.seguridadService.createRol(this.rolForm.value).subscribe(() => {
-        this.cargarRoles();
-        this.cerrarModalRol();
+      this.permissionService.createRol(this.rolForm.value).subscribe({
+        next: () => {
+          this.cargarRoles();
+          this.cerrarModalRol();
+        },
+         error: (err) => {
+          console.error('Error al crear rol', err);
+          alert('Error al crear el rol.');
+        }
       });
     }
   }
 
   eliminarRol(id: number) {
     if (confirm('¿Está seguro de eliminar este rol?')) {
-      this.seguridadService.deleteRol(id).subscribe(() => this.cargarRoles());
+      this.permissionService.deleteRol(id).subscribe({
+        next: () => this.cargarRoles(),
+        error: (err) => {
+            console.error('Error al eliminar rol', err);
+            alert('Error al eliminar el rol. ' + (err.error?.message || ''));
+        }
+      });
     }
   }
 
   // --- USUARIOS ---
   cargarUsuarios() {
     this.permissionService.getUsuarios().subscribe(res => {
-      this.usuarios = res;
-      if (!this.usuarios || this.usuarios.length === 0) {
-        console.log('Usuarios API returned empty data:', res);
-      }
+      this.usuarios = res || [];
       this.aplicarFiltrosUsuarios();
     });
   }
@@ -185,12 +201,12 @@ export class SeguridadComponent implements OnInit {
     if (this.usuarioForm.invalid) return;
 
     if (this.isEditMode && this.selectedId) {
-      this.seguridadService.updateUsuario(this.selectedId, this.usuarioForm.value).subscribe(() => {
+      this.permissionService.updateUsuario(this.selectedId, this.usuarioForm.value).subscribe(() => {
         this.cargarUsuarios();
         this.cerrarModalUsuario();
       });
     } else {
-      this.seguridadService.createUsuario(this.usuarioForm.value).subscribe(() => {
+      this.permissionService.createUsuario(this.usuarioForm.value).subscribe(() => {
         this.cargarUsuarios();
         this.cerrarModalUsuario();
       });
@@ -199,7 +215,7 @@ export class SeguridadComponent implements OnInit {
 
   eliminarUsuario(id: number) {
     if (confirm('¿Está seguro de eliminar este usuario?')) {
-      this.seguridadService.deleteUsuario(id).subscribe(() => this.cargarUsuarios());
+      this.permissionService.deleteUsuario(id).subscribe(() => this.cargarUsuarios());
     }
   }
 
@@ -209,7 +225,7 @@ export class SeguridadComponent implements OnInit {
       this.permisosActuales = [];
       return;
     }
-    this.seguridadService.getPermisos(this.rolSeleccionadoId).subscribe(res => {
+    this.permissionService.getPermisos(this.rolSeleccionadoId).subscribe(res => {
       this.permisosActuales = this.pantallasSistema.map(pantalla => {
         const permisoExistente = res.find((p: any) => p.pantallaId === pantalla);
         return permisoExistente || {
@@ -225,7 +241,7 @@ export class SeguridadComponent implements OnInit {
   }
 
   actualizarPermiso(permiso: any) {
-    this.seguridadService.updatePermiso(permiso).subscribe({
+    this.permissionService.updatePermiso(permiso).subscribe({
       next: () => console.log(`Permiso actualizado para ${permiso.pantallaId}`),
       error: (err) => console.error(err)
     });

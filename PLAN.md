@@ -37,3 +37,15 @@ Additionally, when switching tabs using `setTab`, the system did not automatical
 ### Changes
 - Fixed `GetRoles` and `GetUsuarios` inside `SeguridadController.cs` to correctly instantiate `new SqlParameter("@Accion", "SELECT")`.
 - Implemented data reloading logic in `setTab` natively inside `seguridad.component.ts`.
+
+## Implement Security Roles tab functionality
+
+### Issue
+The user requested the full implementation of the 'Roles' tab in the Security module. The SP `sp_GestionarRoles` was already provided, but the backend controller, frontend service, component logic, and HTML template were missing or incomplete. The table was empty and non-functional.
+
+### Changes
+- Backend: Rewrote `SeguridadController` to include robust try-catch blocks and explicit `SqlParameter` handling with `@Accion` for `sp_GestionarRoles` integration.
+- Frontend Service: Merged `seguridad.service.ts` into `permission.service.ts` to centralize all security endpoints and implemented `loadRoles()` method.
+- Frontend Component: Refactored `seguridad.component.ts` to consume `PermissionService`, populate roles properly and auto-refresh the list after changes.
+- Frontend HTML: Rebuilt the Roles table in `seguridad.component.html` adhering to the standard UI filter pattern.
+- Cleanup: Removed redundant `seguridad.service.ts` file.
