@@ -229,12 +229,25 @@ namespace PermisosPuestosApi.Controllers
         {
             try
             {
-                var jsonData = JsonSerializer.Serialize(permisos);
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var jsonData = JsonSerializer.Serialize(permisos, options);
+
+                // Logging for debug as requested
+                Console.WriteLine("JSON Payload for SP: " + jsonData);
+
+                var jsonParam = new SqlParameter("@JsonData", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData };
 
                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarPermisos @Accion=@Accion, @JsonData=@JsonData",
+                    "EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer, @JsonData",
                     new SqlParameter("@Accion", "BULK_UPDATE"),
-                    new SqlParameter("@JsonData", jsonData)
+                    new SqlParameter("@Id", DBNull.Value),
+                    new SqlParameter("@RoleId", DBNull.Value),
+                    new SqlParameter("@PantallaId", DBNull.Value),
+                    new SqlParameter("@PuedeCrear", 0),
+                    new SqlParameter("@PuedeEditar", 0),
+                    new SqlParameter("@PuedeEliminar", 0),
+                    new SqlParameter("@PuedeVer", 0),
+                    jsonParam
                 );
 
                 return Ok(new { message = "Permisos actualizados masivamente de forma exitosa" });

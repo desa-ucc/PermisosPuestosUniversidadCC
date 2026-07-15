@@ -82,3 +82,17 @@ The user encountered a server crash calling the SP `sp_GestionarPermisos` return
 - Corrected the inline string mappings to map sequentially rather than individually named assignments, satisfying EF Core `FromSqlRaw` syntax requirements.
 - Changed the mapped `SqlParameter` objects in `SeguridadController` to explicitly use `@RoleId` to match the exact definition of `sp_GestionarPermisos`.
 - Handled the `DBNull.Value` assignment requirement when casting optional parameters mapping in the C# payload.
+
+## Fix Backend SQL Parameter and Serialization Mapping for BULK_UPDATE Permissions
+
+### Issue
+The user encountered a server crash when saving the security matrix (`BULK_UPDATE`) using JSON payloads. The logs returned `Failed executing DbCommand EXEC sp_GestionarPermisos @Accion=@Accion, @JsonData=@JsonData`. This failed for two reasons:
+1. `FromSqlRaw`/`ExecuteSqlRawAsync` does not support inline named parameters (e.g., `@Accion=@Accion`) without skipping or misaligning underlying SQL configurations. The method requires sequential alignment with the Stored Procedure definition.
+2. The user noted that without explicitly setting `SqlDbType.NVarChar` and `Size = -1`, EF Core can truncate JSON strings exceeding default sizes, corrupting the JSON payload before `OPENJSON` attempts parsing.
+3. The `.NET` `JsonSerializer.Serialize` outputs `PascalCase` objects by default (`RoleId`, `PantallaId`), which failed to match the SP's `OPENJSON` paths (`$.roleId`, `$.pantallaId`).
+
+### Changes
+- Configured the JSON serialization in `GuardarPermisos` inside `SeguridadController` by instantiating `new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }` and passing it to the payload generator.
+- Added explicit Logging (`Console.WriteLine`) for the JSON Payload output as requested by the user for easier future debugging.
+- Modified the JSON SQL parameter to `new SqlParameter("@JsonData", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData }` ensuring large JSON payloads do not truncate.
+- Re-architected the `ExecuteSqlRawAsync` call string to strictly map parameters sequentially (`EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer, @JsonData`) passing `DBNull.Value` or default values `0` dynamically to skipped params satisfying EF Core mapping protocols.

@@ -1,6 +1,6 @@
-Implement bulk Security Permissions Matrix functionality
+Fix Backend SQL Parameter and Serialization Mapping for BULK_UPDATE
 
-- Database: Upgraded `sp_GestionarPermisos` adding `BULK_UPDATE` using `OPENJSON` and `MERGE` to apply JSON arrays in one transaction.
-- Backend: Rewrote `SeguridadController`'s `GuardarPermisos` endpoint to serialize the permissions list to JSON for the new SP logic.
-- Frontend Component: Added `hasUnsavedChanges` state in `seguridad.component.ts` to track local modifications without triggering API calls per checkbox.
-- Frontend HTML: Replaced individual `actualizarPermiso` calls in `seguridad.component.html` checkboxes with local state tracking. Added a bulk 'Guardar Cambios' button to submit the full array.
+- Configured the JSON serialization in `GuardarPermisos` inside `SeguridadController` to output camelCase matching the SP's `OPENJSON` paths.
+- Added explicit Logging (`Console.WriteLine`) for the JSON Payload output.
+- Modified the JSON SQL parameter ensuring large JSON payloads do not truncate using `System.Data.SqlDbType.NVarChar, -1`.
+- Re-architected the `ExecuteSqlRawAsync` call string to strictly map parameters sequentially.
