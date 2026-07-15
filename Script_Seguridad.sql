@@ -56,7 +56,7 @@ BEGIN
     IF @Accion = 'CREATE'
     BEGIN
         INSERT INTO pt_Usuarios (NombreUsuario, PasswordHash, Email, RolId, Activo)
-        VALUES (@NombreUsuario, @PasswordHash, @Email, @RolId, @Activo);
+        VALUES (@NombreUsuario, LOWER(CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', @PasswordHash), 2)), @Email, @RolId, @Activo);
         SELECT SCOPE_IDENTITY() AS Id;
     END
     ELSE IF @Accion = 'READ'
@@ -71,7 +71,7 @@ BEGIN
         UPDATE pt_Usuarios
         SET
             NombreUsuario = ISNULL(@NombreUsuario, NombreUsuario),
-            PasswordHash = ISNULL(@PasswordHash, PasswordHash),
+            PasswordHash = ISNULL(LOWER(CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', @PasswordHash), 2)), PasswordHash),
             Email = ISNULL(@Email, Email),
             RolId = ISNULL(@RolId, RolId),
             Activo = ISNULL(@Activo, Activo)
