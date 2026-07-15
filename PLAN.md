@@ -96,3 +96,12 @@ The user encountered a server crash when saving the security matrix (`BULK_UPDAT
 - Added explicit Logging (`Console.WriteLine`) for the JSON Payload output as requested by the user for easier future debugging.
 - Modified the JSON SQL parameter to `new SqlParameter("@JsonData", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData }` ensuring large JSON payloads do not truncate.
 - Re-architected the `ExecuteSqlRawAsync` call string to strictly map parameters sequentially (`EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer, @JsonData`) passing `DBNull.Value` or default values `0` dynamically to skipped params satisfying EF Core mapping protocols.
+
+## Optimize BULK_UPDATE Permissions SQL call
+
+### Issue
+The user experienced SQL execution errors during `BULK_UPDATE`. Passing all unused parameters (`Id`, `PantallaId`, etc.) filled with `DBNull.Value` or default values sequentially confused the SP or caused type inference issues (e.g., `0` interpreted as `Int64` rather than `BIT`). The user explicitly requested to only pass `@Accion` and `@JsonData`.
+
+### Changes
+- Refactored `GuardarPermisos` endpoint to strictly pass only `@Accion` and `@JsonData` via SQL named variable assignment (`EXEC sp_GestionarPermisos @Accion = @AccionParam, @JsonData = @JsonDataParam`).
+- Validated that the explicit mapping bypasses sequential requirements, making the query execution significantly cleaner and preventing SQL type conversion errors.

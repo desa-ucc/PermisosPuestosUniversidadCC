@@ -235,18 +235,13 @@ namespace PermisosPuestosApi.Controllers
                 // Logging for debug as requested
                 Console.WriteLine("JSON Payload for SP: " + jsonData);
 
-                var jsonParam = new SqlParameter("@JsonData", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData };
+                var jsonParam = new SqlParameter("@JsonDataParam", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData };
+                var accionParam = new SqlParameter("@AccionParam", "BULK_UPDATE");
 
+                // Execute SQL using explicitly mapped variable names to bypass sequential mapping issues
                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer, @JsonData",
-                    new SqlParameter("@Accion", "BULK_UPDATE"),
-                    new SqlParameter("@Id", DBNull.Value),
-                    new SqlParameter("@RoleId", DBNull.Value),
-                    new SqlParameter("@PantallaId", DBNull.Value),
-                    new SqlParameter("@PuedeCrear", 0),
-                    new SqlParameter("@PuedeEditar", 0),
-                    new SqlParameter("@PuedeEliminar", 0),
-                    new SqlParameter("@PuedeVer", 0),
+                    "EXEC sp_GestionarPermisos @Accion = @AccionParam, @JsonData = @JsonDataParam",
+                    accionParam,
                     jsonParam
                 );
 

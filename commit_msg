@@ -1,6 +1,4 @@
-Fix Backend SQL Parameter and Serialization Mapping for BULK_UPDATE
+Optimize BULK_UPDATE Permissions SQL call
 
-- Configured the JSON serialization in `GuardarPermisos` inside `SeguridadController` to output camelCase matching the SP's `OPENJSON` paths.
-- Added explicit Logging (`Console.WriteLine`) for the JSON Payload output.
-- Modified the JSON SQL parameter ensuring large JSON payloads do not truncate using `System.Data.SqlDbType.NVarChar, -1`.
-- Re-architected the `ExecuteSqlRawAsync` call string to strictly map parameters sequentially.
+- Refactored `GuardarPermisos` endpoint to strictly pass only `@Accion` and `@JsonData` via SQL named variable assignment (`EXEC sp_GestionarPermisos @Accion = @AccionParam, @JsonData = @JsonDataParam`).
+- Bypassed sequential mapping requirements, preventing type inference failures caused by passing unused parameters sequentially.
