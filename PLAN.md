@@ -37,3 +37,62 @@ Additionally, when switching tabs using `setTab`, the system did not automatical
 ### Changes
 - Fixed `GetRoles` and `GetUsuarios` inside `SeguridadController.cs` to correctly instantiate `new SqlParameter("@Accion", "SELECT")`.
 - Implemented data reloading logic in `setTab` natively inside `seguridad.component.ts`.
+
+## Implement Security Roles tab functionality
+
+### Issue
+The user requested the full implementation of the 'Roles' tab in the Security module. The SP `sp_GestionarRoles` was already provided, but the backend controller, frontend service, component logic, and HTML template were missing or incomplete. The table was empty and non-functional.
+
+### Changes
+- Backend: Rewrote `SeguridadController` to include robust try-catch blocks and explicit `SqlParameter` handling with `@Accion` for `sp_GestionarRoles` integration.
+- Frontend Service: Merged `seguridad.service.ts` into `permission.service.ts` to centralize all security endpoints and implemented `loadRoles()` method.
+- Frontend Component: Refactored `seguridad.component.ts` to consume `PermissionService`, populate roles properly and auto-refresh the list after changes.
+- Frontend HTML: Rebuilt the Roles table in `seguridad.component.html` adhering to the standard UI filter pattern.
+- Cleanup: Removed redundant `seguridad.service.ts` file.
+
+## Implement Angular AuthInterceptor for JWT handling
+
+### Issue
+The user experienced 401 Unauthorized errors in the frontend (`/api/seguridad/usuarios`) when accessing endpoints protected by `[Authorize]` in the .NET backend. The frontend was missing an HTTP interceptor to automatically attach the JWT token stored in `localStorage` to outgoing requests.
+
+### Changes
+- Created an Angular functional interceptor `auth.interceptor.ts`.
+- The interceptor extracts the `token` from `localStorage` and appends it to the HTTP headers as `Authorization: Bearer <token>`.
+- Included a `catchError` handler: If the backend returns a 401 status (e.g., token expired or invalid), the interceptor automatically clears the `localStorage` session variables (`token`, `role`, `permisos`) and redirects the user to the `/login` route using the `Router`.
+- Registered the `authInterceptor` globally in `app.config.ts` by appending `withInterceptors([authInterceptor])` to the `provideHttpClient()` function.
+
+## Implement Security Matrix tab functionality
+
+### Issue
+The user requested the full implementation of the 'Matriz de Permisos' tab in the Security module to bulk update permissions. The previous implementation triggered a database call individually for each checkbox change which wasn't efficient or user-friendly.
+
+### Changes
+- Updated Database SP `sp_GestionarPermisos` by creating `update_sp_permisos.sql` adding `@Accion='BULK_UPDATE'` and parsing `@JsonData` using `OPENJSON` and `MERGE` to perform mass update/inserts efficiently in one transaction.
+- Temporary C# DB Patch: Included a temporary endpoint `[HttpGet("patch-db")]` in `SeguridadController` to apply the SP modification using `ExecuteSqlRawAsync` and removed it.
+- Backend: Updated `SeguridadController`'s `GuardarPermisos` POST method to serialize the list of objects into JSON strings and pass it using `SqlParameter` resolving the user's bulk request efficiently.
+- Frontend Component: Refactored `seguridad.component.ts` adding a boolean tracking unsaved states `hasUnsavedChanges`, modifying `marcarComoModificado()` to detect when the user edits matrices without triggering api calls.
+- Frontend HTML: Rebuilt the Permisos table block in `seguridad.component.html`. Swapped individual Api pushes `(change)="actualizarPermiso(permiso)"` per checkbox to track unsaved states instead `(change)="marcarComoModificado()"`. Inserted a new 'Guardar Cambios' button that correctly pushes the complete modified Array back to the Backend.
+
+## Fix Backend SQL Parameter Mismatch for Permisos SP
+
+### Issue
+The user encountered a server crash calling the SP `sp_GestionarPermisos` returning the error `@RolId is not a parameter for procedure sp_GestionarPermisos`. The backend was explicitly mapping `@RolId` via inline strings, but the SP defined the parameter as `@RoleId`.
+
+### Changes
+- Corrected the inline string mappings to map sequentially rather than individually named assignments, satisfying EF Core `FromSqlRaw` syntax requirements.
+- Changed the mapped `SqlParameter` objects in `SeguridadController` to explicitly use `@RoleId` to match the exact definition of `sp_GestionarPermisos`.
+- Handled the `DBNull.Value` assignment requirement when casting optional parameters mapping in the C# payload.
+
+## Fix Backend SQL Parameter and Serialization Mapping for BULK_UPDATE Permissions
+
+### Issue
+The user encountered a server crash when saving the security matrix (`BULK_UPDATE`) using JSON payloads. The logs returned `Failed executing DbCommand EXEC sp_GestionarPermisos @Accion=@Accion, @JsonData=@JsonData`. This failed for two reasons:
+1. `FromSqlRaw`/`ExecuteSqlRawAsync` does not support inline named parameters (e.g., `@Accion=@Accion`) without skipping or misaligning underlying SQL configurations. The method requires sequential alignment with the Stored Procedure definition.
+2. The user noted that without explicitly setting `SqlDbType.NVarChar` and `Size = -1`, EF Core can truncate JSON strings exceeding default sizes, corrupting the JSON payload before `OPENJSON` attempts parsing.
+3. The `.NET` `JsonSerializer.Serialize` outputs `PascalCase` objects by default (`RoleId`, `PantallaId`), which failed to match the SP's `OPENJSON` paths (`$.roleId`, `$.pantallaId`).
+
+### Changes
+- Configured the JSON serialization in `GuardarPermisos` inside `SeguridadController` by instantiating `new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }` and passing it to the payload generator.
+- Added explicit Logging (`Console.WriteLine`) for the JSON Payload output as requested by the user for easier future debugging.
+- Modified the JSON SQL parameter to `new SqlParameter("@JsonData", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData }` ensuring large JSON payloads do not truncate.
+- Re-architected the `ExecuteSqlRawAsync` call string to strictly map parameters sequentially (`EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer, @JsonData`) passing `DBNull.Value` or default values `0` dynamically to skipped params satisfying EF Core mapping protocols.

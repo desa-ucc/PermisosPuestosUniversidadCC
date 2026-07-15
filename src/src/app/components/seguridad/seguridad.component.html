@@ -1,12 +1,12 @@
-<main class="p-gutter max-w-container-max-width mx-auto space-y-8">
-  <div class="mb-8">
-    <h2 class="font-headline-lg text-headline-lg text-secondary">Seguridad y Accesos</h2>
-    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-1">
-      Administre roles, usuarios y permisos del sistema.
-    </p>
+<main class="p-8 max-w-7xl mx-auto min-h-screen pt-20">
+  <div class="mb-8 relative flex items-center justify-between">
+    <div>
+      <h1 class="font-title-lg text-title-lg text-primary mb-2">Seguridad y Accesos</h1>
+      <p class="font-body-md text-on-surface-variant">Administre roles, usuarios y permisos del sistema.</p>
+    </div>
   </div>
 
-  <div class="flex border-b border-outline-variant/30 mb-4">
+  <div class="flex gap-4 mb-6 border-b border-outline-variant/30">
     <button (click)="setTab('roles')" [class.border-ucc-primary]="activeTab === 'roles'" [class.text-ucc-primary]="activeTab === 'roles'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Roles</button>
     <button (click)="setTab('usuarios')" [class.border-ucc-primary]="activeTab === 'usuarios'" [class.text-ucc-primary]="activeTab === 'usuarios'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Usuarios</button>
     <button (click)="setTab('permisos')" [class.border-ucc-primary]="activeTab === 'permisos'" [class.text-ucc-primary]="activeTab === 'permisos'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Matriz de Permisos</button>
@@ -109,14 +109,22 @@
   <!-- TAB: PERMISOS MATRIZ -->
   @if (activeTab === 'permisos') {
     <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative p-6">
-      <div class="mb-6 flex items-center gap-4">
-        <label class="font-semibold text-secondary">Seleccione un Rol:</label>
-        <select [(ngModel)]="rolSeleccionadoId" (change)="cargarPermisosRol()" class="form-select block w-64 rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
-          <option [ngValue]="null">-- Seleccionar Rol --</option>
-          @for (rol of roles; track rol.id) {
-            <option [value]="rol.id">{{rol.nombre}}</option>
-          }
-        </select>
+      <div class="mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <label class="font-semibold text-secondary">Seleccione un Rol:</label>
+          <select [(ngModel)]="rolSeleccionadoId" (change)="cargarPermisosRol()" class="form-select block w-64 rounded-md border-gray-300 shadow-sm focus:border-ucc-primary focus:ring focus:ring-ucc-primary/50">
+            <option [ngValue]="null">-- Seleccionar Rol --</option>
+            @for (rol of roles; track rol.id) {
+              <option [value]="rol.id">{{rol.nombre}}</option>
+            }
+          </select>
+        </div>
+
+        @if (hasUnsavedChanges) {
+          <button (click)="guardarPermisosMatriz()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg animate-pulse shadow-lg">
+            <span class="material-symbols-outlined text-[18px]">save</span> Guardar Cambios
+          </button>
+        }
       </div>
 
       @if (rolSeleccionadoId) {
@@ -132,10 +140,10 @@
           @for (permiso of permisosActuales; track permiso.pantallaId) {
             <div class="grid grid-cols-5 gap-4 items-center p-3 border-b border-outline-variant/10 hover:bg-surface-container transition-colors">
               <div class="font-body-md font-bold text-secondary pl-2">{{permiso.pantallaId}}</div>
-              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeVer" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
-              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeCrear" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
-              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEditar" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
-              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEliminar" (change)="actualizarPermiso(permiso)" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeVer" (change)="marcarComoModificado()" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeCrear" (change)="marcarComoModificado()" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEditar" (change)="marcarComoModificado()" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
+              <div class="flex justify-center"><input type="checkbox" [(ngModel)]="permiso.puedeEliminar" (change)="marcarComoModificado()" class="form-checkbox h-5 w-5 text-ucc-primary rounded"></div>
             </div>
           }
         </div>

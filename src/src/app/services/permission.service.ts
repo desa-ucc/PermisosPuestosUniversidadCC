@@ -81,17 +81,57 @@ export class PermissionService {
     }
   }
 
-  // Métodos CRUD para administrar la seguridad (usados por el SeguridadComponent)
-  getAllRoles(): Observable<any[]> {
+  // --- MÉTODOS DE SEGURIDAD (ROLES, USUARIOS, PERMISOS) ---
+
+  // Roles
+  loadRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/seguridad/roles`);
   }
 
+  getAllRoles(): Observable<any[]> {
+    return this.loadRoles(); // Alias for backward compatibility
+  }
+
+  createRol(rol: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seguridad/roles`, rol);
+  }
+
+  updateRol(id: number, rol: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/seguridad/roles/${id}`, rol);
+  }
+
+  deleteRol(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/seguridad/roles/${id}`);
+  }
+
+  // Usuarios
   getUsuarios(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/seguridad/usuarios`);
   }
 
+  createUsuario(usuario: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seguridad/usuarios`, usuario);
+  }
+
+  updateUsuario(id: number, usuario: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/seguridad/usuarios/${id}`, usuario);
+  }
+
+  deleteUsuario(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/seguridad/usuarios/${id}`);
+  }
+
+  // Permisos
+  getPermisos(rolId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/seguridad/permisos/${rolId}`);
+  }
+
   getPermisosPorRol(roleId: number): Observable<Permiso[]> {
-    return this.http.get<Permiso[]>(`${this.apiUrl}/seguridad/roles/${roleId}/permisos`);
+     return this.http.get<Permiso[]>(`${this.apiUrl}/seguridad/permisos/${roleId}`);
+  }
+
+  updatePermiso(permiso: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/seguridad/permisos`, permiso);
   }
 
   guardarPermisos(roleId: number, permisos: Permiso[]): Observable<any> {
