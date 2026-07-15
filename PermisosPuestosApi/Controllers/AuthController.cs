@@ -27,26 +27,24 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            // Pasamos el usuario y la contraseña (en texto plano) al SP
             var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
+            var passwordParam = new SqlParameter("@Password", request.Password);
 
+            // Llamamos al nuevo sp_Login que valida todo internamente
             var usuarios = await _context.UsuariosDto
-                .FromSqlRaw("EXEC sp_Login @NombreUsuario", usernameParam)
+                .FromSqlRaw("EXEC sp_Login @NombreUsuario, @Password", usernameParam, passwordParam)
                 .ToListAsync();
 
             var user = usuarios.FirstOrDefault();
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Usuario no encontrado o inactivo" });
+                // Si el usuario es null, es porque el usuario no existe, está inactivo O la contraseña es incorrecta
+                return Unauthorized(new { message = "Credenciales incorrectas" });
             }
 
-            var hashToVerify = ComputeSha256Hash(request.Password);
-
-            if (!string.Equals(user.PasswordHash, hashToVerify, StringComparison.OrdinalIgnoreCase))
-            {
-                return Unauthorized(new { message = "Contraseña incorrecta" });
-            }
-
+            // Si llegamos aquí, el usuario es válido
             var token = GenerateJwtToken(user);
 
             var roleIdParam = new SqlParameter("@RoleId", user.RolId);
