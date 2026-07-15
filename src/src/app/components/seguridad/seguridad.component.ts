@@ -39,6 +39,7 @@ export class SeguridadComponent implements OnInit {
     'CATALOGOS', 'DASHBOARD', 'PUESTOS', 'COLABORADORES', 'EQUIPO_IDEAL',
     'HARDWARE', 'SOFTWARE_LOCAL', 'PERMISOS_SITIOS', 'PLATAFORMAS', 'REPORTES', 'SEGURIDAD'
   ];
+  hasUnsavedChanges = false;
 
   constructor(
     private permissionService: PermissionService,
@@ -221,6 +222,7 @@ export class SeguridadComponent implements OnInit {
 
   // --- PERMISOS MATRIZ ---
   cargarPermisosRol() {
+    this.hasUnsavedChanges = false;
     if (!this.rolSeleccionadoId) {
       this.permisosActuales = [];
       return;
@@ -240,10 +242,22 @@ export class SeguridadComponent implements OnInit {
     });
   }
 
-  actualizarPermiso(permiso: any) {
-    this.permissionService.updatePermiso(permiso).subscribe({
-      next: () => console.log(`Permiso actualizado para ${permiso.pantallaId}`),
-      error: (err) => console.error(err)
+  marcarComoModificado() {
+    this.hasUnsavedChanges = true;
+  }
+
+  guardarPermisosMatriz() {
+    if (!this.rolSeleccionadoId) return;
+
+    this.permissionService.guardarPermisos(this.rolSeleccionadoId, this.permisosActuales).subscribe({
+      next: () => {
+        alert('Permisos guardados exitosamente');
+        this.hasUnsavedChanges = false;
+      },
+      error: (err) => {
+        console.error('Error al guardar permisos', err);
+        alert('Error al guardar los permisos');
+      }
     });
   }
 }

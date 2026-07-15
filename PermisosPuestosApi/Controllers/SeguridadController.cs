@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using PermisosPuestosApi.Data;
 using PermisosPuestosApi.Models;
+using System.Text.Json;
 
 namespace PermisosPuestosApi.Controllers
 {
@@ -17,6 +18,17 @@ namespace PermisosPuestosApi.Controllers
         public SeguridadController(AppDbContext context)
         {
             _context = context;
+        }
+
+        // --- TEMPORAL: Endpoint para aplicar el parche a la BD ---
+        [HttpGet("patch-db")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PatchDb()
+        {
+            var sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "update_sp_permisos.sql");
+            var sql = await System.IO.File.ReadAllTextAsync(sqlPath);
+            await _context.Database.ExecuteSqlRawAsync(sql);
+            return Ok("SP sp_GestionarPermisos actualizado correctamente");
         }
 
         // --- ROLES ---
@@ -206,25 +218,22 @@ namespace PermisosPuestosApi.Controllers
             }
         }
 
-         [HttpPost("roles/{roleId}/permisos")]
+        [HttpPost("roles/{roleId}/permisos")]
         public async Task<IActionResult> GuardarPermisos(int roleId, [FromBody] List<Permiso> permisos)
         {
             try
             {
-                foreach(var permiso in permisos)
-                {
-                   await _context.Database.ExecuteSqlRawAsync(
-                        "EXEC sp_GestionarPermisos @Accion='UPDATE', @RolId=@RolId, @PantallaId=@PantallaId, @PuedeCrear=@PuedeCrear, @PuedeEditar=@PuedeEditar, @PuedeEliminar=@PuedeEliminar, @PuedeVer=@PuedeVer",
-                        new SqlParameter("@RolId", roleId),
-                        new SqlParameter("@PantallaId", permiso.PantallaId),
-                        new SqlParameter("@PuedeCrear", permiso.PuedeCrear),
-                        new SqlParameter("@PuedeEditar", permiso.PuedeEditar),
-                        new SqlParameter("@PuedeEliminar", permiso.PuedeEliminar),
-                        new SqlParameter("@PuedeVer", permiso.PuedeVer));
-                }
-                return Ok(new { message = "Permisos actualizados exitosamente" });
+                var jsonData = JsonSerializer.Serialize(permisos);
+
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_GestionarPermisos @Accion=@Accion, @JsonData=@JsonData",
+                    new SqlParameter("@Accion", "BULK_UPDATE"),
+                    new SqlParameter("@JsonData", jsonData)
+                );
+
+                return Ok(new { message = "Permisos actualizados masivamente de forma exitosa" });
             }
-             catch (Exception ex)
+            catch (Exception ex)
             {
                  return StatusCode(500, new { message = "Error al actualizar los permisos", error = ex.Message });
             }

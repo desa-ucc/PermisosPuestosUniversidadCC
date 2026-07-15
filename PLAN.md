@@ -60,3 +60,15 @@ The user experienced 401 Unauthorized errors in the frontend (`/api/seguridad/us
 - The interceptor extracts the `token` from `localStorage` and appends it to the HTTP headers as `Authorization: Bearer <token>`.
 - Included a `catchError` handler: If the backend returns a 401 status (e.g., token expired or invalid), the interceptor automatically clears the `localStorage` session variables (`token`, `role`, `permisos`) and redirects the user to the `/login` route using the `Router`.
 - Registered the `authInterceptor` globally in `app.config.ts` by appending `withInterceptors([authInterceptor])` to the `provideHttpClient()` function.
+
+## Implement Security Matrix tab functionality
+
+### Issue
+The user requested the full implementation of the 'Matriz de Permisos' tab in the Security module to bulk update permissions. The previous implementation triggered a database call individually for each checkbox change which wasn't efficient or user-friendly.
+
+### Changes
+- Updated Database SP `sp_GestionarPermisos` by creating `update_sp_permisos.sql` adding `@Accion='BULK_UPDATE'` and parsing `@JsonData` using `OPENJSON` and `MERGE` to perform mass update/inserts efficiently in one transaction.
+- Temporary C# DB Patch: Included a temporary endpoint `[HttpGet("patch-db")]` in `SeguridadController` to apply the SP modification using `ExecuteSqlRawAsync` and removed it.
+- Backend: Updated `SeguridadController`'s `GuardarPermisos` POST method to serialize the list of objects into JSON strings and pass it using `SqlParameter` resolving the user's bulk request efficiently.
+- Frontend Component: Refactored `seguridad.component.ts` adding a boolean tracking unsaved states `hasUnsavedChanges`, modifying `marcarComoModificado()` to detect when the user edits matrices without triggering api calls.
+- Frontend HTML: Rebuilt the Permisos table block in `seguridad.component.html`. Swapped individual Api pushes `(change)="actualizarPermiso(permiso)"` per checkbox to track unsaved states instead `(change)="marcarComoModificado()"`. Inserted a new 'Guardar Cambios' button that correctly pushes the complete modified Array back to the Backend.

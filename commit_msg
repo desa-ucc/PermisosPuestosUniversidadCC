@@ -1,7 +1,6 @@
-Implement Security Roles tab functionality
+Implement bulk Security Permissions Matrix functionality
 
-- Backend: Rewrote `SeguridadController` to include robust try-catch blocks and explicit `SqlParameter` handling with `@Accion` for `sp_GestionarRoles` integration.
-- Frontend Service: Merged `seguridad.service.ts` into `permission.service.ts` to centralize all security endpoints and implemented `loadRoles()` method.
-- Frontend Component: Refactored `seguridad.component.ts` to consume `PermissionService`, populate roles properly and auto-refresh the list after changes.
-- Frontend HTML: Rebuilt the Roles table in `seguridad.component.html` adhering to the standard UI filter pattern.
-- Cleanup: Removed redundant `seguridad.service.ts` file.
+- Database: Upgraded `sp_GestionarPermisos` adding `BULK_UPDATE` using `OPENJSON` and `MERGE` to apply JSON arrays in one transaction.
+- Backend: Rewrote `SeguridadController`'s `GuardarPermisos` endpoint to serialize the permissions list to JSON for the new SP logic.
+- Frontend Component: Added `hasUnsavedChanges` state in `seguridad.component.ts` to track local modifications without triggering API calls per checkbox.
+- Frontend HTML: Replaced individual `actualizarPermiso` calls in `seguridad.component.html` checkboxes with local state tracking. Added a bulk 'Guardar Cambios' button to submit the full array.
