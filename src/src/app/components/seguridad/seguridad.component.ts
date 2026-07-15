@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PermissionService, Usuario } from '../../services/permission.service';
+import { PermissionService, Usuario, Rol } from '../../services/permission.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { SeguridadService } from '../../services/seguridad.service';
 
@@ -15,8 +15,8 @@ export class SeguridadComponent implements OnInit {
   activeTab: 'roles' | 'usuarios' | 'permisos' = 'roles';
 
   // Data
-  roles: any[] = [];
-  rolesFiltrados: any[] = [];
+  roles: Rol[] = [];
+  rolesFiltrados: Rol[] = [];
   filtrosRoles = { nombre: '' };
 
   usuarios: Usuario[] = [];
@@ -73,12 +73,14 @@ export class SeguridadComponent implements OnInit {
 
   // --- ROLES ---
   cargarRoles() {
-    this.permissionService.getAllRoles().subscribe(res => {
-      this.roles = res;
-      if (!this.roles || this.roles.length === 0) {
-        console.log('Roles API returned empty data:', res);
+    this.permissionService.getAllRoles().subscribe({
+      next: (res: Rol[]) => {
+        this.roles = res || [];
+        this.aplicarFiltrosRoles();
+      },
+      error: (err) => {
+        console.error('Error cargando roles:', err);
       }
-      this.aplicarFiltrosRoles();
     });
   }
 
@@ -116,12 +118,12 @@ export class SeguridadComponent implements OnInit {
     if (this.rolForm.invalid) return;
 
     if (this.isEditMode && this.selectedId) {
-      this.seguridadService.updateRol(this.selectedId, this.rolForm.value).subscribe(() => {
+      this.permissionService.updateRol(this.selectedId, this.rolForm.value).subscribe(() => {
         this.cargarRoles();
         this.cerrarModalRol();
       });
     } else {
-      this.seguridadService.createRol(this.rolForm.value).subscribe(() => {
+      this.permissionService.createRol(this.rolForm.value).subscribe(() => {
         this.cargarRoles();
         this.cerrarModalRol();
       });
@@ -130,7 +132,7 @@ export class SeguridadComponent implements OnInit {
 
   eliminarRol(id: number) {
     if (confirm('¿Está seguro de eliminar este rol?')) {
-      this.seguridadService.deleteRol(id).subscribe(() => this.cargarRoles());
+      this.permissionService.deleteRol(id).subscribe(() => this.cargarRoles());
     }
   }
 

@@ -22,37 +22,71 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
-            return Ok(roles);
+            try
+            {
+                var roles = await _context.Roles
+                    .FromSqlRaw("EXEC sp_GestionarRoles @Accion", new SqlParameter("@Accion", "SELECT"))
+                    .ToListAsync();
+                return Ok(roles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error al cargar los roles.", error = ex.Message });
+            }
         }
 
         [HttpPost("roles")]
         public async Task<IActionResult> CreateRol([FromBody] Rol rol)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='INSERT', @Nombre=@Nombre, @Descripcion=@Descripcion",
-                new SqlParameter("@Nombre", rol.Nombre),
-                new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
-            return Ok(new { message = "Rol creado exitosamente" });
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_GestionarRoles @Accion, @Nombre=@Nombre, @Descripcion=@Descripcion",
+                    new SqlParameter("@Accion", "INSERT"),
+                    new SqlParameter("@Nombre", rol.Nombre),
+                    new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
+                return Ok(new { message = "Rol creado exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error al crear el rol.", error = ex.Message });
+            }
         }
 
         [HttpPut("roles/{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] Rol rol)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='UPDATE', @Id=@Id, @Nombre=@Nombre, @Descripcion=@Descripcion",
-                new SqlParameter("@Id", id),
-                new SqlParameter("@Nombre", rol.Nombre),
-                new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
-            return Ok(new { message = "Rol actualizado exitosamente" });
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_GestionarRoles @Accion, @Id=@Id, @Nombre=@Nombre, @Descripcion=@Descripcion",
+                    new SqlParameter("@Accion", "UPDATE"),
+                    new SqlParameter("@Id", id),
+                    new SqlParameter("@Nombre", rol.Nombre),
+                    new SqlParameter("@Descripcion", rol.Descripcion ?? (object)DBNull.Value));
+                return Ok(new { message = "Rol actualizado exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error al actualizar el rol.", error = ex.Message });
+            }
         }
 
         [HttpDelete("roles/{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarRoles @Accion='DELETE', @Id=@Id", new SqlParameter("@Id", id));
-            return Ok(new { message = "Rol eliminado exitosamente" });
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_GestionarRoles @Accion, @Id=@Id",
+                    new SqlParameter("@Accion", "DELETE"),
+                    new SqlParameter("@Id", id));
+                return Ok(new { message = "Rol eliminado exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ocurrió un error al eliminar el rol.", error = ex.Message });
+            }
         }
 
         [HttpGet("usuarios")]

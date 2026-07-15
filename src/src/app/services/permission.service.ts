@@ -4,6 +4,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 const environment = { apiUrl: 'http://localhost:5000/api' };
 
+export interface Rol {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+}
+
 export interface Usuario {
   id: number;
   nombreUsuario: string;
@@ -91,8 +97,20 @@ export class PermissionService {
   }
 
   // Métodos CRUD para administrar la seguridad (usados por el SeguridadComponent)
-  getAllRoles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/seguridad/roles`);
+  getAllRoles(): Observable<Rol[]> {
+    return this.http.get<Rol[]>(`${this.apiUrl}/seguridad/roles`);
+  }
+
+  createRol(rol: Rol): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seguridad/roles`, rol);
+  }
+
+  updateRol(id: number, rol: Rol): Observable<any> {
+    return this.http.put(`${this.apiUrl}/seguridad/roles/${id}`, rol);
+  }
+
+  deleteRol(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/seguridad/roles/${id}`);
   }
 
   getUsuarios(): Observable<Usuario[]> {
