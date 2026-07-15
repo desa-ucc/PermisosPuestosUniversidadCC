@@ -72,3 +72,13 @@ The user requested the full implementation of the 'Matriz de Permisos' tab in th
 - Backend: Updated `SeguridadController`'s `GuardarPermisos` POST method to serialize the list of objects into JSON strings and pass it using `SqlParameter` resolving the user's bulk request efficiently.
 - Frontend Component: Refactored `seguridad.component.ts` adding a boolean tracking unsaved states `hasUnsavedChanges`, modifying `marcarComoModificado()` to detect when the user edits matrices without triggering api calls.
 - Frontend HTML: Rebuilt the Permisos table block in `seguridad.component.html`. Swapped individual Api pushes `(change)="actualizarPermiso(permiso)"` per checkbox to track unsaved states instead `(change)="marcarComoModificado()"`. Inserted a new 'Guardar Cambios' button that correctly pushes the complete modified Array back to the Backend.
+
+## Fix Backend SQL Parameter Mismatch for Permisos SP
+
+### Issue
+The user encountered a server crash calling the SP `sp_GestionarPermisos` returning the error `@RolId is not a parameter for procedure sp_GestionarPermisos`. The backend was explicitly mapping `@RolId` via inline strings, but the SP defined the parameter as `@RoleId`.
+
+### Changes
+- Corrected the inline string mappings to map sequentially rather than individually named assignments, satisfying EF Core `FromSqlRaw` syntax requirements.
+- Changed the mapped `SqlParameter` objects in `SeguridadController` to explicitly use `@RoleId` to match the exact definition of `sp_GestionarPermisos`.
+- Handled the `DBNull.Value` assignment requirement when casting optional parameters mapping in the C# payload.

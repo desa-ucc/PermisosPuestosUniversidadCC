@@ -188,7 +188,11 @@ namespace PermisosPuestosApi.Controllers
             try
             {
                  var permisos = await _context.Permisos.FromSqlRaw(
-                    "EXEC sp_GestionarPermisos @Accion='SELECT', @RolId=@RolId", new SqlParameter("@RolId", rolId)).ToListAsync();
+                    "EXEC sp_GestionarPermisos @Accion, @Id, @RoleId",
+                    new SqlParameter("@Accion", "SELECT"),
+                    new SqlParameter("@Id", DBNull.Value),
+                    new SqlParameter("@RoleId", (object)rolId ?? DBNull.Value)
+                ).ToListAsync();
                 return Ok(permisos);
             }
              catch (Exception ex)
@@ -203,9 +207,11 @@ namespace PermisosPuestosApi.Controllers
             try
             {
                  await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarPermisos @Accion='UPDATE', @RolId=@RolId, @PantallaId=@PantallaId, @PuedeCrear=@PuedeCrear, @PuedeEditar=@PuedeEditar, @PuedeEliminar=@PuedeEliminar, @PuedeVer=@PuedeVer",
-                    new SqlParameter("@RolId", permiso.RoleId),
-                    new SqlParameter("@PantallaId", permiso.PantallaId),
+                    "EXEC sp_GestionarPermisos @Accion, @Id, @RoleId, @PantallaId, @PuedeCrear, @PuedeEditar, @PuedeEliminar, @PuedeVer",
+                    new SqlParameter("@Accion", "UPDATE"),
+                    new SqlParameter("@Id", DBNull.Value),
+                    new SqlParameter("@RoleId", (object)permiso.RoleId ?? DBNull.Value),
+                    new SqlParameter("@PantallaId", permiso.PantallaId ?? (object)DBNull.Value),
                     new SqlParameter("@PuedeCrear", permiso.PuedeCrear),
                     new SqlParameter("@PuedeEditar", permiso.PuedeEditar),
                     new SqlParameter("@PuedeEliminar", permiso.PuedeEliminar),
