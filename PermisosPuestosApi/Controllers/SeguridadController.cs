@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using PermisosPuestosApi.Data;
 using PermisosPuestosApi.Models;
 using System.Text.Json;
+using System.Data;
 
 namespace PermisosPuestosApi.Controllers
 {
@@ -107,65 +108,82 @@ namespace PermisosPuestosApi.Controllers
             }
         }
 
-        // --- USUARIOS ---
-        [HttpGet("usuarios")]
-        public async Task<IActionResult> GetUsuarios()
+    [HttpGet("usuarios")]
+    public async Task<IActionResult> GetUsuarios()
+    {
+        try
         {
-            try
+            var usuarios = new List<UsuarioListDto>(); // Usa el nuevo DTO
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
             {
-                var usuarios = await _context.UsuariosDto.FromSqlRaw(
-                    "EXEC sp_GestionarUsuarios @Accion",
-                    new SqlParameter("@Accion", "SELECT")
-                ).ToListAsync();
-                return Ok(usuarios);
+                command.CommandText = "EXEC sp_GestionarUsuarios @Accion='SELECT'";
+                await _context.Database.OpenConnectionAsync();
+                
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        usuarios.Add(new UsuarioListDto // Instancia el nuevo DTO
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            NombreUsuario = reader.GetString(reader.GetOrdinal("NombreUsuario")),
+                            Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? "" : reader.GetString(reader.GetOrdinal("Email")),
+                            NombreRol = reader.GetString(reader.GetOrdinal("NombreRol")),
+                            RolId = reader.GetInt32(reader.GetOrdinal("RolId")),
+                            Activo = reader.GetBoolean(reader.GetOrdinal("Activo"))
+                        });
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                 return StatusCode(500, new { message = "Error al obtener los usuarios", error = ex.Message });
-            }
+            return Ok(usuarios);
         }
-
-        [HttpPost("usuarios")]
-        public async Task<IActionResult> CreateUsuario([FromBody] Usuario usuario)
+        catch (Exception ex)
         {
-            try
-            {
-                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarUsuarios @Accion='INSERT', @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
-                    new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
-                    new SqlParameter("@PasswordHash", usuario.PasswordHash),
-                    new SqlParameter("@Email", usuario.Email),
-                    new SqlParameter("@RolId", usuario.RolId),
-                    new SqlParameter("@Activo", usuario.Activo));
-                return Ok(new { message = "Usuario creado exitosamente" });
-            }
-             catch (Exception ex)
-            {
-                 return StatusCode(500, new { message = "Error al crear el usuario", error = ex.Message });
-            }
+            return StatusCode(500, new { message = "Error al obtener usuarios", error = ex.Message });
         }
+    }
 
-        [HttpPut("usuarios/{id}")]
-        public async Task<IActionResult> UpdateUsuario(int id, [FromBody] Usuario usuario)
+    [HttpPost("usuarios")]
+    public async Task<IActionResult> CreateUsuario([FromBody] UsuarioCreateDto usuario)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState); // Esto te dirá qué campo falta
+
+        try
         {
-            try
-            {
-                await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarUsuarios @Accion='UPDATE', @Id=@Id, @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
-                    new SqlParameter("@Id", id),
-                    new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
-                    new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
-                    new SqlParameter("@Email", usuario.Email),
-                    new SqlParameter("@RolId", usuario.RolId),
-                    new SqlParameter("@Activo", usuario.Activo));
-                return Ok(new { message = "Usuario actualizado exitosamente" });
-            }
-             catch (Exception ex)
-            {
-                 return StatusCode(500, new { message = "Error al actualizar el usuario", error = ex.Message });
-            }
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarUsuarios @Accion='INSERT', @Nombre=@Nombre, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId",
+                new SqlParameter("@Nombre", usuario.NombreUsuario),
+                new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
+                new SqlParameter("@Email", usuario.Email),
+                new SqlParameter("@RolId", usuario.RolId)
+            );
+            return Ok(new { message = "Usuario creado exitosamente" });
         }
-
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al crear", error = ex.Message });
+        }
+    }
+    [HttpPut("usuarios/{id}")]
+    public async Task<IActionResult> UpdateUsuario(int id, [FromBody] Usuario usuario)
+    {
+        try
+        {
+            // Asegúrate de que los nombres aquí también coincidan con el SP
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarUsuarios @Accion='UPDATE', @Id=@Id, @Nombre=@Nombre, @Email=@Email, @RolId=@RolId",
+                new SqlParameter("@Id", id),
+                new SqlParameter("@Nombre", usuario.NombreUsuario),
+                new SqlParameter("@Email", usuario.Email),
+                new SqlParameter("@RolId", usuario.RolId)
+            );
+            return Ok(new { message = "Usuario actualizado exitosamente" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error al actualizar el usuario", error = ex.Message });
+        }
+    }
         [HttpDelete("usuarios/{id}")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {

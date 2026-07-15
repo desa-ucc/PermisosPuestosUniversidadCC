@@ -14,7 +14,7 @@ namespace PermisosPuestosApi.Models
     }
 
     [Table("pt_Usuarios")]
-    public class Usuario
+   public class Usuario
     {
         [Key] public int Id { get; set; }
         public string NombreUsuario { get; set; } = string.Empty;
@@ -61,7 +61,6 @@ namespace PermisosPuestosApi.Models
     public int? TipoHardwareId { get; set; }
     public string TipoEquipo { get; set; } = string.Empty;
     
-    // Cambiamos a 'string?' para permitir que el JSON envíe null
     public string? Procesador { get; set; } 
     public string? Memoria { get; set; }
     public string? Disco { get; set; }
@@ -130,6 +129,25 @@ namespace PermisosPuestosApi.Models
         public string PasswordHash { get; set; } = string.Empty;
         public string NombreRol { get; set; } = string.Empty;
         public int RolId { get; set; }
+    }
+
+    public class UsuarioListDto 
+    {
+        public int Id { get; set; }
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty; 
+        public string NombreRol { get; set; } = string.Empty;
+        public int RolId { get; set; }
+        public bool Activo { get; set; }
+    }
+
+    public class UsuarioCreateDto
+    {
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int RolId { get; set; }
+        public bool Activo { get; set; }
     }
 
     public class EmpleadoDto
