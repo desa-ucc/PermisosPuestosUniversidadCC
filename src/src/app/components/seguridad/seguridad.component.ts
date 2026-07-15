@@ -67,6 +67,8 @@ export class SeguridadComponent implements OnInit {
 
   setTab(tab: 'roles' | 'usuarios' | 'permisos') {
     this.activeTab = tab;
+    if (tab === 'roles') this.cargarRoles();
+    if (tab === 'usuarios') this.cargarUsuarios();
   }
 
   // --- ROLES ---
@@ -177,6 +179,7 @@ export class SeguridadComponent implements OnInit {
 
   cerrarModalUsuario() {
     this.isUsuarioModalOpen = false;
+    this.usuarioForm.reset();
   }
 
   guardarUsuario() {

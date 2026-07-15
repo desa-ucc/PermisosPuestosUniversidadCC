@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +24,7 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion='SELECT'").ToListAsync();
+            var roles = await _context.Roles.FromSqlRaw("EXEC sp_GestionarRoles @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
             return Ok(roles);
         }
 
@@ -58,42 +60,62 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("usuarios")]
         public async Task<IActionResult> GetUsuarios()
         {
-            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion='SELECT'").ToListAsync();
+            var usuarios = await _context.UsuariosDto.FromSqlRaw("EXEC sp_GestionarUsuarios @Accion", new SqlParameter("@Accion", "SELECT")).ToListAsync();
             return Ok(usuarios);
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
+        }
+
+        private async Task EjecutarSpUsuario(string accion, Usuario usuario, int? id = null)
+        {
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@Accion", accion),
+                new SqlParameter("@Id", id ?? (object)DBNull.Value),
+                new SqlParameter("@Nombre", usuario.NombreUsuario ?? (object)DBNull.Value),
+                new SqlParameter("@Email", usuario.Email ?? (object)DBNull.Value),
+                new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
+                new SqlParameter("@RolId", usuario.RolId == 0 ? (object)DBNull.Value : usuario.RolId)
+            };
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarUsuarios @Accion, @Id, @Nombre, @Email, @PasswordHash, @RolId",
+                parameters.ToArray());
         }
 
         [HttpPost("usuarios")]
         public async Task<IActionResult> CreateUsuario([FromBody] Usuario usuario)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='INSERT', @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
-                new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
-                new SqlParameter("@PasswordHash", usuario.PasswordHash),
-                new SqlParameter("@Email", usuario.Email),
-                new SqlParameter("@RolId", usuario.RolId),
-                new SqlParameter("@Activo", usuario.Activo));
+            if (!string.IsNullOrEmpty(usuario.PasswordHash))
+            {
+                usuario.PasswordHash = HashPassword(usuario.PasswordHash);
+            }
+            await EjecutarSpUsuario("INSERT", usuario);
             return Ok(new { message = "Usuario creado exitosamente" });
         }
 
         [HttpPut("usuarios/{id}")]
         public async Task<IActionResult> UpdateUsuario(int id, [FromBody] Usuario usuario)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='UPDATE', @Id=@Id, @NombreUsuario=@NombreUsuario, @PasswordHash=@PasswordHash, @Email=@Email, @RolId=@RolId, @Activo=@Activo",
-                new SqlParameter("@Id", id),
-                new SqlParameter("@NombreUsuario", usuario.NombreUsuario),
-                new SqlParameter("@PasswordHash", usuario.PasswordHash ?? (object)DBNull.Value),
-                new SqlParameter("@Email", usuario.Email),
-                new SqlParameter("@RolId", usuario.RolId),
-                new SqlParameter("@Activo", usuario.Activo));
+            if (!string.IsNullOrEmpty(usuario.PasswordHash))
+            {
+                usuario.PasswordHash = HashPassword(usuario.PasswordHash);
+            }
+            await EjecutarSpUsuario("UPDATE", usuario, id);
             return Ok(new { message = "Usuario actualizado exitosamente" });
         }
 
         [HttpDelete("usuarios/{id}")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarUsuarios @Accion='DELETE', @Id=@Id", new SqlParameter("@Id", id));
+            await EjecutarSpUsuario("DELETE", new Usuario(), id);
             return Ok(new { message = "Usuario eliminado exitosamente" });
         }
 

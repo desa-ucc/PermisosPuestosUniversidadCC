@@ -1,0 +1,4 @@
+Update Hardware layout grid to Flex and add table N/A fallbacks
+
+- Changed form grid layouts to `flex flex-wrap gap-4` and appended `flex-1 min-w-[250px]` with transition-all wrappers for form child elements in Hardware Ideal and Hardware components. This naturally handles resizing and spacing gracefully when conditionally hiding PC-specific fields.
+- Appended `|| 'N/A'` fallbacks in Hardware Ideal components Table loop display to prevent empty columns which appear as missing attributes.

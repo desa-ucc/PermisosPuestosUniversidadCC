@@ -17,8 +17,8 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
       <section class="ucc-card mb-8">
 <div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Hardware' : (isEditing ? 'Editar Hardware' : 'Registrar Hardware') }}</h3></div>
 <form [formGroup]="hwForm" (ngSubmit)="onSubmit()" >
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="flex flex-col">
+        <div class="flex flex-wrap gap-4">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Seleccione Opción</label>
 <div class="relative">
               <input type="text"
@@ -52,7 +52,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
             <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
           </div>
 
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Equipo (Tipo ej. Laptop)</label>
 <select formControlName="tipoHardwareId" class="ucc-input" (change)="onTipoHardwareChangeSelect($event)">
               <option value="" disabled selected>Seleccione un tipo</option>
@@ -66,7 +66,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           </div>
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Procesador</label>
 <input formControlName="procesador" placeholder="Procesador" class="ucc-input">
             @if(hwForm.get('procesador')?.invalid && hwForm.get('procesador')?.touched) {
@@ -76,7 +76,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Memoria RAM</label>
 <input formControlName="memoria" placeholder="Memoria RAM" class="ucc-input">
             @if(hwForm.get('memoria')?.invalid && hwForm.get('memoria')?.touched) {
@@ -86,7 +86,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Disco Duro</label>
 <input formControlName="disco" placeholder="Disco Duro" class="ucc-input">
             @if(hwForm.get('disco')?.invalid && hwForm.get('disco')?.touched) {
@@ -96,7 +96,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           }
 
           @if(isPC) {
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Marca de PC</label>
 <input formControlName="marcaPC" placeholder="Marca de PC" class="ucc-input">
             @if(hwForm.get('marcaPC')?.invalid && hwForm.get('marcaPC')?.touched) {
@@ -105,7 +105,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           </div>
           }
 
-          <div class="flex flex-col">
+          <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Placa de Activo</label>
 <input formControlName="placa" placeholder="Placa de Activo" class="ucc-input">
             @if(hwForm.get('placa')?.invalid && hwForm.get('placa')?.touched) {
@@ -114,7 +114,7 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           </div>
 
 
-          <div class="flex flex-col lg:col-span-3">
+          <div class="flex flex-col w-full transition-all duration-300">
             <label class="ucc-label">Otras Consideraciones</label>
 <input formControlName="otrasConsideraciones" placeholder="Otras Consideraciones" class="ucc-input">
           </div>
@@ -239,7 +239,7 @@ export class HardwareComponent implements OnInit {
     const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
     if (!tipo) return false;
     const nombre = tipo.nombre.toLowerCase();
-    return nombre.includes('laptop') || nombre.includes('desktop');
+    return nombre.includes('laptop') || nombre.includes('desktop') || nombre.includes('computadora');
   }
 
   onTipoHardwareChangeSelect(event: Event) {
