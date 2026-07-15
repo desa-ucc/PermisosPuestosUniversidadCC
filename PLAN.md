@@ -49,3 +49,14 @@ The user requested the full implementation of the 'Roles' tab in the Security mo
 - Frontend Component: Refactored `seguridad.component.ts` to consume `PermissionService`, populate roles properly and auto-refresh the list after changes.
 - Frontend HTML: Rebuilt the Roles table in `seguridad.component.html` adhering to the standard UI filter pattern.
 - Cleanup: Removed redundant `seguridad.service.ts` file.
+
+## Implement Angular AuthInterceptor for JWT handling
+
+### Issue
+The user experienced 401 Unauthorized errors in the frontend (`/api/seguridad/usuarios`) when accessing endpoints protected by `[Authorize]` in the .NET backend. The frontend was missing an HTTP interceptor to automatically attach the JWT token stored in `localStorage` to outgoing requests.
+
+### Changes
+- Created an Angular functional interceptor `auth.interceptor.ts`.
+- The interceptor extracts the `token` from `localStorage` and appends it to the HTTP headers as `Authorization: Bearer <token>`.
+- Included a `catchError` handler: If the backend returns a 401 status (e.g., token expired or invalid), the interceptor automatically clears the `localStorage` session variables (`token`, `role`, `permisos`) and redirects the user to the `/login` route using the `Router`.
+- Registered the `authInterceptor` globally in `app.config.ts` by appending `withInterceptors([authInterceptor])` to the `provideHttpClient()` function.
