@@ -229,14 +229,9 @@ export class SitiosComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
   aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+    if(!this.permisosSitios) return;
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
-
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
+    this.listaFiltradaTabla = this.permisosSitios.filter((item: any) => {
       let matches = true;
       for (const key in this.filtros) {
         if (this.filtros[key]) {
@@ -248,45 +243,6 @@ export class SitiosComponent implements OnInit {
       }
       return matches;
     });
-
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
-  filtros: any = {};
-  filterConfig: FilterColumn[] = [];
-
-  onFiltersChanged(newFilters: any) {
-    this.filtros = newFilters;
-    this.aplicarFiltros();
-  }
-
-  updateFilterConfig() {
-    this.filterConfig = [
-      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
-      { field: 'nombreCompleto', placeholder: 'Persona', type: 'select', options: this.empleados, optionValueKey: 'nombreCompleto', optionLabelKey: 'nombreCompleto' },
-      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' },
-      { field: 'sitio', placeholder: 'Sitio', type: 'select', options: this.sitiosCat, optionValueKey: 'nombre', optionLabelKey: 'nombre' },
-      { field: 'ambiente', placeholder: 'Ambiente', type: 'select', options: this.ambientes, optionValueKey: 'nombre', optionLabelKey: 'nombre' },
-      { field: 'gruposPermisos', placeholder: 'Grupos/Permisos', type: 'text' }
-    ];
-  }
-
-  // Filtros de Tabla
-  filtroCodigoPuesto: string = '';
-  filtroPersona: string = '';
-  filtroPuesto: string = '';
-  filtroSitio: string = '';
-  filtroAmbiente: string = '';
-  filtroGrupos: string = '';
-
-
-
-  limpiarFiltrosTabla() {
-    this.filtroCodigoPuesto = '';
-    this.filtroPersona = '';
-    this.filtroPuesto = '';
-    this.filtroSitio = '';
-    this.filtroAmbiente = '';
-    this.filtroGrupos = '';
     this.currentPage = 1;
   }
 
@@ -449,7 +405,10 @@ export class SitiosComponent implements OnInit {
   }
 
   loadData() {
-    this.api.getPermisosSitios().subscribe(res => this.permisosSitios = res);
+    this.api.getPermisosSitios().subscribe(res => {
+      this.permisosSitios = res;
+      this.listaFiltradaTabla = [...this.permisosSitios];
+    });
     this.api.getEmpleados().subscribe(res => this.empleados = res);
     this.api.getPuestos().subscribe(res => this.puestos = res);
     this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);

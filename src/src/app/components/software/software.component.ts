@@ -200,14 +200,9 @@ export class SoftwareComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
   aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+    if(!this.softwareList) return;
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
-
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
+    this.listaFiltradaTabla = this.softwareList.filter((item: any) => {
       let matches = true;
       for (const key in this.filtros) {
         if (this.filtros[key]) {
@@ -219,47 +214,6 @@ export class SoftwareComponent implements OnInit {
       }
       return matches;
     });
-
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
-  filtros: any = {};
-  filterConfig: FilterColumn[] = [];
-
-  onFiltersChanged(newFilters: any) {
-    this.filtros = newFilters;
-    this.aplicarFiltros();
-  }
-
-  updateFilterConfig() {
-    this.filterConfig = [
-      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
-      { field: 'nombreCompleto', placeholder: 'Persona', type: 'select', options: this.empleados, optionValueKey: 'nombreCompleto', optionLabelKey: 'nombreCompleto' },
-      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' },
-      { field: 'equipo', placeholder: 'Equipo', type: 'text' },
-      { field: 'gruposAD', placeholder: 'Grupos AD', type: 'text' },
-      { field: 'nombreSoftware', placeholder: 'Software', type: 'text' },
-      { field: 'version', placeholder: 'Versión', type: 'text' },
-      { field: 'fabricante', placeholder: 'Fabricante', type: 'text' }
-    ];
-  }
-
-  // Filtros de Tabla
-  filtroCodigoPuesto: string = '';
-  filtroPuesto: string = '';
-  filtroEquipo: string = '';
-  filtroSoftware: string = '';
-  filtroVersion: string = '';
-  filtroFabricante: string = '';
-
-
-
-  limpiarFiltrosTabla() {
-    this.filtroCodigoPuesto = '';
-    this.filtroPuesto = '';
-    this.filtroEquipo = '';
-    this.filtroSoftware = '';
-    this.filtroVersion = '';
-    this.filtroFabricante = '';
     this.currentPage = 1;
   }
 
@@ -356,7 +310,10 @@ export class SoftwareComponent implements OnInit {
   }
 
   loadData() {
-    this.api.getSoftwareLocales().subscribe(res => this.softwareList = res);
+    this.api.getSoftwareLocales().subscribe(res => {
+      this.softwareList = res;
+      this.listaFiltradaTabla = [...this.softwareList];
+    });
     this.api.getHardwareAsignado().subscribe(res => this.equipos = res);
   }
 
