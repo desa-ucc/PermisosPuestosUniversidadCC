@@ -89,6 +89,13 @@ export interface Catalogo {
   nombre: string;
 }
 
+export interface CatalogoNivelAcceso extends Catalogo {
+  puedeVer: boolean;
+  puedeCrear: boolean;
+  puedeEditar: boolean;
+  puedeEliminar: boolean;
+}
+
 export interface ReportePerfil {
   codigoEmpleado: string;
   empleado: string;

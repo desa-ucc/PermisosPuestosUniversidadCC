@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil, ReporteIntegralResponse, AccesoBD } from '../models/models';
+import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, CatalogoNivelAcceso, ReportePerfil, ReporteIntegralResponse, AccesoBD } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -95,7 +95,10 @@ export class ApiService {
   updatePlataformaCat(id: number, data: Partial<Catalogo>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/Plataformas/${id}`, data, { headers: this.getHeaders() }); }
   deletePlataformaCat(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/Plataformas/${id}`, { headers: this.getHeaders() }); }
 
-  getNivelesAcceso(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/NivelesAcceso`, { headers: this.getHeaders() }); }
+  getNivelesAcceso(): Observable<CatalogoNivelAcceso[]> { return this.http.get<CatalogoNivelAcceso[]>(`${this.apiUrl}/Catalogos/NivelesAcceso`, { headers: this.getHeaders() }); }
+  createNivelAcceso(data: Partial<CatalogoNivelAcceso>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/NivelesAcceso`, data, { headers: this.getHeaders() }); }
+  updateNivelAcceso(id: number, data: Partial<CatalogoNivelAcceso>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/NivelesAcceso/${id}`, data, { headers: this.getHeaders() }); }
+  deleteNivelAcceso(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/NivelesAcceso/${id}`, { headers: this.getHeaders() }); }
   getPlataformasNombres(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/PlataformasNombres`, { headers: this.getHeaders() }); }
   getTiposLicencia(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/TiposLicencia`, { headers: this.getHeaders() }); }
 

@@ -184,7 +184,53 @@ namespace PermisosPuestosApi.Controllers
 
         // --- Nuevos Catálogos (Read-Only) ---
         [HttpGet("NivelesAcceso")]
-        public async Task<IActionResult> GetNivelesAcceso() => Ok(await _context.Cat_NivelesAccesos.FromSqlRaw("EXEC sp_GetNivelesAcceso").ToListAsync());
+        public async Task<IActionResult> GetNivelesAcceso()
+        {
+            var pAccion = new SqlParameter("@Accion", "SELECT");
+            var result = await _context.Cat_NivelesAccesos.FromSqlRaw("EXEC sp_GestionarNivelesAcceso @Accion", pAccion).ToListAsync();
+            return Ok(result);
+        }
+
+        [HttpPost("NivelesAcceso")]
+        public async Task<IActionResult> CreateNivelAcceso([FromBody] Cat_NivelesAcceso n)
+        {
+            var pAccion = new SqlParameter("@Accion", "INSERT");
+            var pNombre = new SqlParameter("@Nombre", n.Nombre);
+            var pPuedeVer = new SqlParameter("@PuedeVer", n.PuedeVer);
+            var pPuedeCrear = new SqlParameter("@PuedeCrear", n.PuedeCrear);
+            var pPuedeEditar = new SqlParameter("@PuedeEditar", n.PuedeEditar);
+            var pPuedeEliminar = new SqlParameter("@PuedeEliminar", n.PuedeEliminar);
+
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, NULL, @Nombre, @PuedeVer, @PuedeCrear, @PuedeEditar, @PuedeEliminar",
+                pAccion, pNombre, pPuedeVer, pPuedeCrear, pPuedeEditar, pPuedeEliminar);
+            return Ok();
+        }
+
+        [HttpPut("NivelesAcceso/{id}")]
+        public async Task<IActionResult> UpdateNivelAcceso(int id, [FromBody] Cat_NivelesAcceso n)
+        {
+            if (id != n.Id) return BadRequest();
+            var pAccion = new SqlParameter("@Accion", "UPDATE");
+            var pId = new SqlParameter("@Id", id);
+            var pNombre = new SqlParameter("@Nombre", n.Nombre);
+            var pPuedeVer = new SqlParameter("@PuedeVer", n.PuedeVer);
+            var pPuedeCrear = new SqlParameter("@PuedeCrear", n.PuedeCrear);
+            var pPuedeEditar = new SqlParameter("@PuedeEditar", n.PuedeEditar);
+            var pPuedeEliminar = new SqlParameter("@PuedeEliminar", n.PuedeEliminar);
+
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, @Id, @Nombre, @PuedeVer, @PuedeCrear, @PuedeEditar, @PuedeEliminar",
+                pAccion, pId, pNombre, pPuedeVer, pPuedeCrear, pPuedeEditar, pPuedeEliminar);
+            return NoContent();
+        }
+
+        [HttpDelete("NivelesAcceso/{id}")]
+        public async Task<IActionResult> DeleteNivelAcceso(int id)
+        {
+            var pAccion = new SqlParameter("@Accion", "DELETE");
+            var pId = new SqlParameter("@Id", id);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, @Id", pAccion, pId);
+            return NoContent();
+        }
 
         [HttpGet("PlataformasNombres")]
         public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("EXEC sp_GetPlataformasNombres").ToListAsync());

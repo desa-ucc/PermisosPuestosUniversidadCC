@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { PermissionService } from '../../services/permission.service';
-import { AccesoBD, Empleado, Puesto, Catalogo } from '../../models/models';
+import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../../models/models';
 
 @Component({
   selector: 'app-base-datos',
@@ -160,7 +160,7 @@ import { AccesoBD, Empleado, Puesto, Catalogo } from '../../models/models';
                   <button (click)="edit(acbd)" *appPermiso="{pantalla: 'ADMINBASEDATOS', accion: 'EDITAR'}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition-all tooltip-trigger" title="Editar">
                     <span class="material-symbols-outlined text-[20px]">edit</span>
                   </button>
-                  <button (click)="delete(acbd.id)" *appPermiso="{pantalla: 'ADMINBASEDATOS', accion: 'ELIMINAR'}" class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-all tooltip-trigger" title="Eliminar">
+                  <button (click)="delete(acbd.id, acbd.nivelAcceso)" *appPermiso="{pantalla: 'ADMINBASEDATOS', accion: 'ELIMINAR'}" [disabled]="!puedeEliminarNivel(acbd.nivelAcceso)" [ngClass]="puedeEliminarNivel(acbd.nivelAcceso) ? 'text-red-600 hover:bg-red-50' : 'text-gray-400 cursor-not-allowed opacity-50'" class="p-2 rounded-full transition-all tooltip-trigger" title="Eliminar">
                     <span class="material-symbols-outlined text-[20px]">delete</span>
                   </button>
                 </div>
@@ -205,6 +205,17 @@ import { AccesoBD, Empleado, Puesto, Catalogo } from '../../models/models';
   `
 })
 export class BaseDatosComponent implements OnInit {
+
+  puedeEliminarNivel(nivelNombre: string): boolean {
+    const nivel = this.nivelesAcceso.find(n => n.nombre === nivelNombre);
+    return nivel ? nivel.puedeEliminar : false;
+  }
+
+  puedeEditarNivel(nivelNombre: string): boolean {
+    const nivel = this.nivelesAcceso.find(n => n.nombre === nivelNombre);
+    return nivel ? nivel.puedeEditar : false;
+  }
+
   Math = Math;
   accesosBD: AccesoBD[] = [];
   listaFiltradaTabla: AccesoBD[] = [];
@@ -290,7 +301,7 @@ export class BaseDatosComponent implements OnInit {
   get nivelesFiltrados() {
     return this.nivelesAcceso.filter(n => n.nombre.toLowerCase().includes(this.searchTermNiveles.toLowerCase()));
   }
-  seleccionarNivel(nivel: Catalogo | null) {
+  seleccionarNivel(nivel: CatalogoNivelAcceso | null) {
     if (nivel) {
         this.accesoBDForm.patchValue({ nivelAcceso: nivel.nombre });
         this.searchTermNiveles = nivel.nombre;
@@ -341,7 +352,7 @@ export class BaseDatosComponent implements OnInit {
   }
 
   selectedEmpleadoPuestoId: number | undefined | null = null;
-  nivelesAcceso: Catalogo[] = [];
+  nivelesAcceso: CatalogoNivelAcceso[] = [];
 
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.accesoBDForm = this.fb.group({
@@ -468,7 +479,11 @@ export class BaseDatosComponent implements OnInit {
     this.searchTermNiveles = acbd.nivelAcceso || '';
   }
 
-  delete(id: number) {
+  delete(id: number, nivelNombre: string) {
+    if (!this.puedeEliminarNivel(nivelNombre)) {
+        alert('Acceso denegado: El nivel de acceso actual no permite eliminar este registro.');
+        return;
+    }
     if (!this.permissionService.tienePermiso('ADMINBASEDATOS', 'ELIMINAR')) {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;

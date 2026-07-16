@@ -35,6 +35,10 @@ import { PermissionService } from '../../services/permission.service';
                     <button (click)="setTab('tiposHardware')" [ngClass]="activeTab === 'tiposHardware' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">devices</span> Tipos de Hardware
                     </button>
+                    <button (click)="setTab('nivelesAcceso')" [ngClass]="activeTab === 'nivelesAcceso' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                        <span>Niveles de Acceso</span>
+                    </button>
                     <button (click)="setTab('plataformas')" [ngClass]="activeTab === 'plataformas' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">cloud_done</span> Plataformas
                     </button>
@@ -196,10 +200,11 @@ import { PermissionService } from '../../services/permission.service';
   `
 })
 export class CatalogosComponent implements OnInit {
-  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' = 'ambientes';
+  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' = 'ambientes';
 
   ambientesList: Catalogo[] = [];
   tiposHardwareList: Catalogo[] = [];
+  nivelesAccesoList: any[] = [];
   sitiosList: Catalogo[] = [];
   plataformasList: Catalogo[] = [];
 
@@ -209,7 +214,11 @@ export class CatalogosComponent implements OnInit {
 
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.catForm = this.fb.group({
-      nombre: ['', Validators.required]
+      nombre: ['', Validators.required],
+      puedeVer: [true],
+      puedeCrear: [false],
+      puedeEditar: [false],
+      puedeEliminar: [false]
     });
   }
 
@@ -218,6 +227,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'sitios') return this.sitiosList;
     if (this.activeTab === 'plataformas') return this.plataformasList;
     if (this.activeTab === 'tiposHardware') return this.tiposHardwareList;
+    if (this.activeTab === 'nivelesAcceso') return this.nivelesAccesoList;
     return [];
   }
 
@@ -225,7 +235,7 @@ export class CatalogosComponent implements OnInit {
     this.loadAllData();
   }
 
-  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware') {
+  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso') {
     this.activeTab = tab;
     this.catForm.reset();
     this.editingId = null;
@@ -235,6 +245,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'ambientes') return 'Ambiente';
     if (this.activeTab === 'sitios') return 'Sitio';
     if (this.activeTab === 'tiposHardware') return 'Tipo de Hardware';
+    if (this.activeTab === 'nivelesAcceso') return 'Nivel de Acceso';
     return 'Plataforma';
   }
 
@@ -242,6 +253,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'ambientes') return 'Ambientes';
     if (this.activeTab === 'sitios') return 'Sitios';
     if (this.activeTab === 'tiposHardware') return 'Tipos de Hardware';
+    if (this.activeTab === 'nivelesAcceso') return 'Niveles de Acceso';
     return 'Plataformas';
   }
 
@@ -249,6 +261,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'ambientes') return 'Ej: Producción, Sandbox, QA...';
     if (this.activeTab === 'sitios') return 'Ej: Avatar, Intranet, SharePoint...';
     if (this.activeTab === 'tiposHardware') return 'Ej: Laptop, Desktop...';
+    if (this.activeTab === 'nivelesAcceso') return 'Ej: Administrador, Solo Lectura...';
     return 'Ej: Moodle, O365, AWS...';
   }
 
@@ -256,6 +269,7 @@ export class CatalogosComponent implements OnInit {
     this.api.getAmbientes().subscribe(res => this.ambientesList = res);
     this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
     this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
+    this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
   }
 
@@ -266,6 +280,8 @@ export class CatalogosComponent implements OnInit {
       this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
     } else if (this.activeTab === 'plataformas') {
       this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
+    } else if (this.activeTab === 'nivelesAcceso') {
+      this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     } else if (this.activeTab === 'tiposHardware') {
       this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
     }
@@ -307,10 +323,12 @@ export class CatalogosComponent implements OnInit {
       ? (this.activeTab === 'ambientes' ? this.api.updateAmbiente(this.editingId, data) :
          this.activeTab === 'sitios' ? this.api.updateSitioCat(this.editingId, data) :
          this.activeTab === 'tiposHardware' ? this.api.updateTipoHardware(this.editingId, data) :
+         this.activeTab === 'nivelesAcceso' ? this.api.updateNivelAcceso(this.editingId, data) :
          this.api.updatePlataformaCat(this.editingId, data))
       : (this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
          this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
          this.activeTab === 'tiposHardware' ? this.api.createTipoHardware(data) :
+         this.activeTab === 'nivelesAcceso' ? this.api.createNivelAcceso(data) :
          this.api.createPlataformaCat(data));
 
     request$.subscribe({
@@ -334,6 +352,7 @@ export class CatalogosComponent implements OnInit {
       const request$ = this.activeTab === 'ambientes' ? this.api.deleteAmbiente(id) :
                        this.activeTab === 'sitios' ? this.api.deleteSitioCat(id) :
                        this.activeTab === 'tiposHardware' ? this.api.deleteTipoHardware(id) :
+                       this.activeTab === 'nivelesAcceso' ? this.api.deleteNivelAcceso(id) :
                        this.api.deletePlataformaCat(id);
 
       request$.subscribe({

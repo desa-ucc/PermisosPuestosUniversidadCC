@@ -874,3 +874,54 @@ GO
 INSERT INTO pt_Permisos (RolId, Pantalla, CanRead, CanWrite, CanDelete)
 SELECT Id, 'ADMINBASEDATOS', 1, 1, 1 FROM pt_Roles;
 GO
+
+-- Modificar la tabla de catálogo Cat_NivelesAcceso
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'PuedeVer' AND Object_ID = Object_ID(N'Cat_NivelesAcceso'))
+BEGIN
+    ALTER TABLE Cat_NivelesAcceso ADD PuedeVer BIT NOT NULL DEFAULT 1;
+    ALTER TABLE Cat_NivelesAcceso ADD PuedeCrear BIT NOT NULL DEFAULT 0;
+    ALTER TABLE Cat_NivelesAcceso ADD PuedeEditar BIT NOT NULL DEFAULT 0;
+    ALTER TABLE Cat_NivelesAcceso ADD PuedeEliminar BIT NOT NULL DEFAULT 0;
+END
+GO
+
+-- Crear Procedimiento para gestionar niveles de acceso dinámicos
+CREATE OR ALTER PROCEDURE sp_GestionarNivelesAcceso
+    @Accion NVARCHAR(10),
+    @Id INT = NULL,
+    @Nombre NVARCHAR(100) = NULL,
+    @PuedeVer BIT = NULL,
+    @PuedeCrear BIT = NULL,
+    @PuedeEditar BIT = NULL,
+    @PuedeEliminar BIT = NULL
+AS
+BEGIN
+    IF @Accion = 'SELECT'
+    BEGIN
+        SELECT Id, Nombre, PuedeVer, PuedeCrear, PuedeEditar, PuedeEliminar
+        FROM Cat_NivelesAcceso
+    END
+
+    IF @Accion = 'INSERT'
+    BEGIN
+        INSERT INTO Cat_NivelesAcceso (Nombre, PuedeVer, PuedeCrear, PuedeEditar, PuedeEliminar)
+        VALUES (@Nombre, @PuedeVer, @PuedeCrear, @PuedeEditar, @PuedeEliminar)
+    END
+
+    IF @Accion = 'UPDATE'
+    BEGIN
+        UPDATE Cat_NivelesAcceso
+        SET Nombre = @Nombre,
+            PuedeVer = @PuedeVer,
+            PuedeCrear = @PuedeCrear,
+            PuedeEditar = @PuedeEditar,
+            PuedeEliminar = @PuedeEliminar
+        WHERE Id = @Id
+    END
+
+    IF @Accion = 'DELETE'
+    BEGIN
+        DELETE FROM Cat_NivelesAcceso WHERE Id = @Id
+    END
+END
+GO

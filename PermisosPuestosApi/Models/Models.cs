@@ -187,7 +187,12 @@ namespace PermisosPuestosApi.Models
     public class Cat_Ambiente : CatalogoBase { }
     public class Cat_Sitio : CatalogoBase { }
     public class Cat_Plataforma : CatalogoBase { }
-    public class Cat_NivelesAcceso : CatalogoBase { }
+    public class Cat_NivelesAcceso : CatalogoBase {
+        public bool PuedeVer { get; set; }
+        public bool PuedeCrear { get; set; }
+        public bool PuedeEditar { get; set; }
+        public bool PuedeEliminar { get; set; }
+    }
     public class Cat_PlataformasNombres : CatalogoBase { }
     public class Cat_TiposLicencia : CatalogoBase { }
 
