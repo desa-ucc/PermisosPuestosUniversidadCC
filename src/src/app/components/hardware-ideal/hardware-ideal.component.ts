@@ -156,13 +156,9 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           </tr>
           </thead>
           <tbody>
-            @for(hw of paginatedList; track hw.id) {
+            @for(hw of paginatedList; track hw.Id) {
               <tr>
-                <td>{{hw.codigoPuesto}}</td>
-                <td>{{hw.nombrePuesto || getPuestoName(hw.puestoId)}}</td>
-                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) || 'N/A' }}</td>
-                <td>{{hw.procesador || 'N/A'}}</td>
-                <td>{{hw.memoria || 'N/A'}}</td>
+                <td>{{hw.codigoPuesto}}</td> <td>{{hw.nombrePuesto || getPuestoName(hw.puestoId)}}</td> <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) || 'N/A' }}</td> <td>{{hw.procesador || 'N/A'}}</td> <td>{{hw.memoria || 'N/A'}}</td> <td>
                 <td>
                   <button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
@@ -186,7 +182,6 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
 
         </table>
 
-        <!-- FOOTER PAGINACIÓN DINÁMICA -->
         <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
@@ -210,106 +205,28 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
   `
 })
 export class HardwareIdealComponent implements OnInit {
-  listaFiltradaTabla: any[] = [];
-
-  aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
-
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
-
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
-            matches = false;
-            break;
-          }
-        }
-      }
-      return matches;
-    });
-
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
-  filtros: any = {};
-  filterConfig: FilterColumn[] = [];
-
-  onFiltersChanged(newFilters: any) {
-    this.filtros = newFilters;
-    this.aplicarFiltros();
-  }
-
-  updateFilterConfig() {
-    this.filterConfig = [
-      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
-      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' },
-      { field: 'tipoEquipo', placeholder: 'Tipo de Equipo', type: 'select', options: this.tiposHardware, optionValueKey: 'nombre', optionLabelKey: 'nombre' },
-      { field: 'procesador', placeholder: 'Procesador', type: 'text' },
-      { field: 'memoria', placeholder: 'Memoria', type: 'text' },
-      { field: 'disco', placeholder: 'Disco', type: 'text' },
-      { field: 'marcaPC', placeholder: 'Marca PC', type: 'text' },
-      { field: 'otrasConsideraciones', placeholder: 'Otras Consideraciones', type: 'text' }
-    ];
-  }
-
-  tiposHardware: Catalogo[] = [];
-  selectedTipoHardwareId: number | null = null;
-  getTipoName(tipoId: number | null | undefined, fallback: string): string {
-    if (tipoId) {
-      const tipo = this.tiposHardware.find(t => t.id === tipoId);
-      if (tipo) return tipo.nombre;
-    }
-    return fallback;
-  }
-
-
-  get isPC(): boolean {
-    if (!this.selectedTipoHardwareId) return false;
-    const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
-    if (!tipo) return false;
-    const nombre = tipo.nombre.toLowerCase();
-    return nombre.includes('laptop') || nombre.includes('desktop') || nombre.includes('computadora');
-  }
-
-  onTipoHardwareChangeSelect(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.selectedTipoHardwareId = target.value ? Number(target.value) : null;
-    this.onTipoHardwareChange(this.selectedTipoHardwareId);
-  }
-
-  onTipoHardwareChange(tipoId: number | null, isEditing: boolean = false) {
-    this.selectedTipoHardwareId = tipoId;
-    const isPC = this.isPC;
-    const form = this.hwIdealForm; 
-    const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
-
-    fields.forEach(field => {
-      const control = form.get(field);
-      if (control) {
-        if (isPC) {
-          control.setValidators([Validators.required]);
-        } else {
-          control.clearValidators();
-          control.patchValue(null);
-        }
-        control.updateValueAndValidity();
-      }
-    });
-}
-
-
-  // Filtros de Tabla
+  
+  // ==========================================
+  // FILTROS DE TABLA CORREGIDOS
+  // ==========================================
   filtroCodigoPuesto: string = '';
   filtroPuestoRel: string = '';
   filtroEquipo: string = '';
   filtroProcesador: string = '';
   filtroMemoria: string = '';
 
+  get equiposFiltradosTabla() {
+    return this.equiposIdeales.filter(hw => {
+      // Usamos Mayúscula inicial porque así lo manda C# (hw.CodigoPuesto, hw.Procesador, etc.)
+      const matchCodigo = hw.CodigoPuesto?.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()) ?? true;
+      const matchPuesto = hw.NombrePuesto?.toLowerCase().includes(this.filtroPuestoRel.toLowerCase()) ?? true;
+      const matchEquipo = hw.TipoEquipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+      const matchProc = hw.Procesador?.toLowerCase().includes(this.filtroProcesador.toLowerCase()) ?? true;
+      const matchMemoria = hw.Memoria?.toLowerCase().includes(this.filtroMemoria.toLowerCase()) ?? true;
 
+      return matchCodigo && matchPuesto && matchEquipo && matchProc && matchMemoria;
+    });
+  }
 
   limpiarFiltrosTabla() {
     this.filtroCodigoPuesto = '';
@@ -320,8 +237,8 @@ export class HardwareIdealComponent implements OnInit {
     this.currentPage = 1;
   }
 
-  equiposIdeales: HardwareIdeal[] = [];
-  puestos: Puesto[] = [];
+  equiposIdeales: any[] = [];
+  puestos: any[] = [];
   hwIdealForm: FormGroup;
   isEditing = false;
   isReadOnly = false;
@@ -359,19 +276,20 @@ export class HardwareIdealComponent implements OnInit {
     }, 200);
   }
 
-
-  // Paginación Dinámica
+  // ==========================================
+  // PAGINACIÓN DINÁMICA CORREGIDA
+  // ==========================================
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
+    return this.equiposFiltradosTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
+    return Math.ceil(this.equiposFiltradosTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -392,6 +310,50 @@ export class HardwareIdealComponent implements OnInit {
     this.currentPage = 1;
   }
 
+  tiposHardware: Catalogo[] = [];
+  selectedTipoHardwareId: number | null = null;
+  
+  getTipoName(tipoId: number | null | undefined, fallback: string): string {
+    if (tipoId) {
+      const tipo = this.tiposHardware.find(t => t.id === tipoId);
+      if (tipo) return tipo.nombre;
+    }
+    return fallback;
+  }
+
+  get isPC(): boolean {
+    if (!this.selectedTipoHardwareId) return false;
+    const tipo = this.tiposHardware.find(t => t.id === Number(this.selectedTipoHardwareId));
+    if (!tipo) return false;
+    const nombre = tipo.nombre.toLowerCase();
+    return nombre.includes('laptop') || nombre.includes('desktop') || nombre.includes('computadora');
+  }
+
+  onTipoHardwareChangeSelect(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedTipoHardwareId = target.value ? Number(target.value) : null;
+    this.onTipoHardwareChange(this.selectedTipoHardwareId);
+  }
+
+  onTipoHardwareChange(tipoId: number | null, isEditing: boolean = false) {
+    this.selectedTipoHardwareId = tipoId;
+    const isPC = this.isPC;
+    const form = this.hwIdealForm; 
+    const fields = ['procesador', 'memoria', 'disco', 'marcaPC'];
+
+    fields.forEach(field => {
+      const control = form.get(field);
+      if (control) {
+        if (isPC) {
+          control.setValidators([Validators.required]);
+        } else {
+          control.clearValidators();
+          control.patchValue(null);
+        }
+        control.updateValueAndValidity();
+      }
+    });
+  }
 
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.hwIdealForm = this.fb.group({
@@ -408,21 +370,29 @@ export class HardwareIdealComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-    this.updateFilterConfig();
   }
 
   loadData() {
-    this.api.getHardwareIdeal().subscribe({
-      next: (res) => this.equiposIdeales = res,
-      error: (err) => console.error('Error al cargar equipos ideales', err)
+    // Primero cargamos catálogos
+    this.api.getPuestos().subscribe({
+      next: (res) => {
+        this.puestos = res;
+        // Solo después de tener los puestos, cargamos los equipos
+        this.api.getHardwareIdeal().subscribe({
+          next: (res) => this.equiposIdeales = res,
+          error: (err) => console.error('Error al cargar equipos', err)
+        });
+      }
     });
     this.api.getTiposHardware().subscribe(res => this.tiposHardware = res);
-    this.api.getPuestos().subscribe(res => this.puestos = res);
   }
 
-  getPuestoName(puestoId: number): string {
-    return this.puestos.find(p => p.id === puestoId)?.nombrePuesto || 'Desconocido';
-  }
+  getPuestoName(puestoId: any): string {
+  if (!puestoId) return 'N/A';
+  // Forzamos a número ambos para evitar errores de tipo
+  const puesto = this.puestos.find(p => Number(p.id) === Number(puestoId));
+  return puesto ? puesto.nombrePuesto : 'Desconocido';
+}
 
   onSubmit() {
     if (this.isEditing && !this.permissionService.tienePermiso('EQUIPO_IDEAL', 'EDITAR')) {
@@ -440,8 +410,6 @@ export class HardwareIdealComponent implements OnInit {
     data.puestoId = Number(data.puestoId);
     data.tipoHardwareId = this.selectedTipoHardwareId;
     data.tipoEquipo = this.getTipoName(this.selectedTipoHardwareId, data.tipoEquipo);
-    data.tipoHardwareId = this.selectedTipoHardwareId;
-    data.tipoEquipo = this.getTipoName(this.selectedTipoHardwareId, data.tipoEquipo);
 
     if (this.isEditing && this.currentId) {
       this.api.updateHardwareIdeal(this.currentId, { ...data, id: this.currentId }).subscribe({
@@ -452,7 +420,6 @@ export class HardwareIdealComponent implements OnInit {
         error: (err) => alert('Error al actualizar plantilla.')
       });
     } else {
-      console.log("Payload enviado:", data);
       this.api.createHardwareIdeal(data).subscribe({
         next: () => {
           this.loadData();
@@ -463,60 +430,90 @@ export class HardwareIdealComponent implements OnInit {
     }
   }
 
- edit(hw: HardwareIdeal) {
+  // ==========================================
+  // EDITAR Y VER DETALLE CORREGIDOS PARA LEER MAYÚSCULAS
+  // ==========================================
+  edit(hw: any) {
   this.isEditing = true;
-  this.currentId = hw.id;
+  this.currentId = hw.id; // Asegúrate de usar la propiedad tal cual viene del JSON
   this.hwIdealForm.enable();
 
-  // Mapeo explícito: Asegúrate de que las propiedades a la derecha (hw.xxx) 
-  // coincidan con lo que realmente trae el objeto en la consola.
+  // 1. Llenamos el formulario
   this.hwIdealForm.patchValue({
     puestoId: hw.puestoId,
     tipoHardwareId: hw.tipoHardwareId,
     tipoEquipo: hw.tipoEquipo,
-    procesador: hw.procesador, // Si esto falla, prueba hw.Procesador
-    memoria: hw.memoria,       // Si esto falla, prueba hw.Memoria
+    procesador: hw.procesador,
+    memoria: hw.memoria,
     disco: hw.disco,
     marcaPC: hw.marcaPC,
     otrasConsideraciones: hw.otrasConsideraciones
   });
 
+  // 2. CORRECCIÓN: Aquí es donde buscamos el nombre para el buscador
+  // Primero, actualizamos el ID seleccionado
   this.selectedTipoHardwareId = hw.tipoHardwareId || null;
   this.onTipoHardwareChange(this.selectedTipoHardwareId, true);
   
-  // Refuerzo para el buscador de puestos
-  const matched = this.puestos.find(p => p.id === hw.puestoId);
+  // Buscamos el nombre del puesto en la lista de puestos cargados
+  // Nota: Usamos hw.puestoId (minúscula) tal como llega del backend
+  const matched = this.puestos.find(p => Number(p.id) === Number(hw.puestoId));
+  
+  // Esto es lo que pone el texto en el input de búsqueda
   this.searchTermPuestos = matched ? matched.nombrePuesto : '';
+  
+  // Aseguramos que el dropdown sepa que debe mostrarse si es necesario
+  this.showDropdownPuestos = false;
 }
 
-  delete(id: number) {
-    if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'ELIMINAR')) {
-      alert('Acceso denegado: No tienes permiso para eliminar.');
-      return;
-    }
-    if(confirm('¿Está seguro de que desea eliminar este equipo ideal?')) {
-      this.api.deleteHardwareIdeal(id).subscribe({
-        next: () => this.loadData(),
-        error: (err) => alert('No se pudo eliminar el registro.')
-      });
-    }
-  }
-
-  verDetalle(hw: HardwareIdeal) {
+  verDetalle(hw: any) {
     this.isReadOnly = true;
     this.isEditing = false;
-    this.currentId = hw.id;
-    this.hwIdealForm.patchValue(hw);
-    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
+    this.currentId = hw.Id;
+    
+    this.hwIdealForm.patchValue({
+      puestoId: hw.PuestoId,
+      tipoHardwareId: hw.TipoHardwareId,
+      tipoEquipo: hw.TipoEquipo,
+      procesador: hw.Procesador, 
+      memoria: hw.Memoria,       
+      disco: hw.Disco,
+      marcaPC: hw.MarcaPC,
+      otrasConsideraciones: hw.OtrasConsideraciones
+    });
+
+    this.selectedTipoHardwareId = hw.TipoHardwareId || null;
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     this.hwIdealForm.disable();
-    if (hw.puestoId) {
-        const matched = this.puestos.find(p => p.id === hw.puestoId);
+
+    if (hw.PuestoId) {
+        const matched = this.puestos.find(p => p.id === hw.PuestoId);
         if (matched) this.searchTermPuestos = matched.nombrePuesto;
     } else {
         this.searchTermPuestos = '';
     }
   }
+
+  delete(id: any) {
+  console.log('ID a eliminar:', id); // Esto nos dirá si realmente llega el ID
+
+  if (id === undefined || id === null) {
+    alert('Error: No se puede identificar el registro a eliminar.');
+    return;
+  }
+
+  if (!this.permissionService.tienePermiso('EQUIPO_IDEAL', 'ELIMINAR')) {
+    alert('Acceso denegado.');
+    return;
+  }
+
+  if(confirm('¿Está seguro de que desea eliminar este equipo ideal?')) {
+    this.api.deleteHardwareIdeal(id).subscribe({
+      next: () => this.loadData(),
+      error: (err) => alert('No se pudo eliminar el registro.')
+    });
+  }
+}
 
   resetForm() {
     this.isEditing = false;

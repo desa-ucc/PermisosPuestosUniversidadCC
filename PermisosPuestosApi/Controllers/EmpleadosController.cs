@@ -18,18 +18,19 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmpleados()
         {
-            var data = await _context.EmpleadosDto.FromSqlRaw("EXEC sp_GetEmpleados").ToListAsync();
+            // Llamada al SP unificado con acción SELECT
+            var data = await _context.EmpleadosDto
+                .FromSqlRaw("EXEC sp_GestionarEmpleados @Accion='SELECT'")
+                .ToListAsync();
             return Ok(data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateEmpleado([FromBody] Empleado e)
         {
-            var p1 = new SqlParameter("@CodigoEmpleado", e.CodigoEmpleado);
-            var p2 = new SqlParameter("@NombreCompleto", e.NombreCompleto);
-            var p3 = new SqlParameter("@CorreoInstitucional", e.CorreoInstitucional);
-            var p4 = new SqlParameter("@PuestoId", e.PuestoId ?? (object)DBNull.Value);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateEmpleado @CodigoEmpleado, @NombreCompleto, @CorreoInstitucional, @PuestoId", p1, p2, p3, p4);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarEmpleados @Accion='INSERT', @CodigoEmpleado={0}, @NombreCompleto={1}, @CorreoInstitucional={2}, @PuestoId={3}",
+                e.CodigoEmpleado, e.NombreCompleto, e.CorreoInstitucional, (object)e.PuestoId ?? DBNull.Value);
             return Ok();
         }
 
@@ -37,20 +38,19 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> UpdateEmpleado(int id, [FromBody] Empleado e)
         {
             if (id != e.Id) return BadRequest();
-            var pId = new SqlParameter("@Id", id);
-            var p1 = new SqlParameter("@CodigoEmpleado", e.CodigoEmpleado);
-            var p2 = new SqlParameter("@NombreCompleto", e.NombreCompleto);
-            var p3 = new SqlParameter("@CorreoInstitucional", e.CorreoInstitucional);
-            var p4 = new SqlParameter("@PuestoId", e.PuestoId ?? (object)DBNull.Value);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateEmpleado @Id, @CodigoEmpleado, @NombreCompleto, @CorreoInstitucional, @PuestoId", pId, p1, p2, p3, p4);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarEmpleados @Accion='UPDATE', @Id={0}, @CodigoEmpleado={1}, @NombreCompleto={2}, @CorreoInstitucional={3}, @PuestoId={4}",
+                id, e.CodigoEmpleado, e.NombreCompleto, e.CorreoInstitucional, (object)e.PuestoId ?? DBNull.Value);
+            
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmpleado(int id)
         {
-            var pId = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteEmpleado @Id", pId);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarEmpleados @Accion='DELETE', @Id={0}", id);
             return NoContent();
         }
     }

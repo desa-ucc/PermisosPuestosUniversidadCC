@@ -313,11 +313,13 @@ export class ColaboradoresComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
+    // AQUÍ ESTÁ LA MAGIA: Cambiamos a empleadosFiltradosTabla
+    return this.empleadosFiltradosTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
+    // AQUÍ TAMBIÉN: Cambiamos a empleadosFiltradosTabla
+    return Math.ceil(this.empleadosFiltradosTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -360,8 +362,12 @@ export class ColaboradoresComponent implements OnInit {
     });
 
     this.api.getEmpleados().subscribe({
-      next: (res) => this.empleados = res,
-      error: (err) => console.error('Error al cargar empleados', err)
+      next: (res) => {
+        this.empleados = res; // Solo dejamos la asignación de datos
+      },
+      error: (err) => {
+        console.error('Error al cargar empleados', err);
+      }
     });
   }
 

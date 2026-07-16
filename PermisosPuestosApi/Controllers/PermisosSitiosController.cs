@@ -19,22 +19,28 @@ namespace PermisosPuestosApi.Controllers
             _context = context;
         }
 
-        [HttpGet]
+       [HttpGet]
         public async Task<IActionResult> GetPermisosSitios()
         {
-            var data = await _context.PermisosSitios.FromSqlRaw("EXEC sp_GetPermisosSitios").ToListAsync();
+            // Cambia _context.PermisosSitios.FromSqlRaw(...)
+            // Por esto:
+            var data = await _context.Database.SqlQueryRaw<PermisosSitio>(
+                "EXEC sp_GestionarPermisosSitios @Accion='SELECT'"
+            ).ToListAsync();
+
             return Ok(data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreatePermisosSitio([FromBody] PermisosSitio ps)
         {
-            var p1 = new SqlParameter("@EmpleadoId", ps.EmpleadoId);
-            var p2 = new SqlParameter("@Sitio", ps.Sitio);
-            var p3 = new SqlParameter("@Ambiente", ps.Ambiente);
-            var p4 = new SqlParameter("@GruposPermisos", ps.GruposPermisos);
-
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreatePermisosSitio @EmpleadoId, @Sitio, @Ambiente, @GruposPermisos", p1, p2, p3, p4);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPermisosSitios @Accion='INSERT', @EmpleadoId=@e, @Sitio=@s, @Ambiente=@a, @GruposPermisos=@g",
+                new SqlParameter("@e", ps.EmpleadoId),
+                new SqlParameter("@s", ps.Sitio ?? (object)DBNull.Value),
+                new SqlParameter("@a", ps.Ambiente ?? (object)DBNull.Value),
+                new SqlParameter("@g", ps.GruposPermisos ?? (object)DBNull.Value)
+            );
             return Ok();
         }
 
@@ -43,21 +49,24 @@ namespace PermisosPuestosApi.Controllers
         {
             if (id != ps.Id) return BadRequest();
 
-            var pId = new SqlParameter("@Id", id);
-            var p1 = new SqlParameter("@EmpleadoId", ps.EmpleadoId);
-            var p2 = new SqlParameter("@Sitio", ps.Sitio);
-            var p3 = new SqlParameter("@Ambiente", ps.Ambiente);
-            var p4 = new SqlParameter("@GruposPermisos", ps.GruposPermisos);
-
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdatePermisosSitio @Id, @EmpleadoId, @Sitio, @Ambiente, @GruposPermisos", pId, p1, p2, p3, p4);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPermisosSitios @Accion='UPDATE', @Id=@id, @EmpleadoId=@e, @Sitio=@s, @Ambiente=@a, @GruposPermisos=@g",
+                new SqlParameter("@id", id),
+                new SqlParameter("@e", ps.EmpleadoId),
+                new SqlParameter("@s", ps.Sitio ?? (object)DBNull.Value),
+                new SqlParameter("@a", ps.Ambiente ?? (object)DBNull.Value),
+                new SqlParameter("@g", ps.GruposPermisos ?? (object)DBNull.Value)
+            );
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePermisosSitio(int id)
         {
-            var pId = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeletePermisosSitio @Id", pId);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPermisosSitios @Accion='DELETE', @Id=@id", 
+                new SqlParameter("@id", id)
+            );
             return NoContent();
         }
     }

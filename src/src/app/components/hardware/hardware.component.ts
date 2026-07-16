@@ -6,7 +6,7 @@ import { PermisoDirective } from '../../directives/permiso.directive';
 import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/base-filter-bar.component';
 import { PermissionService } from '../../services/permission.service';
 import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/models';
-
+import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-hardware',
   standalone: true,
@@ -170,12 +170,12 @@ import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/model
           <tbody>
             @for(hw of paginatedList; track hw.id) {
               <tr>
-                <td>{{hw.codigoPuesto}}</td>
-                <td>{{hw.nombrePuesto || getPuestoByEmpleado(hw.empleadoId)}}</td>
-                <td>{{getEmpleadoName(hw.empleadoId)}}</td>
-                <td>{{ getTipoName(hw.tipoHardwareId, hw.tipoEquipo) }}</td>
-                <td>{{hw.marcaPC}}</td>
-                <td>{{hw.placa}}</td>
+              <td>{{hw.codigoPuesto}}</td>
+              <td>{{hw.nombrePuesto}}</td>
+              <td>{{hw.nombreCompleto || 'Sin nombre'}}</td>
+              <td>{{hw.tipoEquipo || hw.TipoEquipo || 'N/A'}}</td> 
+              <td>{{hw.marcaPC || hw.MarcaPC || 'N/A'}}</td>
+              <td>{{hw.placa || hw.Placa || 'N/A'}}</td>
                 <td>
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
@@ -432,14 +432,33 @@ export class HardwareComponent implements OnInit {
     this.updateFilterConfig();
   }
 
-  loadData() {
-    this.api.getHardwareAsignado().subscribe(res => {
-      this.equipos = res;
-      console.log('Validacion Puesto - Hardware[0]:', this.equipos.length ? this.equipos[0] : 'Vacio');
+loadData() {
+    // forkJoin ejecuta todas las peticiones en paralelo y espera a que terminen
+    forkJoin({
+      equipos: this.api.getHardwareAsignado(),
+      empleados: this.api.getEmpleados(),
+      tipos: this.api.getTiposHardware(),
+      puestos: this.api.getPuestos()
+    }).subscribe({
+      next: (res) => {
+        // Asignación de datos
+        this.equipos = res.equipos;
+        this.empleados = res.empleados;
+        this.tiposHardware = res.tipos;
+        this.puestos = res.puestos;
+
+        // Inicializamos la lista filtrada con todos los datos
+        this.listaFiltradaTabla = [...this.equipos];
+        
+        // Ahora sí, aplicamos filtros de forma segura
+        this.aplicarFiltros();
+        
+        console.log('Carga completada, total registros:', this.listaFiltradaTabla.length);
+      },
+      error: (err) => {
+        console.error('Error cargando catálogos o datos:', err);
+      }
     });
-    this.api.getEmpleados().subscribe(res => this.empleados = res);
-    this.api.getTiposHardware().subscribe(res => this.tiposHardware = res);
-    this.api.getPuestos().subscribe(res => this.puestos = res);
   }
 
   onEmpleadoChange(event: any) {
@@ -452,14 +471,22 @@ export class HardwareComponent implements OnInit {
     }
   }
 
-  getEmpleadoName(id: number): string {
-    return this.empleados.find(e => e.id === id)?.nombreCompleto || 'Desconocido';
+  getEmpleadoName(empleadoId: any): string {
+    if (!this.empleados || this.empleados.length === 0) return 'Cargando...';
+    
+    // Convertimos ambos a Number para asegurar que 59 (número) sea igual a "59" (string)
+    const emp = this.empleados.find(e => Number(e.id) === Number(empleadoId));
+    return emp ? emp.nombreCompleto : 'No encontrado';
   }
 
-  getPuestoByEmpleado(empleadoId: number): string {
-    const emp = this.empleados.find(e => e.id === empleadoId);
+  // En tu archivo hardware-asignado.component.ts
+  getPuestoByEmpleado(empleadoId: any): string {
+    if (!empleadoId) return 'No Asignado'; // Protección contra undefined/null
+    
+    const emp = this.empleados.find(e => Number(e.id) === Number(empleadoId));
     if (!emp || !emp.puestoId) return 'No Asignado';
-    return this.puestos.find(p => p.id === emp.puestoId)?.nombrePuesto || 'Desconocido';
+    
+    return this.puestos.find(p => Number(p.id) === Number(emp.puestoId))?.nombrePuesto || 'Desconocido';
   }
 
   getPuestoName(puestoId: number | undefined | null): string {

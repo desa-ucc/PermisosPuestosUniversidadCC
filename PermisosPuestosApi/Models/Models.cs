@@ -57,24 +57,25 @@ namespace PermisosPuestosApi.Models
 {
     [Key] public int Id { get; set; }
     public int PuestoId { get; set; }
-    public string? CodigoPuesto { get; set; }
     public int? TipoHardwareId { get; set; }
-    public string TipoEquipo { get; set; } = string.Empty;
-    
-    public string? Procesador { get; set; } 
+    public string? TipoEquipo { get; set; }
+    public string? Procesador { get; set; }
     public string? Memoria { get; set; }
     public string? Disco { get; set; }
     public string? MarcaPC { get; set; }
-    
     public string? OtrasConsideraciones { get; set; }
+    // IMPORTANTE: Estas deben estar aquí para capturar el JOIN del SP
+    public string? CodigoPuesto { get; set; }
+    public string? NombrePuesto { get; set; }
 }
-
     public class HardwareAsignado
 {
     [Key] public int Id { get; set; }
     public int EmpleadoId { get; set; }
     
-    // Agrega estos campos para capturar el JOIN
+    // Agrega esta propiedad para capturar el nombre desde el JOIN
+    public string? NombreCompleto { get; set; } 
+    
     public string? CodigoPuesto { get; set; }
     public string? NombrePuesto { get; set; }
     
@@ -87,7 +88,6 @@ namespace PermisosPuestosApi.Models
     public string? OtrasConsideraciones { get; set; }
     public string Placa { get; set; } = string.Empty;
 }
-
     public class SoftwareLocal
     {
         [Key] public int Id { get; set; }
@@ -99,16 +99,20 @@ namespace PermisosPuestosApi.Models
         public string Version { get; set; } = string.Empty;
         public string Fabricante { get; set; } = string.Empty;
     }
+    
+public class PermisosSitio
+{
+    [Key] public int Id { get; set; }
+    public int EmpleadoId { get; set; }
+    public string Sitio { get; set; } = string.Empty;
+    public string Ambiente { get; set; } = string.Empty;
+    public string GruposPermisos { get; set; } = string.Empty;
 
-    public class PermisosSitio
-    {
-        [Key] public int Id { get; set; }
-        public int EmpleadoId { get; set; }
-        public string? CodigoPuesto { get; set; }
-        public string Sitio { get; set; } = string.Empty;
-        public string Ambiente { get; set; } = string.Empty;
-        public string GruposPermisos { get; set; } = string.Empty;
-    }
+    // Campos para el JOIN
+    public string? CodigoPuesto { get; set; }
+    public string? NombrePuesto { get; set; }
+    public string? NombreCompleto { get; set; }
+}
 
     public class Plataforma
     {
@@ -152,6 +156,7 @@ namespace PermisosPuestosApi.Models
 
     public class EmpleadoDto
     {
+        [Key]
         public int Id { get; set; }
         public string CodigoEmpleado { get; set; } = string.Empty;
         public string NombreCompleto { get; set; } = string.Empty;
