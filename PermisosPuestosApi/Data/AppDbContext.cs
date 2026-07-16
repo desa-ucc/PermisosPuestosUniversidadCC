@@ -37,6 +37,9 @@ namespace PermisosPuestosApi.Data
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
             modelBuilder.Entity<PermisoDto>().HasNoKey();
             modelBuilder.Entity<EmpleadoDto>().HasNoKey();
+            modelBuilder.Entity<PermisosSitio>().HasNoKey().ToView(null);
+            modelBuilder.Entity<SoftwareLocal>().HasNoKey().ToView(null);
+
 
             // DTOs for Reporting
             modelBuilder.Entity<ReportePerfilDto>().HasNoKey();

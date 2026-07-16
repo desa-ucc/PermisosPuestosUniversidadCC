@@ -4,6 +4,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PermisosPuestosApi.Data;
 using PermisosPuestosApi.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace PermisosPuestosApi.Controllers
 {
@@ -18,21 +20,24 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Local")]
         public async Task<IActionResult> GetSoftwareLocales()
         {
-            var data = await _context.SoftwareLocales.FromSqlRaw("EXEC sp_GetSoftwareLocales").ToListAsync();
+            var data = await _context.Database.SqlQueryRaw<SoftwareLocal>(
+                "EXEC sp_GestionarSoftwareLocal @Accion='SELECT'"
+            ).ToListAsync();
             return Ok(data);
         }
 
         [HttpPost("Local")]
         public async Task<IActionResult> CreateSoftwareLocal([FromBody] SoftwareLocal s)
         {
-            var p1 = new SqlParameter("@EmpleadoId", s.EmpleadoId);
-            var p2 = new SqlParameter("@Equipo", s.Equipo);
-            var p3 = new SqlParameter("@GruposAD", s.GruposAD);
-            var p4 = new SqlParameter("@NombreSoftware", s.NombreSoftware);
-            var p5 = new SqlParameter("@Version", s.Version);
-            var p6 = new SqlParameter("@Fabricante", s.Fabricante);
-
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreateSoftwareLocal @EmpleadoId, @Equipo, @GruposAD, @NombreSoftware, @Version, @Fabricante", p1, p2, p3, p4, p5, p6);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarSoftwareLocal @Accion='INSERT', @EmpleadoId=@e, @Equipo=@eq, @GruposAD=@g, @NombreSoftware=@n, @Version=@v, @Fabricante=@f",
+                new SqlParameter("@e", s.EmpleadoId),
+                new SqlParameter("@eq", s.Equipo ?? (object)DBNull.Value),
+                new SqlParameter("@g", s.GruposAD ?? (object)DBNull.Value),
+                new SqlParameter("@n", s.NombreSoftware ?? (object)DBNull.Value),
+                new SqlParameter("@v", s.Version ?? (object)DBNull.Value),
+                new SqlParameter("@f", s.Fabricante ?? (object)DBNull.Value)
+            );
             return Ok();
         }
 
@@ -40,23 +45,27 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> UpdateSoftwareLocal(int id, [FromBody] SoftwareLocal s)
         {
             if (id != s.Id) return BadRequest();
-            var pId = new SqlParameter("@Id", id);
-            var p1 = new SqlParameter("@EmpleadoId", s.EmpleadoId);
-            var p2 = new SqlParameter("@Equipo", s.Equipo);
-            var p3 = new SqlParameter("@GruposAD", s.GruposAD);
-            var p4 = new SqlParameter("@NombreSoftware", s.NombreSoftware);
-            var p5 = new SqlParameter("@Version", s.Version);
-            var p6 = new SqlParameter("@Fabricante", s.Fabricante);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateSoftwareLocal @Id, @EmpleadoId, @Equipo, @GruposAD, @NombreSoftware, @Version, @Fabricante", pId, p1, p2, p3, p4, p5, p6);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarSoftwareLocal @Accion='UPDATE', @Id=@id, @EmpleadoId=@e, @Equipo=@eq, @GruposAD=@g, @NombreSoftware=@n, @Version=@v, @Fabricante=@f",
+                new SqlParameter("@id", id),
+                new SqlParameter("@e", s.EmpleadoId),
+                new SqlParameter("@eq", s.Equipo ?? (object)DBNull.Value),
+                new SqlParameter("@g", s.GruposAD ?? (object)DBNull.Value),
+                new SqlParameter("@n", s.NombreSoftware ?? (object)DBNull.Value),
+                new SqlParameter("@v", s.Version ?? (object)DBNull.Value),
+                new SqlParameter("@f", s.Fabricante ?? (object)DBNull.Value)
+            );
             return NoContent();
         }
 
         [HttpDelete("Local/{id}")]
         public async Task<IActionResult> DeleteSoftwareLocal(int id)
         {
-            var pId = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteSoftwareLocal @Id", pId);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarSoftwareLocal @Accion='DELETE', @Id=@id",
+                new SqlParameter("@id", id)
+            );
             return NoContent();
         }
     }

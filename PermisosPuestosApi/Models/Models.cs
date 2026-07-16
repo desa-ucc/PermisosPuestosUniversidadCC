@@ -90,7 +90,7 @@ namespace PermisosPuestosApi.Models
 }
     public class SoftwareLocal
     {
-        [Key] public int Id { get; set; }
+        public int Id { get; set; }
         public int EmpleadoId { get; set; }
          public string? CodigoPuesto { get; set; }
         public string Equipo { get; set; } = string.Empty;
@@ -102,7 +102,7 @@ namespace PermisosPuestosApi.Models
     
 public class PermisosSitio
 {
-    [Key] public int Id { get; set; }
+    public int Id { get; set; }
     public int EmpleadoId { get; set; }
     public string Sitio { get; set; } = string.Empty;
     public string Ambiente { get; set; } = string.Empty;
