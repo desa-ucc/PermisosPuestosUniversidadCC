@@ -35,10 +35,7 @@ export class SeguridadComponent implements OnInit {
   // Permisos
   rolSeleccionadoId: number | null = null;
   permisosActuales: any[] = [];
-  pantallasSistema: string[] = [
-    'CATALOGOS', 'DASHBOARD', 'PUESTOS', 'COLABORADORES', 'EQUIPO_IDEAL',
-    'HARDWARE', 'SOFTWARE_LOCAL', 'PERMISOS_SITIOS', 'PLATAFORMAS', 'REPORTES', 'SEGURIDAD'
-  ];
+  pantallasSistema: string[] = [];
   hasUnsavedChanges = false;
 
   constructor(
@@ -228,17 +225,9 @@ export class SeguridadComponent implements OnInit {
       return;
     }
     this.permissionService.getPermisos(this.rolSeleccionadoId).subscribe(res => {
-      this.permisosActuales = this.pantallasSistema.map(pantalla => {
-        const permisoExistente = res.find((p: any) => p.pantallaId === pantalla);
-        return permisoExistente || {
-          roleId: this.rolSeleccionadoId,
-          pantallaId: pantalla,
-          puedeCrear: false,
-          puedeEditar: false,
-          puedeEliminar: false,
-          puedeVer: false
-        };
-      });
+      // El componente ahora renderiza la fila iterando directamente sobre la lista que trae el SP
+      // ya que el SP siempre trae todos los permisos existentes en bd.
+      this.permisosActuales = res || [];
     });
   }
 
