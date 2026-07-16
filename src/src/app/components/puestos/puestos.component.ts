@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermissionService } from '../../services/permission.service';
 import { Puesto } from '../../models/models';
+import { PermisoDirective } from '../../directives/permiso.directive';
+import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/base-filter-bar.component';
 
 @Component({
   selector: 'app-puestos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective, BaseFilterBarComponent],
   template: `
 
 <main class="p-gutter max-w-container-max-width mx-auto space-y-8">
@@ -70,15 +72,12 @@ import { Puesto } from '../../models/models';
 <!-- Data Table -->
 <section class="ucc-table-container">
 <!-- Toolbar de Filtros Estándar -->
-<div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-  <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-  <input type="text" placeholder="Filtrar por Código" [(ngModel)]="filtros.codigo" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
-  <input type="text" placeholder="Filtrar por Nombre" [(ngModel)]="filtros.nombre" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
-  <input type="text" placeholder="Filtrar por Descripción" [(ngModel)]="filtros.descripcion" (input)="aplicarFiltros()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-80">
-  <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-    <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
-  </button>
-</div>
+<app-base-filter-bar
+      [config]="filterConfig"
+      [initialFilters]="filtros"
+      (filtersChanged)="onFiltersChanged($event)"
+      (filtersCleared)="limpiarFiltros()">
+    </app-base-filter-bar>
 
 
 <div class="overflow-x-auto">
@@ -147,7 +146,7 @@ import { Puesto } from '../../models/models';
 
 </div>
 <div class="p-4 bg-surface-container-low flex justify-between items-center text-on-surface-variant">
-<p class="font-label-md text-label-md">Mostrando {{puestosFiltrados.length}} puestos registrados</p>
+<p class="font-label-md text-label-md">Mostrando {{listaFiltradaTabla.length}} puestos registrados</p>
 <div class="flex gap-2">
 <button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container-highest transition-all disabled:opacity-50" disabled><span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span></button>
 <button class="w-8 h-8 flex items-center justify-center rounded bg-secondary text-on-secondary font-bold text-xs">1</button>
@@ -211,41 +210,74 @@ import { Puesto } from '../../models/models';
 })
 export class PuestosComponent implements OnInit {
   puestos: Puesto[] = [];
-  puestosFiltrados: Puesto[] = [];
-  filtros = {
-    codigo: '',
-    nombre: '',
-    descripcion: ''
-  };
+  listaFiltradaTabla: any[] = [];
   puestoForm: FormGroup;
   isEditing = false;
   isReadOnly = false;
   currentId: number | null = null;
+  Math = Math;
 
-  // Paginación Dinámica
+  filtros: any = {
+    codigoPuesto: '',
+    nombrePuesto: '',
+    descripcion: ''
+  };
+
+  filterConfig: FilterColumn[] = [];
+
+  onFiltersChanged(newFilters: any) {
+    this.filtros = newFilters;
+    this.aplicarFiltros();
+  }
+
+  updateFilterConfig() {
+    this.filterConfig = [
+      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
+      { field: 'nombrePuesto', placeholder: 'Nombre Puesto', type: 'text' },
+      { field: 'descripcion', placeholder: 'Descripción', type: 'text' }
+    ];
+  }
+
+  aplicarFiltros() {
+    this.listaFiltradaTabla = this.puestos.filter((item: any) => {
+      let matches = true;
+      for (const key in this.filtros) {
+        if (this.filtros[key]) {
+          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
+            matches = false;
+            break;
+          }
+        }
+      }
+      return matches;
+    });
+    this.currentPage = 1;
+  }
+
+  limpiarFiltros() {
+    this.filtros = { codigoPuesto: '', nombrePuesto: '', descripcion: '' };
+    this.aplicarFiltros();
+  }
+
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.puestosFiltrados.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.puestosFiltrados.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    if (this.currentPage < this.totalPages) this.currentPage++;
   }
 
   prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
+    if (this.currentPage > 1) this.currentPage--;
   }
 
   changePageSize(event: Event) {
@@ -253,7 +285,6 @@ export class PuestosComponent implements OnInit {
     this.pageSize = Number(target.value);
     this.currentPage = 1;
   }
-
 
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.puestoForm = this.fb.group({
@@ -265,109 +296,87 @@ export class PuestosComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.updateFilterConfig();
   }
 
   loadData() {
     this.api.getPuestos().subscribe({
-      next: (res) => {
-        this.puestos = res;
-        this.puestosFiltrados = res;
+      next: (data) => {
+        this.puestos = data;
+        this.aplicarFiltros();
+        this.updateFilterConfig();
       },
-      error: (err) => console.error('Error al cargar puestos', err)
+      error: (err) => console.error('Error cargando puestos', err)
     });
   }
 
   onSubmit() {
     if (this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
+      alert('Acceso denegado: No tienes permiso para editar puestos.');
       return;
     }
     if (!this.isEditing && !this.permissionService.tienePermiso('PUESTOS', 'CREAR')) {
-      alert('Acceso denegado: No tienes permiso para crear.');
+      alert('Acceso denegado: No tienes permiso para crear puestos.');
       return;
     }
+
     this.puestoForm.markAllAsTouched();
     if (this.puestoForm.invalid) return;
 
-    const data = this.puestoForm.value;
-
     if (this.isEditing && this.currentId) {
-      this.api.updatePuesto(this.currentId, { ...data, id: this.currentId }).subscribe({
+      this.api.updatePuesto(this.currentId, this.puestoForm.value).subscribe({
         next: () => {
           this.loadData();
           this.resetForm();
         },
-        error: (err) => alert('Error al actualizar el puesto.')
+        error: (err) => alert('No se pudo actualizar el puesto.')
       });
     } else {
-      this.api.createPuesto(data).subscribe({
+      this.api.createPuesto(this.puestoForm.value).subscribe({
         next: () => {
           this.loadData();
           this.resetForm();
         },
-        error: (err) => alert('Error al crear el puesto.')
+        error: (err) => alert('No se pudo crear el puesto.')
       });
     }
   }
 
   edit(puesto: Puesto) {
     if (!this.permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
-      alert('Acceso denegado: No tienes permiso para editar.');
+      alert('Acceso denegado: No tienes permiso para editar puestos.');
       return;
     }
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = puesto.id;
     this.puestoForm.enable();
-    this.puestoForm.patchValue({
-      codigoPuesto: puesto.codigoPuesto,
-      nombrePuesto: puesto.nombrePuesto,
-      descripcion: puesto.descripcion
-    });
-  }
-
-  delete(id: number) {
-    if (!this.permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
-      alert('Acceso denegado: No tienes permiso para eliminar.');
-      return;
-    }
-    if(confirm('¿Está seguro de que desea eliminar este puesto?')) {
-      this.api.deletePuesto(id).subscribe({
-        next: () => this.loadData(),
-        error: (err) => alert('No se pudo eliminar. Verifique que no esté asignado a ningún colaborador o equipo ideal.')
-      });
-    }
+    this.puestoForm.patchValue(puesto);
   }
 
   verDetalle(puesto: Puesto) {
     this.isReadOnly = true;
     this.isEditing = false;
     this.currentId = puesto.id;
-    this.puestoForm.patchValue({
-      codigoPuesto: puesto.codigoPuesto,
-      nombrePuesto: puesto.nombrePuesto,
-      descripcion: puesto.descripcion
-    });
+    this.puestoForm.patchValue(puesto);
     this.puestoForm.disable();
   }
 
-  aplicarFiltros() {
-    this.puestosFiltrados = this.puestos.filter(p => {
-      const matchCodigo = p.codigoPuesto.toLowerCase().includes(this.filtros.codigo.toLowerCase());
-      const matchNombre = p.nombrePuesto.toLowerCase().includes(this.filtros.nombre.toLowerCase());
-      const matchDescripcion = (p.descripcion || '').toLowerCase().includes(this.filtros.descripcion.toLowerCase());
-      return matchCodigo && matchNombre && matchDescripcion;
-    });
-    this.currentPage = 1;
-  }
-
-  limpiarFiltros() {
-    this.filtros = { codigo: '', nombre: '', descripcion: '' };
-    this.puestosFiltrados = [...this.puestos];
-    this.currentPage = 1;
+  delete(id: number) {
+    if (!this.permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
+      alert('Acceso denegado: No tienes permiso para eliminar puestos.');
+      return;
+    }
+    if (confirm('¿Está seguro de que desea eliminar este puesto?')) {
+      this.api.deletePuesto(id).subscribe({
+        next: () => this.loadData(),
+        error: (err) => alert('No se pudo eliminar el puesto.')
+      });
+    }
   }
 
   resetForm() {
+    this.isEditing = false;
     this.isReadOnly = false;
     this.currentId = null;
     this.puestoForm.reset();

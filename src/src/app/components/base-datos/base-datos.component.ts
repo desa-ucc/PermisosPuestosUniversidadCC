@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
+import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/base-filter-bar.component';
 import { PermissionService } from '../../services/permission.service';
 import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../../models/models';
 
 @Component({
   selector: 'app-base-datos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective, BaseFilterBarComponent],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Base de Datos</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
@@ -106,22 +107,12 @@ import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../..
   </div>
 </div>
 
-<div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-  <span class="material-symbols-outlined text-ucc-neutral-variant mr-2">filter_list</span>
-
-  <input type="text" [(ngModel)]="filtros.codigoPuesto" (input)="aplicarFiltros()" placeholder="Filtrar Código Puesto" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.nombreCompleto" (input)="aplicarFiltros()" placeholder="Filtrar Persona" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.nombrePuesto" (input)="aplicarFiltros()" placeholder="Filtrar Puesto" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.servidor" (input)="aplicarFiltros()" placeholder="Filtrar Servidor" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.baseDatos" (input)="aplicarFiltros()" placeholder="Filtrar Base Datos" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.nivelAcceso" (input)="aplicarFiltros()" placeholder="Filtrar Nivel" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-  <input type="text" [(ngModel)]="filtros.observaciones" (input)="aplicarFiltros()" placeholder="Filtrar Observaciones" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-
-  <button (click)="limpiarFiltros()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-    <span class="material-symbols-outlined text-[18px]">refresh</span>
-    Limpiar
-  </button>
-</div>
+<app-base-filter-bar
+      [config]="filterConfig"
+      [initialFilters]="filtros"
+      (filtersChanged)="onFiltersChanged($event)"
+      (filtersCleared)="limpiarFiltros()">
+    </app-base-filter-bar>
 
 <div class="overflow-x-auto">
         <table class="ucc-table">
@@ -205,6 +196,24 @@ import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../..
   `
 })
 export class BaseDatosComponent implements OnInit {
+  filterConfig: FilterColumn[] = [];
+
+  onFiltersChanged(newFilters: any) {
+    this.filtros = newFilters;
+    this.aplicarFiltros();
+  }
+
+  updateFilterConfig() {
+    this.filterConfig = [
+      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
+      { field: 'nombreCompleto', placeholder: 'Persona', type: 'select', options: this.empleados, optionValueKey: 'nombreCompleto', optionLabelKey: 'nombreCompleto' },
+      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' },
+      { field: 'servidor', placeholder: 'Servidor', type: 'text' },
+      { field: 'baseDatos', placeholder: 'Base Datos', type: 'text' },
+      { field: 'nivelAcceso', placeholder: 'Nivel', type: 'select', options: this.nivelesAcceso, optionValueKey: 'nombre', optionLabelKey: 'nombre' },
+      { field: 'observaciones', placeholder: 'Observaciones', type: 'text' }
+    ];
+  }
 
   puedeEliminarNivel(nivelNombre: string): boolean {
     const nivel = this.nivelesAcceso.find(n => n.nombre === nivelNombre);
@@ -374,12 +383,12 @@ export class BaseDatosComponent implements OnInit {
       this.accesosBD = res;
       this.aplicarFiltros();
     });
-    this.api.getEmpleados().subscribe(res => this.empleados = res);
-    this.api.getPuestos().subscribe(res => this.puestos = res);
+    this.api.getEmpleados().subscribe(res => { this.empleados = res; this.updateFilterConfig(); });
+    this.api.getPuestos().subscribe(res => { this.puestos = res; this.updateFilterConfig(); });
   }
 
   loadCatalogos() {
-    this.api.getNivelesAcceso().subscribe(res => this.nivelesAcceso = res);
+    this.api.getNivelesAcceso().subscribe(res => { this.nivelesAcceso = res; this.updateFilterConfig(); });
   }
 
   onEmpleadoChange(event: any) {

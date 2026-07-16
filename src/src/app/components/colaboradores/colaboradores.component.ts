@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
+import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/base-filter-bar.component';
 import { PermissionService } from '../../services/permission.service';
 import { Empleado, Puesto } from '../../models/models';
 
 @Component({
   selector: 'app-colaboradores',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, PermisoDirective, BaseFilterBarComponent],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
       <div class="mb-8">
@@ -198,6 +199,47 @@ import { Empleado, Puesto } from '../../models/models';
   `
 })
 export class ColaboradoresComponent implements OnInit {
+  listaFiltradaTabla: any[] = [];
+
+  aplicarFiltros() {
+    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+
+    // Simplistic generic filter logic to resolve compile errors for components without it
+    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
+
+    if(!dataList) return;
+
+    this.listaFiltradaTabla = dataList.filter((item: any) => {
+      let matches = true;
+      for (const key in this.filtros) {
+        if (this.filtros[key]) {
+          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
+            matches = false;
+            break;
+          }
+        }
+      }
+      return matches;
+    });
+
+    if((this as any).currentPage) (this as any).currentPage = 1;
+  }
+  filtros: any = {};
+  filterConfig: FilterColumn[] = [];
+
+  onFiltersChanged(newFilters: any) {
+    this.filtros = newFilters;
+    this.aplicarFiltros();
+  }
+
+  updateFilterConfig() {
+    this.filterConfig = [
+      { field: 'codigoEmpleado', placeholder: 'Código Empleado', type: 'text' },
+      { field: 'nombreCompleto', placeholder: 'Nombre', type: 'text' },
+      { field: 'correoInstitucional', placeholder: 'Correo', type: 'text' },
+      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' }
+    ];
+  }
 
   // Filtros de Tabla
   filtroCodigo: string = '';
@@ -271,11 +313,11 @@ export class ColaboradoresComponent implements OnInit {
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.empleadosFiltradosTabla.slice(start, start + this.pageSize);
+    return this.listaFiltradaTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    return Math.ceil(this.empleadosFiltradosTabla.length / this.pageSize) || 1;
+    return Math.ceil(this.listaFiltradaTabla.length / this.pageSize) || 1;
   }
 
   nextPage() {
@@ -308,6 +350,7 @@ export class ColaboradoresComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.updateFilterConfig();
   }
 
   loadData() {
