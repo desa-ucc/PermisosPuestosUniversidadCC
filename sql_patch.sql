@@ -1,43 +1,63 @@
-ALTER PROCEDURE [dbo].[sp_GetHardwareAsignado]
-AS
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'pt_AccesosBD')
 BEGIN
-    SELECT
-        h.Id,
-        h.EmpleadoId,
-        h.TipoHardwareId,
-        ISNULL(th.Nombre, h.TipoEquipo) AS TipoEquipo,
-        h.Procesador,
-        h.Memoria,
-        h.Disco,
-        h.MarcaPC,
-        h.OtrasConsideraciones,
-        h.Placa,
-        e.CodigoEmpleado AS CodigoPuesto,
-        p.NombrePuesto AS NombrePuesto
-    FROM pt_HardwareAsignado h
-    LEFT JOIN Cat_TiposHardware th ON h.TipoHardwareId = th.Id
-    LEFT JOIN pt_Empleados e ON h.EmpleadoId = e.Id
-    LEFT JOIN pt_Puestos p ON e.PuestoId = p.Id;
-END;
+    CREATE TABLE pt_AccesosBD (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        EmpleadoId INT NOT NULL FOREIGN KEY REFERENCES pt_Empleados(Id),
+        Servidor NVARCHAR(150) NOT NULL,
+        BaseDatos NVARCHAR(150) NOT NULL,
+        NivelAcceso NVARCHAR(100) NOT NULL,
+        Observaciones NVARCHAR(250) NULL
+    );
+END
 GO
 
-ALTER PROCEDURE [dbo].[sp_GetHardwareIdeal]
+CREATE OR ALTER PROCEDURE sp_GestionarAccesosBD
+    @Accion NVARCHAR(10),
+    @Id INT = NULL,
+    @EmpleadoId INT = NULL,
+    @Servidor NVARCHAR(150) = NULL,
+    @BaseDatos NVARCHAR(150) = NULL,
+    @NivelAcceso NVARCHAR(100) = NULL,
+    @Observaciones NVARCHAR(250) = NULL
 AS
 BEGIN
-    SELECT
-        h.Id,
-        h.PuestoId,
-        h.TipoHardwareId,
-        ISNULL(th.Nombre, h.TipoEquipo) AS TipoEquipo,
-        h.Procesador,
-        h.Memoria,
-        h.Disco,
-        h.MarcaPC,
-        h.OtrasConsideraciones,
-        p.CodigoPuesto AS CodigoPuesto,
-        p.NombrePuesto AS NombrePuesto
-    FROM pt_HardwareIdeal h
-    LEFT JOIN Cat_TiposHardware th ON h.TipoHardwareId = th.Id
-    LEFT JOIN pt_Puestos p ON h.PuestoId = p.Id;
-END;
+    IF @Accion = 'SELECT'
+    BEGIN
+        SELECT
+            a.Id,
+            a.EmpleadoId,
+            e.NombreCompleto,
+            p.CodigoPuesto,
+            p.NombrePuesto,
+            a.Servidor,
+            a.BaseDatos,
+            a.NivelAcceso,
+            a.Observaciones
+        FROM pt_AccesosBD a
+        LEFT JOIN pt_Empleados e ON a.EmpleadoId = e.Id
+        LEFT JOIN pt_Puestos p ON e.PuestoId = p.Id
+    END
+
+    IF @Accion = 'INSERT'
+    BEGIN
+        INSERT INTO pt_AccesosBD (EmpleadoId, Servidor, BaseDatos, NivelAcceso, Observaciones)
+        VALUES (@EmpleadoId, @Servidor, @BaseDatos, @NivelAcceso, @Observaciones)
+    END
+
+    IF @Accion = 'UPDATE'
+    BEGIN
+        UPDATE pt_AccesosBD
+        SET EmpleadoId = @EmpleadoId,
+            Servidor = @Servidor,
+            BaseDatos = @BaseDatos,
+            NivelAcceso = @NivelAcceso,
+            Observaciones = @Observaciones
+        WHERE Id = @Id
+    END
+
+    IF @Accion = 'DELETE'
+    BEGIN
+        DELETE FROM pt_AccesosBD WHERE Id = @Id
+    END
+END
 GO
