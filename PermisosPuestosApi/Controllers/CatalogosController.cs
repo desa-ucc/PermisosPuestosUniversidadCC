@@ -196,13 +196,9 @@ namespace PermisosPuestosApi.Controllers
         {
             var pAccion = new SqlParameter("@Accion", "INSERT");
             var pNombre = new SqlParameter("@Nombre", n.Nombre);
-            var pPuedeVer = new SqlParameter("@PuedeVer", n.PuedeVer);
-            var pPuedeCrear = new SqlParameter("@PuedeCrear", n.PuedeCrear);
-            var pPuedeEditar = new SqlParameter("@PuedeEditar", n.PuedeEditar);
-            var pPuedeEliminar = new SqlParameter("@PuedeEliminar", n.PuedeEliminar);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, NULL, @Nombre, @PuedeVer, @PuedeCrear, @PuedeEditar, @PuedeEliminar",
-                pAccion, pNombre, pPuedeVer, pPuedeCrear, pPuedeEditar, pPuedeEliminar);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, NULL, @Nombre",
+                pAccion, pNombre);
             return Ok();
         }
 
@@ -213,13 +209,9 @@ namespace PermisosPuestosApi.Controllers
             var pAccion = new SqlParameter("@Accion", "UPDATE");
             var pId = new SqlParameter("@Id", id);
             var pNombre = new SqlParameter("@Nombre", n.Nombre);
-            var pPuedeVer = new SqlParameter("@PuedeVer", n.PuedeVer);
-            var pPuedeCrear = new SqlParameter("@PuedeCrear", n.PuedeCrear);
-            var pPuedeEditar = new SqlParameter("@PuedeEditar", n.PuedeEditar);
-            var pPuedeEliminar = new SqlParameter("@PuedeEliminar", n.PuedeEliminar);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, @Id, @Nombre, @PuedeVer, @PuedeCrear, @PuedeEditar, @PuedeEliminar",
-                pAccion, pId, pNombre, pPuedeVer, pPuedeCrear, pPuedeEditar, pPuedeEliminar);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, @Id, @Nombre",
+                pAccion, pId, pNombre);
             return NoContent();
         }
 
