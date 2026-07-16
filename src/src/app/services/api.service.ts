@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil, ReporteIntegralResponse } from '../models/models';
+import { Puesto, Empleado, HardwareIdeal, HardwareAsignado, SoftwareLocal, PermisosSitio, Plataforma, Catalogo, ReportePerfil, ReporteIntegralResponse, AccesoBD } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +62,12 @@ export class ApiService {
   createPlataforma(data: Partial<Plataforma>): Observable<Plataforma> { return this.http.post<Plataforma>(`${this.apiUrl}/Plataformas`, data, { headers: this.getHeaders() }); }
   updatePlataforma(id: number, data: Partial<Plataforma>): Observable<any> { return this.http.put(`${this.apiUrl}/Plataformas/${id}`, data, { headers: this.getHeaders() }); }
   deletePlataforma(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Plataformas/${id}`, { headers: this.getHeaders() }); }
+
+  // --- Base de Datos ---
+  getAccesosBD(): Observable<AccesoBD[]> { return this.http.get<AccesoBD[]>(`${this.apiUrl}/AccesosBD`, { headers: this.getHeaders() }); }
+  createAccesoBD(data: Partial<AccesoBD>): Observable<AccesoBD> { return this.http.post<AccesoBD>(`${this.apiUrl}/AccesosBD`, data, { headers: this.getHeaders() }); }
+  updateAccesoBD(id: number, data: Partial<AccesoBD>): Observable<any> { return this.http.put(`${this.apiUrl}/AccesosBD/${id}`, data, { headers: this.getHeaders() }); }
+  deleteAccesoBD(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/AccesosBD/${id}`, { headers: this.getHeaders() }); }
 
   // --- Catalogos ---
 

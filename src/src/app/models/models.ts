@@ -137,3 +137,15 @@ export interface ReporteIntegralResponse {
   sitios: ReporteSitio[];
   plataformas: ReportePlataforma[];
 }
+
+export interface AccesoBD {
+  id: number;
+  empleadoId: number;
+  nombreCompleto?: string;
+  codigoPuesto?: string;
+  nombrePuesto?: string;
+  servidor: string;
+  baseDatos: string;
+  nivelAcceso: string;
+  observaciones?: string;
+}

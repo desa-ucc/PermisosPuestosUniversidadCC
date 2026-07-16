@@ -1,0 +1,25 @@
+<<<<<<< SEARCH
+  getPlataformas(): Observable<Plataforma[]> {
+    return this.http.get<Plataforma[]>(`${this.apiUrl}/Plataformas`);
+  }
+=======
+  getPlataformas(): Observable<Plataforma[]> {
+    return this.http.get<Plataforma[]>(`${this.apiUrl}/Plataformas`);
+  }
+
+  getAccesosBD(): Observable<AccesoBD[]> {
+    return this.http.get<AccesoBD[]>(`${this.apiUrl}/AccesosBD`);
+  }
+
+  createAccesoBD(data: AccesoBD): Observable<any> {
+    return this.http.post(`${this.apiUrl}/AccesosBD`, data);
+  }
+
+  updateAccesoBD(id: number, data: AccesoBD): Observable<any> {
+    return this.http.put(`${this.apiUrl}/AccesosBD/${id}`, data);
+  }
+
+  deleteAccesoBD(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/AccesosBD/${id}`);
+  }
+>>>>>>> REPLACE
