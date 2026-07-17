@@ -225,19 +225,25 @@ import { forkJoin } from 'rxjs';
 export class HardwareComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
-  aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+ aplicarFiltros() {
+    // 1. Apunta directamente a la propiedad 'equipos'
+    const dataList = this.equipos; 
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
+    if (!dataList || dataList.length === 0) {
+        this.listaFiltradaTabla = [];
+        return;
+    }
 
-    if(!dataList) return;
-
+    // 2. Filtra basándote en la lista de equipos
     this.listaFiltradaTabla = dataList.filter((item: any) => {
       let matches = true;
       for (const key in this.filtros) {
         if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
+          // Accedemos a la propiedad del objeto usando la llave del filtro
+          const valorPropiedad = item[key] ? item[key].toString().toLowerCase() : '';
+          const valorFiltro = this.filtros[key].toString().toLowerCase();
+          
+          if (!valorPropiedad.includes(valorFiltro)) {
             matches = false;
             break;
           }
@@ -246,8 +252,9 @@ export class HardwareComponent implements OnInit {
       return matches;
     });
 
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
+    // 3. Resetear página si existe
+    this.currentPage = 1;
+}
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
@@ -441,7 +448,7 @@ loadData() {
       puestos: this.api.getPuestos()
     }).subscribe({
       next: (res) => {
-        // Asignación de datos
+        console.log('Datos recibidos del API:', res);
         this.equipos = res.equipos;
         this.empleados = res.empleados;
         this.tiposHardware = res.tipos;
@@ -452,7 +459,7 @@ loadData() {
         
         // Ahora sí, aplicamos filtros de forma segura
         this.aplicarFiltros();
-        
+        console.log('Contenido de la lista filtrada:', this.listaFiltradaTabla);
         console.log('Carga completada, total registros:', this.listaFiltradaTabla.length);
       },
       error: (err) => {

@@ -199,45 +199,47 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
             </td>
           </tr>
           </thead>
-          <tbody>
-            @for(plat of paginatedList; track plat.id) {
-              <tr>
-                <td>{{ plat.codigoPuesto }}</td>
-                <td>{{ getEmpleadoName(plat.empleadoId) }}</td>
-                <td>{{ plat.nombrePuesto || getPuestoByEmpleado(plat.empleadoId) }}</td>
-                <td>
-                  <span class="px-2 py-1 rounded text-xs font-semibold"
-                        [ngClass]="{
-                          'bg-green-800 text-green-200': plat.licencias === 'Posee',
-                          'bg-gray-600 text-gray-300': plat.licencias !== 'Posee'
-                        }">
-                    {{ plat.licencias }}
-                  </span>
-                </td>
-                <td>{{ plat.nombrePlataforma }}</td>
-                <td>{{ plat.modulos }}</td>
-                <td>{{ plat.accesosPermisos }}</td>
-                <td>{{ plat.nivelAcceso }}</td>
-                <td>
-                  <div class="flex justify-center gap-3"><button (click)="verDetalle(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
-  <span class="material-symbols-outlined">visibility</span>
-</button>
-<button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'EDITAR'}" (click)="edit(plat)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-  <span class="material-symbols-outlined">edit</span>
-</button>
-                  <button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'ELIMINAR'}" (click)="delete(plat.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-  <span class="material-symbols-outlined">delete</span>
-</button></div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="9" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
-                  No hay plataformas registradas en el sistema.
-                </td>
-              </tr>
-            }
-          </tbody>
+        <tbody>
+          @for(p of paginatedList; track p.id) {
+            <tr>
+              <td>{{ p.codigoPuesto }}</td>
+              <td>{{ getEmpleadoName(p.empleadoId) }}</td>
+              <td>{{ p.nombrePuesto }}</td>
+              <td>
+                <span class="px-2 py-1 rounded text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-green-800 text-green-200': p.licencias === 'Posee',
+                        'bg-gray-600 text-gray-300': p.licencias !== 'Posee'
+                      }">
+                  {{ p.licencias }}
+                </span>
+              </td>
+              <td>{{ p.nombrePlataforma }}</td>
+              <td>{{ p.modulos }}</td>
+              <td>{{ p.accesosPermisos }}</td>
+              <td>{{ p.nivelAcceso }}</td>
+              <td>
+                <div class="flex justify-center gap-3">
+                  <button (click)="verDetalle(p)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </button>
+                  <button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'EDITAR'}" (click)="edit(p)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button *appPermiso="{pantalla: 'PLATAFORMAS', accion: 'ELIMINAR'}" (click)="delete(p.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
+                No hay plataformas registradas en el sistema.
+              </td>
+            </tr>
+          }
+        </tbody>
 
         </table>
 
@@ -267,29 +269,34 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 export class PlataformasComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
-  aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+aplicarFiltros() {
+  // Fuerza a usar siempre listaPlataformas en lugar de intentar adivinar con Object.keys
+  const dataList = this.listaPlataformas; 
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
+  if (!dataList || dataList.length === 0) {
+    this.listaFiltradaTabla = [];
+    return;
+  }
 
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
-            matches = false;
-            break;
-          }
+  this.listaFiltradaTabla = dataList.filter((item: any) => {
+    let matches = true;
+    for (const key in this.filtros) {
+      if (this.filtros[key]) {
+        // Obtenemos el valor del filtro y el valor del item
+        const valorFiltro = this.filtros[key].toString().toLowerCase();
+        const valorItem = (item[key] || '').toString().toLowerCase();
+        
+        if (!valorItem.includes(valorFiltro)) {
+          matches = false;
+          break;
         }
       }
-      return matches;
-    });
+    }
+    return matches;
+  });
 
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
+  if (this.currentPage > this.totalPages) this.currentPage = 1;
+}
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
@@ -335,7 +342,7 @@ export class PlataformasComponent implements OnInit {
     this.currentPage = 1;
   }
 
-  plataformas: Plataforma[] = [];
+  listaPlataformas: Plataforma[] = [];
   empleados: Empleado[] = [];
   puestos: Puesto[] = [];
   plataformaForm: FormGroup;
@@ -523,17 +530,43 @@ export class PlataformasComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.loadData();
-    this.updateFilterConfig();
-    this.loadCatalogos();
-  }
+  async ngOnInit() {
+  // Cargamos los catálogos base primero
+  this.loadCatalogos(); 
+  
+  // Esperamos a tener los datos de empleados y puestos antes de cargar las plataformas
+  // Si tienes métodos como api.getEmpleados() y api.getPuestos(), úsalos aquí
+  this.api.getEmpleados().subscribe(res => {
+    this.empleados = res;
+    this.api.getPuestos().subscribe(p => {
+        this.puestos = p;
+        this.loadData(); // Cargar plataformas solo después de tener empleados y puestos
+    });
+  });
+}
 
-  loadData() {
-    this.api.getPlataformas().subscribe(res => this.plataformas = res);
-    this.api.getEmpleados().subscribe(res => this.empleados = res);
-    this.api.getPuestos().subscribe(res => this.puestos = res);
-  }
+
+loadData() {
+  this.api.getPlataformas().subscribe({
+    next: (res: any[]) => {
+      this.listaPlataformas = res.map(item => ({
+        id: item.id || item.Id,
+        empleadoId: item.empleadoId || item.EmpleadoId,
+        codigoPuesto: item.codigoPuesto || item.CodigoPuesto || 'N/A',
+        // Asegúrate de usar la propiedad tal cual viene del SP (NombrePuesto)
+        nombrePuesto: item.nombrePuesto || item.NombrePuesto || 'N/A', 
+        nombrePlataforma: item.nombrePlataforma || item.NombrePlataforma || 'N/A',
+        licencias: item.licencias || item.Licencias || 'N/A',
+        modulos: item.modulos || item.Modulos || 'N/A',
+        accesosPermisos: item.accesosPermisos || item.AccesosPermisos || 'N/A',
+        nivelAcceso: item.nivelAcceso || item.NivelAcceso || 'N/A'
+      }));
+      
+      this.listaFiltradaTabla = [...this.listaPlataformas];
+      this.aplicarFiltros();
+    }
+  });
+}
 
   loadCatalogos() {
     this.api.getNivelesAcceso().subscribe(res => this.nivelesAcceso = res);

@@ -38,6 +38,7 @@ export interface HardwareIdeal {
 export interface HardwareAsignado {
   id: number;
   empleadoId: number;
+  nombreCompleto: string;    
   codigoPuesto?: string;
   nombrePuesto?: string;
   tipoHardwareId?: number;
@@ -55,6 +56,7 @@ export interface SoftwareLocal {
   empleadoId: number;
   codigoPuesto?: string;
   nombrePuesto?: string;
+  nombreCompleto: string; // Inclúyelo, el SP lo trae
   equipo: string;
   gruposAD: string;
   nombreSoftware: string;
@@ -65,8 +67,10 @@ export interface SoftwareLocal {
 export interface PermisosSitio {
   id: number;
   empleadoId: number;
-  codigoPuesto?: string;
-  nombrePuesto?: string;
+ 
+  codigoPuesto: string;   
+  nombrePuesto: string;
+  nombreCompleto?: string; // <--- AGREGA EL SIGNO DE INTERROGACIÓN (?) AQUÍ
   sitio: string;
   ambiente: string;
   gruposPermisos: string;
@@ -76,7 +80,7 @@ export interface Plataforma {
   id: number;
   empleadoId: number;
   codigoPuesto?: string;
-  nombrePuesto?: string;
+  nombrePuesto?: string; // <--- ESTO ES LO QUE FALTA
   nombrePlataforma: string;
   licencias: string;
   modulos: string;

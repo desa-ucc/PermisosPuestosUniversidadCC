@@ -128,8 +128,9 @@ import { PermissionService } from '../../services/permission.service';
             </tr>
 
           <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
+            <td class="p-2">
+              <input type="text" [(ngModel)]="filtroCodigoPuesto" (input)="aplicarFiltros()" placeholder="Filtrar Cód..." class="...">
+            </td>            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroSoftware" placeholder="Filtrar Software..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroVersion" placeholder="Filtrar Versión..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
@@ -140,14 +141,14 @@ import { PermissionService } from '../../services/permission.service';
           </tr>
           </thead>
           <tbody>
-            @for(sw of paginatedList; track sw.id) {
+            @for(sw of listaFiltradaTabla; track sw.id) {
               <tr>
                 <td>{{sw.codigoPuesto}}</td>
                 <td>{{sw.nombrePuesto || getPuestoByEmpleadoId(sw.empleadoId)}}</td>
                 <td>{{getEquipoPlaca(sw.empleadoId)}}</td>
-                <td>{{sw.nombreSoftware}}</td>
-                <td>{{sw.version}}</td>
-                <td>{{sw.fabricante}}</td>
+                <td>{{sw.nombreSoftware || sw.NombreSoftware}}</td> 
+                <td>{{sw.version || sw.Version}}</td>
+                <td>{{sw.fabricante || sw.Fabricante}}</td>
                 <td>
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
@@ -200,28 +201,23 @@ export class SoftwareComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
   aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+  // Si no hay datos, no hacemos nada
+  if (!this.softwareList || this.softwareList.length === 0) return;
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
+  this.listaFiltradaTabla = this.softwareList.filter((item: any) => {
+    const matchCod = item.codigoPuesto?.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()) ?? true;
+    const matchPuesto = item.nombrePuesto?.toLowerCase().includes(this.filtroPuesto.toLowerCase()) ?? true;
+    const matchEquipo = item.equipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
+    const matchSoftware = (item.nombreSoftware || item.NombreSoftware)?.toLowerCase().includes(this.filtroSoftware.toLowerCase()) ?? true;
+    const matchVersion = (item.version || item.Version)?.toLowerCase().includes(this.filtroVersion.toLowerCase()) ?? true;
+    const matchFabricante = (item.fabricante || item.Fabricante)?.toLowerCase().includes(this.filtroFabricante.toLowerCase()) ?? true;
 
-    if(!dataList) return;
+    return matchCod && matchPuesto && matchEquipo && matchSoftware && matchVersion && matchFabricante;
+  });
 
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
-            matches = false;
-            break;
-          }
-        }
-      }
-      return matches;
-    });
+  this.currentPage = 1;
+}
 
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
@@ -354,11 +350,36 @@ export class SoftwareComponent implements OnInit {
     this.loadData();
     this.updateFilterConfig();
   }
+loadData() {
+  console.log('Iniciando carga de datos...');
+  
+  // 1. Cargar Software
+  this.api.getSoftwareLocales().subscribe({
+    next: (res: any) => {
+      console.log('Respuesta cruda del API (Software):', res);
+      
+      // Si el API devuelve un objeto con una propiedad de lista, cámbialo a res.data o lo que sea necesario
+      // Aquí estamos forzando que sea un array
+      this.softwareList = Array.isArray(res) ? res : [];
+      
+      console.log('Asignando a listaFiltradaTabla, cantidad:', this.softwareList.length);
+      this.listaFiltradaTabla = [...this.softwareList];
+      
+      this.currentPage = 1;
+      this.aplicarFiltros();
+    },
+    error: (err) => console.error('Error fatal al cargar software:', err)
+  });
 
-  loadData() {
-    this.api.getSoftwareLocales().subscribe(res => this.softwareList = res);
-    this.api.getHardwareAsignado().subscribe(res => this.equipos = res);
-  }
+  // 2. Cargar Equipos
+  this.api.getHardwareAsignado().subscribe({
+    next: (res: any) => {
+      console.log('Equipos cargados correctamente:', res);
+      this.equipos = res;
+    },
+    error: (err) => console.error('Error en Hardware:', err)
+  });
+}
 
   getPuestoByEmpleadoId(empleadoId: number): string {
     const hw = this.equipos.find(e => e.empleadoId === empleadoId);

@@ -160,23 +160,14 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
           </tr>
           </thead>
           <tbody>
-            @for(sitio of paginatedList; track sitio.id) {
-              <tr>
-                <td>{{ sitio.codigoPuesto }}</td>
-                <td>{{ getEmpleadoName(sitio.empleadoId) }}</td>
-                <td>{{ sitio.nombrePuesto || getPuestoByEmpleado(sitio.empleadoId) }}</td>
-                <td>{{ sitio.sitio }}</td>
-                <td>
-                  <span class="px-2 py-1 rounded text-xs font-semibold"
-                        [ngClass]="{
-                          'bg-green-800 text-green-200': sitio.ambiente === 'Producción',
-                          'bg-yellow-800 text-yellow-200': sitio.ambiente === 'Pruebas',
-                          'bg-blue-800 text-blue-200': sitio.ambiente === 'Desarrollo'
-                        }">
-                    {{ sitio.ambiente }}
-                  </span>
-                </td>
-                <td>{{ sitio.gruposPermisos }}</td>
+            @for(sitio of listaFiltradaTabla; track sitio.id) {
+            <tr>
+              <td>{{ sitio.codigoPuesto }}</td>
+              <td>{{ sitio.nombreCompleto }}</td>
+              <td>{{ sitio.nombrePuesto }}</td>
+              <td>{{ sitio.sitio }}</td>
+              <td>{{ sitio.ambiente }}</td>
+              <td>{{ sitio.gruposPermisos }}</td>
                 <td>
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
@@ -229,28 +220,20 @@ export class SitiosComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
   aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
+  if (!this.permisosSitios) return;
 
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
+  // Filtro simplificado para depuración
+  this.listaFiltradaTabla = this.permisosSitios.filter((item: any) => {
+    const matchCod = item.codigoPuesto?.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()) ?? true;
+    const matchPersona = item.nombreCompleto?.toLowerCase().includes(this.filtroPersona.toLowerCase()) ?? true;
+    const matchSitio = item.sitio?.toLowerCase().includes(this.filtroSitio.toLowerCase()) ?? true;
+    
+    return matchCod && matchPersona && matchSitio;
+  });
+  
+  this.currentPage = 1;
+}
 
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
-            matches = false;
-            break;
-          }
-        }
-      }
-      return matches;
-    });
-
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
@@ -448,13 +431,32 @@ export class SitiosComponent implements OnInit {
     this.updateFilterConfig();
   }
 
-  loadData() {
-    this.api.getPermisosSitios().subscribe(res => this.permisosSitios = res);
-    this.api.getEmpleados().subscribe(res => this.empleados = res);
-    this.api.getPuestos().subscribe(res => this.puestos = res);
-    this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);
-    this.api.getSitiosCat().subscribe(res => this.sitiosOpciones = res);
-  }
+ loadData() {
+  this.api.getPermisosSitios().subscribe({
+    next: (res: any[]) => {
+      this.permisosSitios = res.map(item => ({
+        id: item.id || item.Id,
+        empleadoId: item.empleadoId || item.EmpleadoId,
+        // Usamos OR para capturar si viene en mayúscula o minúscula
+        codigoPuesto: item.codigoPuesto || item.CodigoPuesto || 'N/A',
+        nombrePuesto: item.nombrePuesto || item.NombrePuesto || 'N/A',
+        nombreCompleto: item.nombreCompleto || item.NombreCompleto || 'Desconocido',
+        sitio: item.sitio || item.Sitio || '',
+        ambiente: item.ambiente || item.Ambiente || '',
+        gruposPermisos: item.gruposPermisos || item.GruposPermisos || ''
+      }));
+      
+      this.listaFiltradaTabla = [...this.permisosSitios];
+      this.aplicarFiltros();
+    },
+    error: (err) => console.error('Error:', err)
+  });
+  // Carga de catálogos...
+  this.api.getEmpleados().subscribe(res => this.empleados = res);
+  this.api.getPuestos().subscribe(res => this.puestos = res);
+  this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);
+  this.api.getSitiosCat().subscribe(res => this.sitiosOpciones = res);
+}
 
   onEmpleadoChange(event: any) {
     const empId = this.sitioForm.get('empleadoId')?.value;

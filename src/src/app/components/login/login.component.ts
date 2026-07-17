@@ -20,12 +20,12 @@ import { CommonModule } from '@angular/common';
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full">
           <div class="mb-4 w-full">
-            <label class="ucc-label text-slate-200">Usuario</label>
+            <label class="ucc-label !text-white">Usuario</label>
             <input type="text" formControlName="username" class="ucc-input bg-white/90">
           </div>
 
           <div class="mb-6 w-full">
-            <label class="ucc-label text-slate-200">Contraseña</label>
+            <label class="ucc-label !text-white">Contraseña</label>
             <input type="password" formControlName="password" class="ucc-input bg-white/90">
           </div>
 

@@ -7,36 +7,35 @@ using PermisosPuestosApi.Models;
 
 namespace PermisosPuestosApi.Controllers
 {
-    [Authorize]
+     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PlataformasController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public PlataformasController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public PlataformasController(AppDbContext context) { _context = context; }
 
         [HttpGet]
         public async Task<IActionResult> GetPlataformas()
         {
-            var data = await _context.Plataformas.FromSqlRaw("EXEC sp_GetPlataformas").ToListAsync();
+            var data = await _context.Database.SqlQueryRaw<Plataforma>(
+                "EXEC sp_GestionarPlataformas @Accion='SELECT'"
+            ).ToListAsync();
             return Ok(data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreatePlataforma([FromBody] Plataforma p)
         {
-            var p1 = new SqlParameter("@EmpleadoId", p.EmpleadoId);
-            var p2 = new SqlParameter("@NombrePlataforma", p.NombrePlataforma);
-            var p3 = new SqlParameter("@Licencias", p.Licencias);
-            var p4 = new SqlParameter("@Modulos", p.Modulos);
-            var p5 = new SqlParameter("@AccesosPermisos", p.AccesosPermisos);
-            var p6 = new SqlParameter("@NivelAcceso", p.NivelAcceso);
-
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_CreatePlataforma @EmpleadoId, @NombrePlataforma, @Licencias, @Modulos, @AccesosPermisos, @NivelAcceso", p1, p2, p3, p4, p5, p6);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPlataformas @Accion='INSERT', @EmpleadoId=@e, @NombrePlataforma=@n, @Licencias=@l, @Modulos=@m, @AccesosPermisos=@a, @NivelAcceso=@na",
+                new SqlParameter("@e", p.EmpleadoId),
+                new SqlParameter("@n", p.NombrePlataforma ?? (object)DBNull.Value),
+                new SqlParameter("@l", p.Licencias ?? (object)DBNull.Value),
+                new SqlParameter("@m", p.Modulos ?? (object)DBNull.Value),
+                new SqlParameter("@a", p.AccesosPermisos ?? (object)DBNull.Value),
+                new SqlParameter("@na", p.NivelAcceso ?? (object)DBNull.Value)
+            );
             return Ok();
         }
 
@@ -45,23 +44,26 @@ namespace PermisosPuestosApi.Controllers
         {
             if (id != p.Id) return BadRequest();
 
-            var pId = new SqlParameter("@Id", id);
-            var p1 = new SqlParameter("@EmpleadoId", p.EmpleadoId);
-            var p2 = new SqlParameter("@NombrePlataforma", p.NombrePlataforma);
-            var p3 = new SqlParameter("@Licencias", p.Licencias);
-            var p4 = new SqlParameter("@Modulos", p.Modulos);
-            var p5 = new SqlParameter("@AccesosPermisos", p.AccesosPermisos);
-            var p6 = new SqlParameter("@NivelAcceso", p.NivelAcceso);
-
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdatePlataforma @Id, @EmpleadoId, @NombrePlataforma, @Licencias, @Modulos, @AccesosPermisos, @NivelAcceso", pId, p1, p2, p3, p4, p5, p6);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPlataformas @Accion='UPDATE', @Id=@id, @EmpleadoId=@e, @NombrePlataforma=@n, @Licencias=@l, @Modulos=@m, @AccesosPermisos=@a, @NivelAcceso=@na",
+                new SqlParameter("@id", id),
+                new SqlParameter("@e", p.EmpleadoId),
+                new SqlParameter("@n", p.NombrePlataforma ?? (object)DBNull.Value),
+                new SqlParameter("@l", p.Licencias ?? (object)DBNull.Value),
+                new SqlParameter("@m", p.Modulos ?? (object)DBNull.Value),
+                new SqlParameter("@a", p.AccesosPermisos ?? (object)DBNull.Value),
+                new SqlParameter("@na", p.NivelAcceso ?? (object)DBNull.Value)
+            );
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlataforma(int id)
         {
-            var pId = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeletePlataforma @Id", pId);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarPlataformas @Accion='DELETE', @Id=@id",
+                new SqlParameter("@id", id)
+            );
             return NoContent();
         }
     }

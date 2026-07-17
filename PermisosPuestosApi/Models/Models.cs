@@ -115,16 +115,17 @@ public class PermisosSitio
 }
 
     public class Plataforma
-    {
-        [Key] public int Id { get; set; }
-        public int EmpleadoId { get; set; }
-        public string? CodigoPuesto { get; set; }
-        public string NombrePlataforma { get; set; } = string.Empty;
-        public string Licencias { get; set; } = string.Empty;
-        public string Modulos { get; set; } = string.Empty;
-        public string AccesosPermisos { get; set; } = string.Empty;
-        public string NivelAcceso { get; set; } = string.Empty;
-    }
+{
+    [Key] public int Id { get; set; }
+    public int EmpleadoId { get; set; }
+    public string? CodigoPuesto { get; set; }
+    public string? NombrePuesto { get; set; } // <--- ASEGÚRATE DE QUE ESTÉ AQUÍ
+    public string NombrePlataforma { get; set; } = string.Empty;
+    public string Licencias { get; set; } = string.Empty;
+    public string Modulos { get; set; } = string.Empty;
+    public string AccesosPermisos { get; set; } = string.Empty;
+    public string NivelAcceso { get; set; } = string.Empty;
+}
 
     public class UsuarioDto
     {
@@ -193,10 +194,6 @@ public class PermisosSitio
     public class Cat_Sitio : CatalogoBase { }
     public class Cat_Plataforma : CatalogoBase { }
     public class Cat_NivelesAcceso : CatalogoBase {
-        public bool PuedeVer { get; set; }
-        public bool PuedeCrear { get; set; }
-        public bool PuedeEditar { get; set; }
-        public bool PuedeEliminar { get; set; }
     }
     public class Cat_PlataformasNombres : CatalogoBase { }
     public class Cat_TiposLicencia : CatalogoBase { }
