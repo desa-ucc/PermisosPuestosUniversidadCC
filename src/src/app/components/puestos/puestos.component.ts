@@ -6,6 +6,7 @@ import { PermissionService } from '../../services/permission.service';
 import { Puesto } from '../../models/models';
 import { PermisoDirective } from '../../directives/permiso.directive';
 import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/base-filter-bar.component';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-puestos',
@@ -75,6 +76,8 @@ import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/
 <app-base-filter-bar
       [config]="filterConfig"
       [initialFilters]="filtros"
+      [showExportButton]="true"
+      (exportData)="exportarReporte()"
       (filtersChanged)="onFiltersChanged($event)"
       (filtersCleared)="limpiarFiltros()">
     </app-base-filter-bar>
@@ -278,6 +281,21 @@ export class PuestosComponent implements OnInit {
 
   prevPage() {
     if (this.currentPage > 1) this.currentPage--;
+  }
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const puestosData = this.listaFiltradaTabla.map((row: any) => ({
+      'ID': row.id,
+      'CÓDIGO PUESTO': row.codigoPuesto,
+      'NOMBRE PUESTO': row.nombrePuesto,
+      'DESCRIPCIÓN': row.descripcion || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(puestosData);
+    ws['!cols'] = [{wch: 10}, {wch: 20}, {wch: 40}, {wch: 50}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Puestos');
+    XLSX.writeFile(wb, `Reporte_Puestos.xlsx`);
   }
 
   changePageSize(event: Event) {
