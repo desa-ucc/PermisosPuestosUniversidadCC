@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -110,6 +111,8 @@ import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../..
 <app-base-filter-bar
       [config]="filterConfig"
       [initialFilters]="filtros"
+      [showExportButton]="true"
+      (exportData)="exportarReporte()"
       (filtersChanged)="onFiltersChanged($event)"
       (filtersCleared)="limpiarFiltros()">
     </app-base-filter-bar>
@@ -259,6 +262,25 @@ export class BaseDatosComponent implements OnInit {
       return matchCodigoPuesto && matchNombreCompleto && matchNombrePuesto && matchServidor && matchBaseDatos && matchNivelAcceso && matchObservaciones;
     });
     this.currentPage = 1;
+  }
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.listaFiltradaTabla.map((row: any) => ({
+      'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
+      'PERSONA': row.nombreCompleto || 'N/A',
+      'PUESTO': row.nombrePuesto || 'N/A',
+      'SERVIDOR': row.servidor || 'N/A',
+      'BASE DE DATOS': row.baseDatos || 'N/A',
+      'NIVEL DE ACCESO': row.nivelAcceso || 'N/A',
+      'OBSERVACIONES': row.observaciones || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 35}, {wch: 25}, {wch: 25}, {wch: 20}, {wch: 30}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Base de Datos');
+    XLSX.writeFile(wb, `Reporte_BaseDatos.xlsx`);
   }
 
   limpiarFiltros() {

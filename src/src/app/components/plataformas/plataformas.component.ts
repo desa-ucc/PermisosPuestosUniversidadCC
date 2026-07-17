@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -195,7 +196,10 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
             <td class="p-2"><input type="text" [(ngModel)]="filtroAccesos" placeholder="Filtrar Accesos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroNivel" placeholder="Filtrar Nivel..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2 text-center">
-              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar</button>
+              <div class="flex flex-col gap-1">
+                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
+                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+                </div>
             </td>
           </tr>
           </thead>
@@ -329,6 +333,26 @@ aplicarFiltros() {
   filtroNivel: string = '';
 
 
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.listaFiltradaTabla.map((row: any) => ({
+      'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
+      'PERSONA': this.getEmpleadoName(row.empleadoId) || 'N/A',
+      'PUESTO': row.nombrePuesto || 'N/A',
+      'LICENCIA': row.licencias || 'N/A',
+      'PLATAFORMA': row.nombrePlataforma || 'N/A',
+      'MÓDULOS': row.modulos || 'N/A',
+      'ACCESOS/PERMISOS': row.accesosPermisos || 'N/A',
+      'NIVEL DE ACCESO': row.nivelAcceso || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 35}, {wch: 15}, {wch: 25}, {wch: 25}, {wch: 25}, {wch: 20}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Plataformas');
+    XLSX.writeFile(wb, `Reporte_Plataformas.xlsx`);
+  }
 
   limpiarFiltrosTabla() {
     this.filtroCodigoPuesto = '';

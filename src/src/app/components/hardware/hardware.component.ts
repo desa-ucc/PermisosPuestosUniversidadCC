@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -163,7 +164,10 @@ import { forkJoin } from 'rxjs';
             <td class="p-2"><input type="text" [(ngModel)]="filtroMarca" placeholder="Filtrar Marca..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroPlaca" placeholder="Filtrar Placa..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2 text-center">
-              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar Filtros</button>
+              <div class="flex flex-col gap-1">
+                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
+                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+                </div>
             </td>
           </tr>
           </thead>
@@ -333,6 +337,27 @@ export class HardwareComponent implements OnInit {
   filtroPlaca: string = '';
 
 
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.listaFiltradaTabla.map((row: any) => ({
+      'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
+      'PUESTO': row.nombrePuesto || 'N/A',
+      'NOMBRE DE PERSONA': row.nombreCompleto || 'Sin nombre',
+      'EQUIPO': row.tipoEquipo || row.TipoEquipo || 'N/A',
+      'MARCA': row.marcaPC || row.MarcaPC || 'N/A',
+      'PLACA': row.placa || row.Placa || 'N/A',
+      'PROCESADOR': row.procesador || 'N/A',
+      'MEMORIA': row.memoria || 'N/A',
+      'DISCO': row.disco || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 30}, {wch: 25}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Hardware Asignado');
+    XLSX.writeFile(wb, `Reporte_Hardware_Asignado.xlsx`);
+  }
 
   limpiarFiltrosTabla() {
     this.filtroCodigoPuesto = '';
