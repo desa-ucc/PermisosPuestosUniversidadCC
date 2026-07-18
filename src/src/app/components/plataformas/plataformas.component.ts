@@ -171,45 +171,44 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center gap-2 text-ucc-secondary">
+    <span class="material-symbols-outlined">table</span>
+    <h3 class="text-xl font-bold">Registros Actuales</h3>
+  </div>
+</div>
+
+<app-base-filter-bar
+      [config]="filterConfig"
+      [initialFilters]="filtros"
+      [showExportButton]="true"
+      (exportData)="exportarReporte()"
+      (filtersChanged)="onFiltersChanged($event)"
+      (filtersCleared)="limpiarFiltros()">
+    </app-base-filter-bar>
+
+<div class="overflow-x-auto">
 <table class="ucc-table">
           <thead>
             <tr>
-              <th>Código Puesto</th>
-              <th>Persona</th>
-              <th>Puesto</th>
-              <th>Licencia</th>
-              <th>Plataforma</th>
-              <th>Módulos</th>
-              <th>Accesos</th>
-              <th>Nivel</th>
-              <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Código Puesto</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Persona</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Puesto</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Licencia</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Plataforma</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Módulos</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Accesos</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Nivel</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Acciones</th>
             </tr>
-
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPersona" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroLicencia" placeholder="Filtrar Licencia..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPlataforma" placeholder="Filtrar Plataforma..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroModulos" placeholder="Filtrar Módulos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroAccesos" placeholder="Filtrar Accesos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroNivel" placeholder="Filtrar Nivel..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <div class="flex flex-col gap-1">
-                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
-                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
-                </div>
-            </td>
-          </tr>
           </thead>
         <tbody>
           @for(p of paginatedList; track p.id) {
             <tr>
-              <td>{{ p.codigoPuesto }}</td>
-              <td>{{ getEmpleadoName(p.empleadoId) }}</td>
-              <td>{{ p.nombrePuesto }}</td>
-              <td>
+              <td class="py-4 px-6 font-body-md text-body-md font-bold">{{ p.codigoPuesto }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ getEmpleadoName(p.empleadoId) }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ p.nombrePuesto }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">
                 <span class="px-2 py-1 rounded text-xs font-semibold"
                       [ngClass]="{
                         'bg-green-800 text-green-200': p.licencias === 'Posee',
@@ -218,11 +217,11 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   {{ p.licencias }}
                 </span>
               </td>
-              <td>{{ p.nombrePlataforma }}</td>
-              <td>{{ p.modulos }}</td>
-              <td>{{ p.accesosPermisos }}</td>
-              <td>{{ p.nivelAcceso }}</td>
-              <td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ p.nombrePlataforma }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ p.modulos }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ p.accesosPermisos }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ p.nivelAcceso }}</td>
+              <td class="py-4 px-6">
                 <div class="flex justify-center gap-3">
                   <button (click)="verDetalle(p)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
                     <span class="material-symbols-outlined">visibility</span>
@@ -247,6 +246,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
         </table>
 
+</div>
         <!-- FOOTER PAGINACIÓN DINÁMICA -->
         <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg">
           <div class="flex items-center gap-2">
@@ -265,8 +265,7 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
             <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
           </div>
         </div>
-
-</section>
+      </section>
     </div>
   `
 })
@@ -354,7 +353,7 @@ aplicarFiltros() {
     XLSX.writeFile(wb, `Reporte_Plataformas.xlsx`);
   }
 
-  limpiarFiltrosTabla() {
+  limpiarFiltros() {
     this.filtroCodigoPuesto = '';
     this.filtroPersona = '';
     this.filtroPuesto = '';
