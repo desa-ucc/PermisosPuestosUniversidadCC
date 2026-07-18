@@ -38,18 +38,32 @@ export interface FilterColumn {
         }
       }
 
-      <button (click)="clearFilters()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-        <span class="material-symbols-outlined text-[18px]">refresh</span>
-        Limpiar Filtros
-      </button>
+
+      <div class="ml-auto flex items-center gap-3">
+        @if (showExportButton) {
+          <button (click)="onExport()" class="bg-ucc-primary text-white hover:bg-ucc-primary/90 px-4 py-2 rounded-lg transition-all text-sm font-semibold flex items-center gap-2 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            Descargar Reporte
+          </button>
+        }
+        <button (click)="clearFilters()" class="flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+          <span class="material-symbols-outlined text-[18px]">refresh</span>
+          Limpiar Filtros
+        </button>
+      </div>
     </div>
   `
+
 })
 export class BaseFilterBarComponent implements OnChanges {
+
   @Input() config: FilterColumn[] = [];
   @Input() initialFilters: any = {};
+  @Input() showExportButton: boolean = false;
   @Output() filtersChanged = new EventEmitter<any>();
   @Output() filtersCleared = new EventEmitter<void>();
+  @Output() exportData = new EventEmitter<void>();
+
 
   filters: any = {};
 
@@ -61,6 +75,10 @@ export class BaseFilterBarComponent implements OnChanges {
 
   onFilterChange() {
     this.filtersChanged.emit({ ...this.filters });
+  }
+
+  onExport() {
+    this.exportData.emit();
   }
 
   clearFilters() {

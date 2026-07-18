@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -151,7 +152,10 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
             <td class="p-2"><input type="text" [(ngModel)]="filtroProcesador" placeholder="Filtrar Procesador..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2"><input type="text" [(ngModel)]="filtroMemoria" placeholder="Filtrar Memoria..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
             <td class="p-2 text-center">
-              <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline">Limpiar Filtros</button>
+              <div class="flex flex-col gap-1">
+                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
+                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+                </div>
             </td>
           </tr>
           </thead>
@@ -226,6 +230,25 @@ export class HardwareIdealComponent implements OnInit {
 
       return matchCodigo && matchPuesto && matchEquipo && matchProc && matchMemoria;
     });
+  }
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.equiposFiltradosTabla.map((row: any) => ({
+      'CÓDIGO PUESTO': row.codigoPuesto || row.CodigoPuesto,
+      'PUESTO RELACIONADO': row.nombrePuesto || row.NombrePuesto || this.getPuestoName(row.puestoId || row.PuestoId),
+      'EQUIPO BASE': this.getTipoName(row.tipoHardwareId || row.TipoHardwareId, row.tipoEquipo || row.TipoEquipo) || 'N/A',
+      'PROCESADOR': row.procesador || row.Procesador || 'N/A',
+      'MEMORIA': row.memoria || row.Memoria || 'N/A',
+      'DISCO': row.disco || row.Disco || 'N/A',
+      'OBSERVACIONES': row.observaciones || row.Observaciones || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 25}, {wch: 20}, {wch: 20}, {wch: 20}, {wch: 30}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Equipo Ideal');
+    XLSX.writeFile(wb, `Reporte_Equipo_Ideal.xlsx`);
   }
 
   limpiarFiltrosTabla() {

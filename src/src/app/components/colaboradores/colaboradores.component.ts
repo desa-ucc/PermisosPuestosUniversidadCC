@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -132,9 +133,14 @@ import { Empleado, Puesto } from '../../models/models';
             <td class="p-3"><input type="text" [(ngModel)]="filtroPuestoTabla" placeholder="Puesto..." class="w-full bg-white border border-ucc-neutral-outline/50 rounded-md py-1.5 px-3 text-xs placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-1 focus:ring-ucc-primary outline-none transition-all"></td>
             <td class="p-3 text-center">
               <div class="flex justify-center">
-                <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                  <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
-                </button>
+                <div class="flex flex-col gap-1">
+                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">download</span> Exportar
+                  </button>
+                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                  </button>
+                </div>
               </div>
             </td>
           </tr>
@@ -256,6 +262,23 @@ export class ColaboradoresComponent implements OnInit {
 
       return matchCodigo && matchNombre && matchCorreo && matchPuesto;
     });
+  }
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.empleadosFiltradosTabla.map((row: any) => ({
+      'CÓDIGO': row.codigoEmpleado,
+      'NOMBRE COMPLETO': row.nombreCompleto,
+      'CORREO INSTITUCIONAL': row.correoInstitucional,
+      'PUESTO': row.nombrePuesto || 'No Asignado',
+      'OBSERVACIONES': row.observaciones || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 30}, {wch: 30}, {wch: 30}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Colaboradores');
+    XLSX.writeFile(wb, `Reporte_Colaboradores.xlsx`);
   }
 
   limpiarFiltrosTabla() {

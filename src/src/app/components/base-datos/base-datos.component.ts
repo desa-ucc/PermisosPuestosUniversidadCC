@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -110,6 +111,8 @@ import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../..
 <app-base-filter-bar
       [config]="filterConfig"
       [initialFilters]="filtros"
+      [showExportButton]="true"
+      (exportData)="exportarReporte()"
       (filtersChanged)="onFiltersChanged($event)"
       (filtersCleared)="limpiarFiltros()">
     </app-base-filter-bar>
@@ -118,33 +121,28 @@ import { AccesoBD, Empleado, Puesto, Catalogo, CatalogoNivelAcceso } from '../..
         <table class="ucc-table">
           <thead>
             <tr>
-              <th>Código Puesto</th>
-              <th>Persona</th>
-              <th>Puesto</th>
-              <th>Servidor</th>
-              <th>Base de Datos</th>
-              <th>Nivel Acceso</th>
-              <th>Observaciones</th>
-              <th class="w-32 text-center">Acciones</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Código Puesto</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Persona</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Puesto</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Servidor</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Base de Datos</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Nivel Acceso</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase">Observaciones</th>
+              <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase">Acciones</th>
             </tr>
           </thead>
           <tbody>
             @for(acbd of paginatedList; track acbd.id) {
-            <tr class="hover:bg-ucc-surface-container-low/50 transition-colors">
-              <td class="font-medium text-ucc-neutral">{{ acbd.codigoPuesto || 'N/A' }}</td>
-              <td>
-                <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">person</span>
-                  {{ acbd.nombreCompleto || 'Desconocido' }}
-                </div>
-              </td>
-              <td>{{ acbd.nombrePuesto || 'No Asignado' }}</td>
-              <td>{{ acbd.servidor }}</td>
-              <td>{{ acbd.baseDatos }}</td>
-              <td><span class="px-2 py-1 bg-ucc-primary/10 text-ucc-primary rounded-full text-xs font-semibold">{{ acbd.nivelAcceso }}</span></td>
-              <td class="text-sm">{{ acbd.observaciones }}</td>
-              <td>
-                <div class="flex items-center justify-center gap-2">
+            <tr>
+              <td class="py-4 px-6 font-body-md text-body-md font-bold">{{ acbd.codigoPuesto || 'N/A' }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ acbd.nombreCompleto || 'Desconocido' }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ acbd.nombrePuesto || 'No Asignado' }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ acbd.servidor }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md">{{ acbd.baseDatos }}</td>
+              <td class="py-4 px-6 font-body-md text-body-md"><span class="px-2 py-1 bg-ucc-primary/10 text-ucc-primary rounded-full text-xs font-semibold">{{ acbd.nivelAcceso }}</span></td>
+              <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant truncate max-w-xs">{{ acbd.observaciones }}</td>
+              <td class="py-4 px-6">
+                <div class="flex justify-center gap-3">
                   <button (click)="verDetalle(acbd)" *appPermiso="{pantalla: 'ADMINBASEDATOS', accion: 'VER'}" class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-full transition-all tooltip-trigger" title="Ver Detalle">
                     <span class="material-symbols-outlined text-[20px]">visibility</span>
                   </button>
@@ -259,6 +257,25 @@ export class BaseDatosComponent implements OnInit {
       return matchCodigoPuesto && matchNombreCompleto && matchNombrePuesto && matchServidor && matchBaseDatos && matchNivelAcceso && matchObservaciones;
     });
     this.currentPage = 1;
+  }
+
+
+  exportarReporte() {
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    const data = this.listaFiltradaTabla.map((row: any) => ({
+      'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
+      'PERSONA': row.nombreCompleto || 'N/A',
+      'PUESTO': row.nombrePuesto || 'N/A',
+      'SERVIDOR': row.servidor || 'N/A',
+      'BASE DE DATOS': row.baseDatos || 'N/A',
+      'NIVEL DE ACCESO': row.nivelAcceso || 'N/A',
+      'OBSERVACIONES': row.observaciones || 'N/A'
+    }));
+
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{wch: 15}, {wch: 35}, {wch: 35}, {wch: 25}, {wch: 25}, {wch: 20}, {wch: 30}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Base de Datos');
+    XLSX.writeFile(wb, `Reporte_BaseDatos.xlsx`);
   }
 
   limpiarFiltros() {
