@@ -32,6 +32,9 @@ namespace PermisosPuestosApi.Data
         public DbSet<ReportePlataformaDto> ReportesPlataformasDto { get; set; }
         public DbSet<AccesoBDDto> AccesosBDDto { get; set; }
 
+                public DbSet<ReporteAccesoBDDto> ReportesBasesDatosDto { get; set; }
+        public DbSet<ReporteSoftwareLocalDto> ReportesSoftwareLocalDto { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
@@ -54,6 +57,8 @@ namespace PermisosPuestosApi.Data
             modelBuilder.Entity<ReporteSitioDto>().HasNoKey();
             modelBuilder.Entity<ReportePlataformaDto>().HasNoKey();
             modelBuilder.Entity<AccesoBDDto>().HasNoKey();
+                    modelBuilder.Entity<ReporteAccesoBDDto>().HasNoKey();
+            modelBuilder.Entity<ReporteSoftwareLocalDto>().HasNoKey();
         }
     }
 }

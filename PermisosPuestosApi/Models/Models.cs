@@ -245,9 +245,32 @@ public class PermisosSitio
         public string NivelAcceso { get; set; } = string.Empty;
     }
 
+    public class ReporteAccesoBDDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Servidor { get; set; } = string.Empty;
+        public string BaseDatos { get; set; } = string.Empty;
+        public string NivelAcceso { get; set; } = string.Empty;
+        public string Observaciones { get; set; } = string.Empty;
+    }
+
+    public class ReporteSoftwareLocalDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Equipo { get; set; } = string.Empty;
+        public string GruposAD { get; set; } = string.Empty;
+        public string NombreSoftware { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
+        public string Fabricante { get; set; } = string.Empty;
+    }
+
     public class ReporteIntegralResponse
     {
         public List<ReporteHardwareDto> Hardware { get; set; } = new();
         public List<ReporteSitioDto> Sitios { get; set; } = new();
         public List<ReportePlataformaDto> Plataformas { get; set; } = new();
+        public List<ReporteAccesoBDDto> BasesDatos { get; set; } = new();
+        public List<ReporteSoftwareLocalDto> SoftwareLocal { get; set; } = new();
     }

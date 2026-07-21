@@ -143,11 +143,34 @@ export interface ReportePlataforma {
   nivelAcceso: string;
 }
 
+
+export interface ReporteAccesoBD {
+  puesto: string;
+  nombre: string;
+  servidor: string;
+  baseDatos: string;
+  nivelAcceso: string;
+  observaciones: string;
+}
+
+export interface ReporteSoftwareLocal {
+  puesto: string;
+  nombre: string;
+  equipo: string;
+  gruposAD: string;
+  nombreSoftware: string;
+  version: string;
+  fabricante: string;
+}
+
 export interface ReporteIntegralResponse {
   hardware: ReporteHardware[];
   sitios: ReporteSitio[];
   plataformas: ReportePlataforma[];
+  basesDatos: ReporteAccesoBD[];
+  softwareLocal: ReporteSoftwareLocal[];
 }
+
 
 export interface AccesoBD {
   id: number;

@@ -37,6 +37,8 @@ namespace PermisosPuestosApi.Controllers
             var p1 = new SqlParameter("@TerminoBusqueda", termino);
             var p2 = new SqlParameter("@TerminoBusqueda", termino);
             var p3 = new SqlParameter("@TerminoBusqueda", termino);
+            var p4 = new SqlParameter("@TerminoBusqueda", termino);
+            var p5 = new SqlParameter("@TerminoBusqueda", termino);
 
             var hw = await _context.ReportesHardwareDto
                 .FromSqlRaw("EXEC sp_GetReporteIntegralHardware @TerminoBusqueda", p1)
@@ -50,11 +52,21 @@ namespace PermisosPuestosApi.Controllers
                 .FromSqlRaw("EXEC sp_GetReporteIntegralPlataformas @TerminoBusqueda", p3)
                 .ToListAsync();
 
+            var bd = await _context.ReportesBasesDatosDto
+                .FromSqlRaw("EXEC sp_GetReporteIntegralBasesDatos @TerminoBusqueda", p4)
+                .ToListAsync();
+
+            var sl = await _context.ReportesSoftwareLocalDto
+                .FromSqlRaw("EXEC sp_GetReporteIntegralSoftwareLocal @TerminoBusqueda", p5)
+                .ToListAsync();
+
             var result = new ReporteIntegralResponse
             {
                 Hardware = hw,
                 Sitios = sit,
-                Plataformas = plat
+                Plataformas = plat,
+                BasesDatos = bd,
+                SoftwareLocal = sl
             };
 
             return Ok(result);
