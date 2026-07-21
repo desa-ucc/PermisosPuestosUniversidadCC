@@ -316,6 +316,117 @@ import * as XLSX from 'xlsx';
             }
           </section>
 
+          <!-- SECTION 4: BASES DE DATOS -->
+          <section class="ucc-table-container mb-8 border-l-4 border-l-orange-500">
+            <div class="p-4 bg-orange-500/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-orange-500">database</span>
+               <h3 class="font-bold text-orange-500">Sección 4: Accesos a Bases de Datos</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="ucc-table w-full">
+                <thead class="bg-ucc-surface text-ucc-neutral-variant text-xs uppercase text-left">
+                  <tr>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Puesto</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Nombre</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Servidor</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Base de Datos</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Nivel Acceso</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Observaciones</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm">
+                  @for (row of paginatedBasesDatosList; track row.puesto + row.nombre + row.baseDatos + $index) {
+                    <tr class="hover:bg-ucc-surface-container-lowest transition-colors border-b border-ucc-neutral-outline/10 last:border-0">
+                      <td class="py-3 px-4 font-medium text-ucc-primary truncate max-w-[200px]" [title]="row.puesto">{{row.puesto}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[200px]" [title]="row.nombre">{{row.nombre}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[150px]" [title]="row.servidor">{{row.servidor}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[150px]" [title]="row.baseDatos">{{row.baseDatos}}</td>
+                      <td class="py-3 px-4">
+                        <span class="px-2 py-1 bg-orange-500/10 text-orange-600 rounded text-xs font-semibold whitespace-nowrap">{{row.nivelAcceso}}</span>
+                      </td>
+                      <td class="py-3 px-4 text-ucc-neutral-variant truncate max-w-[250px]" [title]="row.observaciones">{{row.observaciones}}</td>
+                    </tr>
+                  }
+                  @empty {
+                    <tr><td colspan="6" class="py-8 text-center text-ucc-neutral-variant italic">No se encontraron accesos a bases de datos asociadas.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if(data.basesDatos.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+                    <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+                      @for(size of pageSizeOptions; track size) {
+                        <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+                      }
+                    </select>
+                  </div>
+                  <span class="text-sm text-ucc-neutral-variant">Mostrando página {{basesDatosCurrentPage}} de {{basesDatosTotalPages}}</span>
+                  <div class="flex gap-2">
+                      <button (click)="prevBasesDatosPage()" [disabled]="basesDatosCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                      <button (click)="nextBasesDatosPage()" [disabled]="basesDatosCurrentPage === basesDatosTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                  </div>
+                </div>
+            }
+          </section>
+
+          <!-- SECTION 5: SOFTWARE LOCAL -->
+          <section class="ucc-table-container mb-8 border-l-4 border-l-pink-500">
+            <div class="p-4 bg-pink-500/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-pink-500">devices</span>
+               <h3 class="font-bold text-pink-500">Sección 5: Software Local</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="ucc-table w-full">
+                <thead class="bg-ucc-surface text-ucc-neutral-variant text-xs uppercase text-left">
+                  <tr>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Puesto</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Nombre</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Equipo</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Grupos AD</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Software</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Versión</th>
+                    <th class="py-3 px-4 font-medium border-b border-ucc-neutral-outline/20">Fabricante</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm">
+                  @for (row of paginatedSoftwareLocalList; track row.puesto + row.nombre + row.nombreSoftware + $index) {
+                    <tr class="hover:bg-ucc-surface-container-lowest transition-colors border-b border-ucc-neutral-outline/10 last:border-0">
+                      <td class="py-3 px-4 font-medium text-ucc-primary truncate max-w-[200px]" [title]="row.puesto">{{row.puesto}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[200px]" [title]="row.nombre">{{row.nombre}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[150px]" [title]="row.equipo">{{row.equipo}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[150px]" [title]="row.gruposAD">{{row.gruposAD}}</td>
+                      <td class="py-3 px-4 text-ucc-on-surface truncate max-w-[200px]" [title]="row.nombreSoftware">{{row.nombreSoftware}}</td>
+                      <td class="py-3 px-4 text-ucc-neutral-variant truncate max-w-[100px]" [title]="row.version">{{row.version}}</td>
+                      <td class="py-3 px-4 text-ucc-neutral-variant truncate max-w-[150px]" [title]="row.fabricante">{{row.fabricante}}</td>
+                    </tr>
+                  }
+                  @empty {
+                    <tr><td colspan="7" class="py-8 text-center text-ucc-neutral-variant italic">No se encontró software local asociado.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if(data.softwareLocal.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+                    <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+                      @for(size of pageSizeOptions; track size) {
+                        <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+                      }
+                    </select>
+                  </div>
+                  <span class="text-sm text-ucc-neutral-variant">Mostrando página {{softwareLocalCurrentPage}} de {{softwareLocalTotalPages}}</span>
+                  <div class="flex gap-2">
+                      <button (click)="prevSoftwareLocalPage()" [disabled]="softwareLocalCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                      <button (click)="nextSoftwareLocalPage()" [disabled]="softwareLocalCurrentPage === softwareLocalTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                  </div>
+                </div>
+            }
+          </section>
         } @else {
           <section class="ucc-card bg-ucc-background flex flex-col items-center justify-center p-12 text-ucc-neutral-variant shadow-none border-dashed border-2">
              <span class="material-symbols-outlined text-[64px] mb-4 opacity-50">search_off</span>
@@ -396,7 +507,7 @@ export class ReportesComponent implements OnInit {
 
 
   // Datos del Reporte
-  data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [] };
+  data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   isLoading = false;
   busquedaRealizada = false;
 
@@ -412,6 +523,8 @@ export class ReportesComponent implements OnInit {
     this.hardwareCurrentPage = 1;
     this.sitiosCurrentPage = 1;
     this.plataformasCurrentPage = 1;
+    this.basesDatosCurrentPage = 1;
+    this.softwareLocalCurrentPage = 1;
   }
 hardwareCurrentPage: number = 1;
   sitiosCurrentPage: number = 1;
@@ -481,7 +594,54 @@ hardwareCurrentPage: number = 1;
   }
 
 
+
+  basesDatosCurrentPage: number = 1;
+  softwareLocalCurrentPage: number = 1;
+
+  get paginatedBasesDatosList() {
+    const startIndex = (this.basesDatosCurrentPage - 1) * this.pageSize;
+    return this.data.basesDatos.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get basesDatosTotalPages() {
+    return Math.ceil(this.data.basesDatos.length / this.pageSize) || 1;
+  }
+
+  nextBasesDatosPage() {
+    if (this.basesDatosCurrentPage < this.basesDatosTotalPages) {
+      this.basesDatosCurrentPage++;
+    }
+  }
+
+  prevBasesDatosPage() {
+    if (this.basesDatosCurrentPage > 1) {
+      this.basesDatosCurrentPage--;
+    }
+  }
+
+  get paginatedSoftwareLocalList() {
+    const startIndex = (this.softwareLocalCurrentPage - 1) * this.pageSize;
+    return this.data.softwareLocal.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get softwareLocalTotalPages() {
+    return Math.ceil(this.data.softwareLocal.length / this.pageSize) || 1;
+  }
+
+  nextSoftwareLocalPage() {
+    if (this.softwareLocalCurrentPage < this.softwareLocalTotalPages) {
+      this.softwareLocalCurrentPage++;
+    }
+  }
+
+  prevSoftwareLocalPage() {
+    if (this.softwareLocalCurrentPage > 1) {
+      this.softwareLocalCurrentPage--;
+    }
+  }
+
   constructor(private api: ApiService) {}
+
 
   ngOnInit() {
     this.api.getPuestos().subscribe(res => this.listaPuestos = res);
@@ -494,7 +654,7 @@ hardwareCurrentPage: number = 1;
   }
 
   get hasResults(): boolean {
-    return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0;
+    return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0 || this.data.basesDatos.length > 0 || this.data.softwareLocal.length > 0;
   }
 
 
@@ -508,7 +668,7 @@ hardwareCurrentPage: number = 1;
     this.busquedaRealizada = false;
 
 
-    this.data = { hardware: [], sitios: [], plataformas: [] };
+    this.data = { hardware: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   }
 
   buscar() {
@@ -587,9 +747,40 @@ hardwareCurrentPage: number = 1;
         'ACCESOS Y PERMISOS': row.accesosYPermisos,
         'NIVEL ACCESO': row.nivelAcceso
       }));
-      const wsPlat: XLSX.WorkSheet = XLSX.utils.json_to_sheet(platData);
+            const wsPlat: XLSX.WorkSheet = XLSX.utils.json_to_sheet(platData);
       wsPlat['!cols'] = [{wch: 20}, {wch: 30}, {wch: 15}, {wch: 20}, {wch: 25}, {wch: 25}, {wch: 15}];
       XLSX.utils.book_append_sheet(wb, wsPlat, 'Plataformas');
+    }
+
+    // 4. Bases de Datos Sheet
+    if (this.data.basesDatos.length > 0) {
+      const bdData = this.data.basesDatos.map((row: any) => ({
+        'PUESTO': row.puesto,
+        'NOMBRE': row.nombre,
+        'SERVIDOR': row.servidor,
+        'BASE DE DATOS': row.baseDatos,
+        'NIVEL ACCESO': row.nivelAcceso,
+        'OBSERVACIONES': row.observaciones
+      }));
+      const wsBd: XLSX.WorkSheet = XLSX.utils.json_to_sheet(bdData);
+      wsBd['!cols'] = [{wch: 20}, {wch: 30}, {wch: 25}, {wch: 25}, {wch: 15}, {wch: 35}];
+      XLSX.utils.book_append_sheet(wb, wsBd, 'Bases de Datos');
+    }
+
+    // 5. Software Local Sheet
+    if (this.data.softwareLocal.length > 0) {
+      const slData = this.data.softwareLocal.map((row: any) => ({
+        'PUESTO': row.puesto,
+        'NOMBRE': row.nombre,
+        'EQUIPO': row.equipo,
+        'GRUPOS AD': row.gruposAD,
+        'SOFTWARE': row.nombreSoftware,
+        'VERSIÓN': row.version,
+        'FABRICANTE': row.fabricante
+      }));
+      const wsSl: XLSX.WorkSheet = XLSX.utils.json_to_sheet(slData);
+      wsSl['!cols'] = [{wch: 20}, {wch: 30}, {wch: 20}, {wch: 20}, {wch: 25}, {wch: 15}, {wch: 20}];
+      XLSX.utils.book_append_sheet(wb, wsSl, 'Software Local');
     }
 
     XLSX.writeFile(wb, `Reporte_Integral.xlsx`);
