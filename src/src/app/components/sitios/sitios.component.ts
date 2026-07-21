@@ -267,11 +267,22 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
                 </td>
               </tr>
             } @empty {
-              <tr>
-                <td colspan="7" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
-                  No hay permisos de sitio registrados en el sistema.
-                </td>
-              </tr>
+                <tr>
+                  <td
+                    colspan="9"
+                    class="text-center py-12 text-ucc-neutral-variant"
+                  >
+                    <div class="flex flex-col items-center gap-3">
+                      <span
+                        class="material-symbols-outlined text-[48px] opacity-50"
+                        >devices</span
+                      >
+                      <p class="font-medium">
+                        No hay sitios registrados en el sistema.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
             }
           </tbody>
         </table>

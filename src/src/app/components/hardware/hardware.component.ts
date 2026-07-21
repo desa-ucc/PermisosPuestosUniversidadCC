@@ -269,11 +269,22 @@ import { forkJoin } from 'rxjs';
                 </td>
               </tr>
             } @empty {
-              <tr>
-                <td colspan="7" class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800">
-                  No hay hardware registrado en el sistema.
-                </td>
-              </tr>
+               <tr>
+                  <td
+                    colspan="9"
+                    class="text-center py-12 text-ucc-neutral-variant"
+                  >
+                    <div class="flex flex-col items-center gap-3">
+                      <span
+                        class="material-symbols-outlined text-[48px] opacity-50"
+                        >devices</span
+                      >
+                      <p class="font-medium">
+                        No hay hardware asignado registrado en el sistema.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
             }
           </tbody>
 
