@@ -52,12 +52,41 @@ namespace PermisosPuestosApi.Controllers
                 .FromSqlRaw("EXEC sp_GetReporteIntegralPlataformas @TerminoBusqueda", p3)
                 .ToListAsync();
 
+            var sqlBd = @"
+                SELECT
+                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+                    E.NombreCompleto AS Nombre,
+                    ISNULL(B.Servidor, '') AS Servidor,
+                    ISNULL(B.BaseDatos, '') AS BaseDatos,
+                    ISNULL(B.NivelAcceso, '') AS NivelAcceso,
+                    ISNULL(B.Observaciones, '') AS Observaciones
+                FROM pt_Empleados E
+                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+                INNER JOIN pt_AccesoBD B ON B.EmpleadoId = E.Id
+                WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var bd = await _context.ReportesBasesDatosDto
-                .FromSqlRaw("EXEC sp_GetReporteIntegralBasesDatos @TerminoBusqueda", p4)
+                .FromSqlRaw(sqlBd, p4)
                 .ToListAsync();
 
+            var sqlSl = @"
+                SELECT
+                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+                    E.NombreCompleto AS Nombre,
+                    ISNULL(S.Equipo, '') AS Equipo,
+                    ISNULL(S.GruposAD, '') AS GruposAD,
+                    ISNULL(S.NombreSoftware, '') AS NombreSoftware,
+                    ISNULL(S.Version, '') AS Version,
+                    ISNULL(S.Fabricante, '') AS Fabricante
+                FROM pt_Empleados E
+                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+                INNER JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
+                WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var sl = await _context.ReportesSoftwareLocalDto
-                .FromSqlRaw("EXEC sp_GetReporteIntegralSoftwareLocal @TerminoBusqueda", p5)
+                .FromSqlRaw(sqlSl, p5)
                 .ToListAsync();
 
             var result = new ReporteIntegralResponse
