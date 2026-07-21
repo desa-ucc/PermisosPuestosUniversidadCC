@@ -8,6 +8,7 @@ import { BaseFilterBarComponent, FilterColumn } from '../shared/base-filter-bar/
 import { PermissionService } from '../../services/permission.service';
 import { HardwareAsignado, Empleado, Puesto, Catalogo } from '../../models/models';
 import { forkJoin } from 'rxjs';
+
 @Component({
   selector: 'app-hardware',
   standalone: true,
@@ -143,7 +144,7 @@ import { forkJoin } from 'rxjs';
 </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
 <table class="ucc-table">
           <thead>
             <tr>
@@ -156,18 +157,93 @@ import { forkJoin } from 'rxjs';
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroEmpleado" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroMarca" placeholder="Filtrar Marca..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPlaca" placeholder="Filtrar Placa..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <div class="flex flex-col gap-1">
-                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
-                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+          <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+          <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+            <!-- Código Puesto -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroCodigoPuesto" (input)="aplicarFiltros()" (focus)="showFiltroCodP = true" (blur)="cerrarFiltroCodP()" placeholder="Buscar cód..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroCodP) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroCodigoPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (c of codigosPuestoFiltrados; track c) {
+                    <li (mousedown)="seleccionarFiltroCodigoPuesto(c)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ c }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <!-- Puesto -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" (focus)="showFiltroP = true" (blur)="cerrarFiltroP()" placeholder="Buscar puesto..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroP) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (p of puestosTablaFiltrados; track p) {
+                    <li (mousedown)="seleccionarFiltroPuesto(p)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ p }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <!-- Persona -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroEmpleado" (input)="aplicarFiltros()" (focus)="showFiltroEmp = true" (blur)="cerrarFiltroEmp()" placeholder="Buscar persona..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroEmp) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroEmpleado('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (e of empleadosTablaFiltrados; track e) {
+                    <li (mousedown)="seleccionarFiltroEmpleado(e)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ e }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <!-- Equipo -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroEquipo" (input)="aplicarFiltros()" (focus)="showFiltroEq = true" (blur)="cerrarFiltroEq()" placeholder="Buscar equipo..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroEq) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroEquipo('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (eq of equiposTablaFiltrados; track eq) {
+                    <li (mousedown)="seleccionarFiltroEquipo(eq)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ eq }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <!-- Marca -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroMarca" (input)="aplicarFiltros()" (focus)="showFiltroMar = true" (blur)="cerrarFiltroMar()" placeholder="Buscar marca..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroMar) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroMarca('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (m of marcasTablaFiltradas; track m) {
+                    <li (mousedown)="seleccionarFiltroMarca(m)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ m }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <!-- Placa -->
+            <td class="p-3 relative">
+              <input type="text" [(ngModel)]="filtroPlaca" (input)="aplicarFiltros()" (focus)="showFiltroPla = true" (blur)="cerrarFiltroPla()" placeholder="Buscar placa..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+              @if (showFiltroPla) {
+                <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <li (mousedown)="seleccionarFiltroPlaca('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                  @for (pl of placasTablaFiltradas; track pl) {
+                    <li (mousedown)="seleccionarFiltroPlaca(pl)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ pl }}</li>
+                  }
+                </ul>
+              }
+            </td>
+
+            <td class="p-3 text-center">
+              <div class="flex justify-center">
+                <div class="flex flex-col gap-1">
+                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Exportar</button>
+                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar</button>
                 </div>
+              </div>
             </td>
           </tr>
           </thead>
@@ -177,9 +253,9 @@ import { forkJoin } from 'rxjs';
               <td>{{hw.codigoPuesto}}</td>
               <td>{{hw.nombrePuesto}}</td>
               <td>{{hw.nombreCompleto || 'Sin nombre'}}</td>
-              <td>{{hw.tipoEquipo || hw.TipoEquipo || 'N/A'}}</td> 
-              <td>{{hw.marcaPC || hw.MarcaPC || 'N/A'}}</td>
-              <td>{{hw.placa || hw.Placa || 'N/A'}}</td>
+              <td>{{hw.tipoEquipo || 'N/A'}}</td> 
+              <td>{{hw.marcaPC || 'N/A'}}</td>
+              <td>{{hw.placa || 'N/A'}}</td>
                 <td>
                   <div class="flex justify-center gap-3"><button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
   <span class="material-symbols-outlined">visibility</span>
@@ -229,8 +305,76 @@ import { forkJoin } from 'rxjs';
 export class HardwareComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
 
- aplicarFiltros() {
-    // 1. Apunta directamente a la propiedad 'equipos'
+  showFiltroCodP = false;
+  showFiltroP = false;
+  showFiltroEmp = false;
+  showFiltroEq = false;
+  showFiltroMar = false;
+  showFiltroPla = false;
+
+  get codigosPuestoUnicos(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.codigoPuesto).filter((c): c is string => Boolean(c)))).sort();
+  }
+
+  get puestosUnicos(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.nombrePuesto).filter((p): p is string => Boolean(p)))).sort();
+  }
+
+  get empleadosUnicos(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.nombreCompleto).filter((n): n is string => Boolean(n)))).sort();
+  }
+
+  get equiposUnicos(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.tipoEquipo).filter((eq): eq is string => Boolean(eq)))).sort();
+  }
+
+  get marcasUnicas(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.marcaPC).filter((m): m is string => Boolean(m)))).sort();
+  }
+
+  get placasUnicas(): string[] {
+    return Array.from(new Set(this.equipos.map(e => e.placa).filter((pl): pl is string => Boolean(pl)))).sort();
+  }
+
+  get codigosPuestoFiltrados() {
+    return this.codigosPuestoUnicos.filter(c => c.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+  }
+
+  get puestosTablaFiltrados() {
+    return this.puestosUnicos.filter(p => p.toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+  }
+
+  get empleadosTablaFiltrados() {
+    return this.empleadosUnicos.filter(e => e.toLowerCase().includes(this.filtroEmpleado.toLowerCase()));
+  }
+
+  get equiposTablaFiltrados() {
+    return this.equiposUnicos.filter(eq => eq.toLowerCase().includes(this.filtroEquipo.toLowerCase()));
+  }
+
+  get marcasTablaFiltradas() {
+    return this.marcasUnicas.filter(m => m.toLowerCase().includes(this.filtroMarca.toLowerCase()));
+  }
+
+  get placasTablaFiltradas() {
+    return this.placasUnicas.filter(pl => pl.toLowerCase().includes(this.filtroPlaca.toLowerCase()));
+  }
+
+  seleccionarFiltroCodigoPuesto(val: string) { this.filtroCodigoPuesto = val; this.showFiltroCodP = false; this.aplicarFiltros(); }
+  seleccionarFiltroPuesto(val: string) { this.filtroPuesto = val; this.showFiltroP = false; this.aplicarFiltros(); }
+  seleccionarFiltroEmpleado(val: string) { this.filtroEmpleado = val; this.showFiltroEmp = false; this.aplicarFiltros(); }
+  seleccionarFiltroEquipo(val: string) { this.filtroEquipo = val; this.showFiltroEq = false; this.aplicarFiltros(); }
+  seleccionarFiltroMarca(val: string) { this.filtroMarca = val; this.showFiltroMar = false; this.aplicarFiltros(); }
+  seleccionarFiltroPlaca(val: string) { this.filtroPlaca = val; this.showFiltroPla = false; this.aplicarFiltros(); }
+
+  cerrarFiltroCodP() { setTimeout(() => this.showFiltroCodP = false, 200); }
+  cerrarFiltroP() { setTimeout(() => this.showFiltroP = false, 200); }
+  cerrarFiltroEmp() { setTimeout(() => this.showFiltroEmp = false, 200); }
+  cerrarFiltroEq() { setTimeout(() => this.showFiltroEq = false, 200); }
+  cerrarFiltroMar() { setTimeout(() => this.showFiltroMar = false, 200); }
+  cerrarFiltroPla() { setTimeout(() => this.showFiltroPla = false, 200); }
+
+  aplicarFiltros() {
     const dataList = this.equipos; 
 
     if (!dataList || dataList.length === 0) {
@@ -238,27 +382,20 @@ export class HardwareComponent implements OnInit {
         return;
     }
 
-    // 2. Filtra basándote en la lista de equipos
     this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          // Accedemos a la propiedad del objeto usando la llave del filtro
-          const valorPropiedad = item[key] ? item[key].toString().toLowerCase() : '';
-          const valorFiltro = this.filtros[key].toString().toLowerCase();
-          
-          if (!valorPropiedad.includes(valorFiltro)) {
-            matches = false;
-            break;
-          }
-        }
-      }
-      return matches;
+      const matchCod = !this.filtroCodigoPuesto || (item.codigoPuesto && item.codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+      const matchPue = !this.filtroPuesto || (item.nombrePuesto && item.nombrePuesto.toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+      const matchEmp = !this.filtroEmpleado || (item.nombreCompleto && item.nombreCompleto.toLowerCase().includes(this.filtroEmpleado.toLowerCase()));
+      const matchEq = !this.filtroEquipo || ((item.tipoEquipo || '').toLowerCase().includes(this.filtroEquipo.toLowerCase()));
+      const matchMar = !this.filtroMarca || ((item.marcaPC || '').toLowerCase().includes(this.filtroMarca.toLowerCase()));
+      const matchPla = !this.filtroPlaca || ((item.placa || '').toLowerCase().includes(this.filtroPlaca.toLowerCase()));
+
+      return matchCod && matchPue && matchEmp && matchEq && matchMar && matchPla;
     });
 
-    // 3. Resetear página si existe
     this.currentPage = 1;
-}
+  }
+
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
@@ -336,18 +473,15 @@ export class HardwareComponent implements OnInit {
   filtroMarca: string = '';
   filtroPlaca: string = '';
 
-
-
-
   exportarReporte() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const data = this.listaFiltradaTabla.map((row: any) => ({
       'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
       'PUESTO': row.nombrePuesto || 'N/A',
       'NOMBRE DE PERSONA': row.nombreCompleto || 'Sin nombre',
-      'EQUIPO': row.tipoEquipo || row.TipoEquipo || 'N/A',
-      'MARCA': row.marcaPC || row.MarcaPC || 'N/A',
-      'PLACA': row.placa || row.Placa || 'N/A',
+      'EQUIPO': row.tipoEquipo || 'N/A',
+      'MARCA': row.marcaPC || 'N/A',
+      'PLACA': row.placa || 'N/A',
       'PROCESADOR': row.procesador || 'N/A',
       'MEMORIA': row.memoria || 'N/A',
       'DISCO': row.disco || 'N/A'
@@ -367,6 +501,7 @@ export class HardwareComponent implements OnInit {
     this.filtroMarca = '';
     this.filtroPlaca = '';
     this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
   equipos: HardwareAsignado[] = [];
@@ -377,7 +512,6 @@ export class HardwareComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
-  // Buscador Autocompletado: Empleados
   showDropdownEmpleados = false;
   searchTermEmpleados = '';
 
@@ -411,7 +545,6 @@ export class HardwareComponent implements OnInit {
   }
 
 
-  // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
@@ -464,8 +597,7 @@ export class HardwareComponent implements OnInit {
     this.updateFilterConfig();
   }
 
-loadData() {
-    // forkJoin ejecuta todas las peticiones en paralelo y espera a que terminen
+  loadData() {
     forkJoin({
       equipos: this.api.getHardwareAsignado(),
       empleados: this.api.getEmpleados(),
@@ -473,19 +605,13 @@ loadData() {
       puestos: this.api.getPuestos()
     }).subscribe({
       next: (res) => {
-        console.log('Datos recibidos del API:', res);
         this.equipos = res.equipos;
         this.empleados = res.empleados;
         this.tiposHardware = res.tipos;
         this.puestos = res.puestos;
 
-        // Inicializamos la lista filtrada con todos los datos
         this.listaFiltradaTabla = [...this.equipos];
-        
-        // Ahora sí, aplicamos filtros de forma segura
         this.aplicarFiltros();
-        console.log('Contenido de la lista filtrada:', this.listaFiltradaTabla);
-        console.log('Carga completada, total registros:', this.listaFiltradaTabla.length);
       },
       error: (err) => {
         console.error('Error cargando catálogos o datos:', err);
@@ -505,19 +631,14 @@ loadData() {
 
   getEmpleadoName(empleadoId: any): string {
     if (!this.empleados || this.empleados.length === 0) return 'Cargando...';
-    
-    // Convertimos ambos a Number para asegurar que 59 (número) sea igual a "59" (string)
     const emp = this.empleados.find(e => Number(e.id) === Number(empleadoId));
     return emp ? emp.nombreCompleto : 'No encontrado';
   }
 
-  // En tu archivo hardware-asignado.component.ts
   getPuestoByEmpleado(empleadoId: any): string {
-    if (!empleadoId) return 'No Asignado'; // Protección contra undefined/null
-    
+    if (!empleadoId) return 'No Asignado';
     const emp = this.empleados.find(e => Number(e.id) === Number(empleadoId));
     if (!emp || !emp.puestoId) return 'No Asignado';
-    
     return this.puestos.find(p => Number(p.id) === Number(emp.puestoId))?.nombrePuesto || 'Desconocido';
   }
 
@@ -552,7 +673,6 @@ loadData() {
         error: (err) => alert('Error al actualizar registro.')
       });
     } else {
-      console.log("Payload enviado:", data);
       this.api.createHardwareAsignado(data).subscribe({
         next: () => {
           this.loadData();
@@ -564,26 +684,24 @@ loadData() {
   }
 
   edit(hw: HardwareAsignado) {
-  this.isEditing = true;
-  this.isReadOnly = false;
-  this.currentId = hw.id;
-  this.hwForm.enable();
+    this.isEditing = true;
+    this.isReadOnly = false;
+    this.currentId = hw.id;
+    this.hwForm.enable();
 
-  // Asignación explícita (Mapeo manual)
-  this.hwForm.patchValue({
-    empleadoId: hw.empleadoId,
-    tipoHardwareId: hw.tipoHardwareId,
-    tipoEquipo: hw.tipoEquipo,
-    procesador: hw.procesador,
-    memoria: hw.memoria,
-    disco: hw.disco,
-    marcaPC: hw.marcaPC,
-    otrasConsideraciones: hw.otrasConsideraciones,
-    placa: hw.placa
-  });
+    this.hwForm.patchValue({
+      empleadoId: hw.empleadoId,
+      tipoHardwareId: hw.tipoHardwareId,
+      tipoEquipo: hw.tipoEquipo,
+      procesador: hw.procesador,
+      memoria: hw.memoria,
+      disco: hw.disco,
+      marcaPC: hw.marcaPC,
+      otrasConsideraciones: hw.otrasConsideraciones,
+      placa: hw.placa
+    });
 
-  this.selectedTipoHardwareId = hw.tipoHardwareId || null;
-  // IMPORTANTE: Debes llamar a esto para que el formulario sepa si mostrar los inputs de PC
+    this.selectedTipoHardwareId = hw.tipoHardwareId || null;
     this.onTipoHardwareChange(this.selectedTipoHardwareId);
     if (hw.empleadoId) {
         const matched = this.empleados.find(e => e.id === hw.empleadoId);

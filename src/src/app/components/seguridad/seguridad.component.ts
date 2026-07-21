@@ -16,11 +16,46 @@ export class SeguridadComponent implements OnInit {
   // Data
   roles: any[] = [];
   rolesFiltrados: any[] = [];
-  filtrosRoles = { nombre: '' };
+  filtrosRoles: { [key: string]: any } = { nombre: '' };
 
   usuarios: any[] = [];
   usuariosFiltrados: any[] = [];
-  filtrosUsuarios = { nombreUsuario: '' };
+  filtrosUsuarios: { [key: string]: any } = { nombreUsuario: '' };
+
+  // Dropdowns UI
+  showFiltroRolNom = false;
+  showFiltroUser = false;
+
+  get rolesNombresUnicos(): string[] {
+    return Array.from(new Set(this.roles.map(r => r.nombre).filter((n): n is string => Boolean(n)))).sort();
+  }
+
+  get usuariosNombresUnicos(): string[] {
+    return Array.from(new Set(this.usuarios.map(u => u.nombreUsuario).filter((un): un is string => Boolean(un)))).sort();
+  }
+
+  get rolesNombresFiltrados() {
+    return this.rolesNombresUnicos.filter(n => n.toLowerCase().includes((this.filtrosRoles['nombre'] || '').toLowerCase()));
+  }
+
+  get usuariosNombresFiltrados() {
+    return this.usuariosNombresUnicos.filter(un => un.toLowerCase().includes((this.filtrosUsuarios['nombreUsuario'] || '').toLowerCase()));
+  }
+
+  seleccionarFiltroRol(val: string) {
+    this.filtrosRoles['nombre'] = val;
+    this.showFiltroRolNom = false;
+    this.aplicarFiltrosRoles();
+  }
+
+  seleccionarFiltroUsuario(val: string) {
+    this.filtrosUsuarios['nombreUsuario'] = val;
+    this.showFiltroUser = false;
+    this.aplicarFiltrosUsuarios();
+  }
+
+  cerrarFiltroRolNom() { setTimeout(() => this.showFiltroRolNom = false, 200); }
+  cerrarFiltroUser() { setTimeout(() => this.showFiltroUser = false, 200); }
 
   // Forms
   rolForm: FormGroup;
@@ -82,16 +117,16 @@ export class SeguridadComponent implements OnInit {
   }
 
   aplicarFiltrosRoles() {
-    if (!this.filtrosRoles.nombre) {
+    if (!this.filtrosRoles['nombre']) {
       this.rolesFiltrados = [...this.roles];
     } else {
-      const search = this.filtrosRoles.nombre.toLowerCase();
+      const search = this.filtrosRoles['nombre'].toLowerCase();
       this.rolesFiltrados = this.roles.filter(r => r.nombre.toLowerCase().includes(search));
     }
   }
 
   limpiarFiltrosRoles() {
-    this.filtrosRoles.nombre = '';
+    this.filtrosRoles['nombre'] = '';
     this.aplicarFiltrosRoles();
   }
 
@@ -160,16 +195,16 @@ export class SeguridadComponent implements OnInit {
   }
 
   aplicarFiltrosUsuarios() {
-    if (!this.filtrosUsuarios.nombreUsuario) {
+    if (!this.filtrosUsuarios['nombreUsuario']) {
       this.usuariosFiltrados = [...this.usuarios];
     } else {
-      const search = this.filtrosUsuarios.nombreUsuario.toLowerCase();
+      const search = this.filtrosUsuarios['nombreUsuario'].toLowerCase();
       this.usuariosFiltrados = this.usuarios.filter(u => u.nombreUsuario.toLowerCase().includes(search));
     }
   }
 
   limpiarFiltrosUsuarios() {
-    this.filtrosUsuarios.nombreUsuario = '';
+    this.filtrosUsuarios['nombreUsuario'] = '';
     this.aplicarFiltrosUsuarios();
   }
 
@@ -182,7 +217,7 @@ export class SeguridadComponent implements OnInit {
         email: usuario.email,
         rolId: usuario.rolId,
         activo: usuario.activo,
-        passwordHash: '' // Do not pre-fill hash
+        passwordHash: ''
       });
     } else {
       this.selectedId = null;
@@ -225,8 +260,6 @@ export class SeguridadComponent implements OnInit {
       return;
     }
     this.permissionService.getPermisos(this.rolSeleccionadoId).subscribe(res => {
-      // El componente ahora renderiza la fila iterando directamente sobre la lista que trae el SP
-      // ya que el SP siempre trae todos los permisos existentes en bd.
       this.permisosActuales = res || [];
     });
   }

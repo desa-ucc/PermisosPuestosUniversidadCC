@@ -1,12 +1,12 @@
-<main class="p-8 max-w-7xl mx-auto min-h-screen pt-20">
-  <div class="mb-8 relative flex items-center justify-between">
-    <div>
-      <h1 class="font-title-lg text-title-lg text-primary mb-2">Seguridad y Accesos</h1>
-      <p class="font-body-md text-on-surface-variant">Administre roles, usuarios y permisos del sistema.</p>
-    </div>
+<main class="p-gutter max-w-container-max-width mx-auto space-y-8">
+  <div class="mb-8">
+    <h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Seguridad y Accesos</h2>
+    <p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">
+      Administre roles, usuarios y permisos del sistema.
+    </p>
   </div>
 
-  <div class="flex gap-4 mb-6 border-b border-outline-variant/30">
+  <div class="flex gap-4 mb-6 border-b border-ucc-neutral-outline/30">
     <button (click)="setTab('roles')" [class.border-ucc-primary]="activeTab === 'roles'" [class.text-ucc-primary]="activeTab === 'roles'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Roles</button>
     <button (click)="setTab('usuarios')" [class.border-ucc-primary]="activeTab === 'usuarios'" [class.text-ucc-primary]="activeTab === 'usuarios'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Usuarios</button>
     <button (click)="setTab('permisos')" [class.border-ucc-primary]="activeTab === 'permisos'" [class.text-ucc-primary]="activeTab === 'permisos'" class="px-6 py-3 font-semibold border-b-2 border-transparent hover:bg-surface-container transition-colors">Matriz de Permisos</button>
@@ -14,14 +14,12 @@
 
   <!-- TAB: ROLES -->
   @if (activeTab === 'roles') {
-    <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative">
-      <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-        <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-        <input type="text" placeholder="Filtrar por Nombre..." [(ngModel)]="filtrosRoles.nombre" (input)="aplicarFiltrosRoles()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-        <button (click)="limpiarFiltrosRoles()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-          <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
-        </button>
-        <button (click)="abrirModalRol()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+    <section class="ucc-table-container">
+      <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span class="material-symbols-outlined">shield</span> Gestión de Roles
+        </h3>
+        <button (click)="abrirModalRol()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-white text-[#356575] hover:bg-gray-100 font-bold">
           <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Rol
         </button>
       </div>
@@ -33,7 +31,37 @@
               <th class="py-4 px-6 text-left">ID</th>
               <th class="py-4 px-6 text-left">Nombre</th>
               <th class="py-4 px-6 text-left">Descripción</th>
-              <th class="py-4 px-6 text-center">Acciones</th>
+              <th class="py-4 px-6 text-center w-32">Acciones</th>
+            </tr>
+
+            <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+            <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+              <td class="p-3"></td>
+              <!-- Nombre Rol -->
+              <td class="p-3 relative">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">filter_list</span>
+                  <input type="text" [(ngModel)]="filtrosRoles['nombre']" (input)="aplicarFiltrosRoles()" (focus)="showFiltroRolNom = true" (blur)="cerrarFiltroRolNom()" placeholder="Buscar rol..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                </div>
+                @if (showFiltroRolNom) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroRol('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (r of rolesNombresFiltrados; track r) {
+                      <li (mousedown)="seleccionarFiltroRol(r)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ r }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+              <td class="p-3"></td>
+              <td class="p-3 text-center">
+                <div class="flex justify-center">
+                  <div class="flex flex-col gap-1">
+                    <button (click)="limpiarFiltrosRoles()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                    </button>
+                  </div>
+                </div>
+              </td>
             </tr>
           </thead>
           <tbody>
@@ -44,28 +72,32 @@
                 <td class="py-4 px-6">{{rol.descripcion}}</td>
                 <td class="py-4 px-6">
                   <div class="flex justify-center gap-3">
-                    <button (click)="abrirModalRol(rol)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
-                    <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                    <button (click)="abrirModalRol(rol)" class="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition-all" title="Editar"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+                    <button (click)="eliminarRol(rol.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-all" title="Eliminar"><span class="material-symbols-outlined text-[20px]">delete</span></button>
                   </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="py-12 text-center text-ucc-neutral-variant font-medium">
+                  No hay roles registrados en el sistema.
                 </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   }
 
   <!-- TAB: USUARIOS -->
   @if (activeTab === 'usuarios') {
-    <div class="bg-surface-container-low rounded-xl card-shadow border border-outline-variant/20 overflow-hidden relative">
-      <div class="bg-white border-b border-ucc-neutral-outline/20 p-4 flex flex-wrap gap-3 items-center">
-        <span class="material-symbols-outlined text-ucc-neutral-variant" data-icon="filter_list">filter_list</span>
-        <input type="text" placeholder="Filtrar por Usuario..." [(ngModel)]="filtrosUsuarios.nombreUsuario" (input)="aplicarFiltrosUsuarios()" class="bg-ucc-surface-container-low border border-ucc-neutral-outline/50 rounded-lg px-3 py-2 text-sm focus:bg-white focus:border-ucc-primary outline-none transition-all w-48">
-        <button (click)="limpiarFiltrosUsuarios()" class="ml-auto flex items-center gap-2 text-ucc-primary hover:bg-ucc-primary/10 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
-          <span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span> Limpiar Filtros
-        </button>
-        <button (click)="abrirModalUsuario()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg">
+    <section class="ucc-table-container">
+      <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span class="material-symbols-outlined">group</span> Gestión de Usuarios
+        </h3>
+        <button (click)="abrirModalUsuario()" class="ucc-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-white text-[#356575] hover:bg-gray-100 font-bold">
           <span class="material-symbols-outlined text-[18px]">person_add</span> Nuevo Usuario
         </button>
       </div>
@@ -78,7 +110,38 @@
               <th class="py-4 px-6 text-left">Email</th>
               <th class="py-4 px-6 text-left">Rol</th>
               <th class="py-4 px-6 text-center">Estado</th>
-              <th class="py-4 px-6 text-center">Acciones</th>
+              <th class="py-4 px-6 text-center w-32">Acciones</th>
+            </tr>
+
+            <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+            <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+              <!-- Nombre Usuario -->
+              <td class="p-3 relative">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">filter_list</span>
+                  <input type="text" [(ngModel)]="filtrosUsuarios['nombreUsuario']" (input)="aplicarFiltrosUsuarios()" (focus)="showFiltroUser = true" (blur)="cerrarFiltroUser()" placeholder="Buscar usuario..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                </div>
+                @if (showFiltroUser) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroUsuario('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (u of usuariosNombresFiltrados; track u) {
+                      <li (mousedown)="seleccionarFiltroUsuario(u)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ u }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+              <td class="p-3"></td>
+              <td class="p-3"></td>
+              <td class="p-3"></td>
+              <td class="p-3 text-center">
+                <div class="flex justify-center">
+                  <div class="flex flex-col gap-1">
+                    <button (click)="limpiarFiltrosUsuarios()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                    </button>
+                  </div>
+                </div>
+              </td>
             </tr>
           </thead>
           <tbody>
@@ -94,16 +157,22 @@
                 </td>
                 <td class="py-4 px-6">
                   <div class="flex justify-center gap-3">
-                    <button (click)="abrirModalUsuario(usuario)" class="text-ucc-primary hover:text-ucc-primary/80"><span class="material-symbols-outlined">edit</span></button>
-                    <button (click)="eliminarUsuario(usuario.id)" class="text-red-500 hover:text-red-700"><span class="material-symbols-outlined">delete</span></button>
+                    <button (click)="abrirModalUsuario(usuario)" class="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition-all" title="Editar"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+                    <button (click)="eliminarUsuario(usuario.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-all" title="Eliminar"><span class="material-symbols-outlined text-[20px]">delete</span></button>
                   </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="py-12 text-center text-ucc-neutral-variant font-medium">
+                  No hay usuarios registrados en el sistema.
                 </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   }
 
   <!-- TAB: PERMISOS MATRIZ -->

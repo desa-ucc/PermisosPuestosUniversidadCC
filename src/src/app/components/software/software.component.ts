@@ -17,106 +17,111 @@ import { PermissionService } from '../../services/permission.service';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Gestión de Software Local</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Software Local' : (isEditing ? 'Editar Software Local' : 'Registrar Software Local') }}</h3></div>
-<form [formGroup]="swForm" (ngSubmit)="onSubmit()" >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="flex flex-col">
-            <label class="ucc-label">Seleccione Opción</label>
-<div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar equipo..."
-                     [(ngModel)]="searchTermEquipos"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownEquipos = true"
-                     (blur)="cerrarDropdownEquipos()"
-                     [disabled]="isReadOnly">
+        <div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Software Local' : (isEditing ? 'Editar Software Local' : 'Registrar Software Local') }}</h3></div>
+        <form [formGroup]="swForm" (ngSubmit)="onSubmit()" >
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col">
+              <label class="ucc-label">Seleccione Opción</label>
+              <div class="relative">
+                <input type="text"
+                       class="ucc-input w-full"
+                       placeholder="Buscar o seleccionar equipo..."
+                       [(ngModel)]="searchTermEquipos"
+                       [ngModelOptions]="{standalone: true}"
+                       (focus)="showDropdownEquipos = true"
+                       (blur)="cerrarDropdownEquipos()"
+                       [disabled]="isReadOnly">
 
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEquipos || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarEquipo(null)">
-                  Ninguno
-                </li>
-                @for(eq of equiposFiltrados; track eq.id) {
+                <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                    [hidden]="!showDropdownEquipos || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarEquipo(eq)">
-                    {{eq.placa}} - {{eq.marcaPC}}
+                      (mousedown)="seleccionarEquipo(null)">
+                    Ninguno
                   </li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
+                  @for(eq of equiposFiltrados; track eq.id) {
+                    <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                        (mousedown)="seleccionarEquipo(eq)">
+                      {{eq.placa}} - {{eq.marcaPC}}
+                    </li>
+                  } @empty {
+                    <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                  }
+                </ul>
+              </div>
+              @if(swForm.get('empleadoId')?.invalid && swForm.get('empleadoId')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El equipo/empleado es requerido.</span>
+              }
             </div>
-            @if(swForm.get('empleadoId')?.invalid && swForm.get('empleadoId')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El equipo/empleado es requerido.</span>
-            }
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Nombre Equipo en Red</label>
+              <input formControlName="equipo" placeholder="Nombre Equipo en Red" class="ucc-input">
+              @if(swForm.get('equipo')?.invalid && swForm.get('equipo')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El equipo en red es requerido.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Grupos AD</label>
+              <input formControlName="gruposAD" placeholder="Grupos AD" class="ucc-input">
+              @if(swForm.get('gruposAD')?.invalid && swForm.get('gruposAD')?.touched) {
+                <span class="text-red-400 text-xs mt-1">Los grupos AD son requeridos.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Nombre Software</label>
+              <input formControlName="nombreSoftware" placeholder="Nombre Software" class="ucc-input">
+              @if(swForm.get('nombreSoftware')?.invalid && swForm.get('nombreSoftware')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El nombre de software es requerido.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Versión</label>
+              <input formControlName="version" placeholder="Versión" class="ucc-input">
+              @if(swForm.get('version')?.invalid && swForm.get('version')?.touched) {
+                <span class="text-red-400 text-xs mt-1">La versión es requerida.</span>
+              }
+            </div>
+
+            <div class="flex flex-col">
+              <label class="ucc-label">Fabricante</label>
+              <input formControlName="fabricante" placeholder="Fabricante" class="ucc-input">
+              @if(swForm.get('fabricante')?.invalid && swForm.get('fabricante')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El fabricante es requerido.</span>
+              }
+            </div>
           </div>
 
-          <div class="flex flex-col">
-            <label class="ucc-label">Nombre Equipo en Red</label>
-<input formControlName="equipo" placeholder="Nombre Equipo en Red" class="ucc-input">
-            @if(swForm.get('equipo')?.invalid && swForm.get('equipo')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El equipo en red es requerido.</span>
+          <div class="mt-4">
+            @if(!isReadOnly) {
+              <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
+                @if(isEditing) {
+                  Actualizar
+                } @else {
+                  Agregar
+                }
+              </button>
+            }
+
+            @if(isEditing || isReadOnly) {
+              <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+                {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+              </button>
             }
           </div>
-
-          <div class="flex flex-col">
-            <label class="ucc-label">Grupos AD</label>
-<input formControlName="gruposAD" placeholder="Grupos AD" class="ucc-input">
-            @if(swForm.get('gruposAD')?.invalid && swForm.get('gruposAD')?.touched) {
-              <span class="text-red-400 text-xs mt-1">Los grupos AD son requeridos.</span>
-            }
-          </div>
-
-          <div class="flex flex-col">
-            <label class="ucc-label">Nombre Software</label>
-<input formControlName="nombreSoftware" placeholder="Nombre Software" class="ucc-input">
-            @if(swForm.get('nombreSoftware')?.invalid && swForm.get('nombreSoftware')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El nombre de software es requerido.</span>
-            }
-          </div>
-
-          <div class="flex flex-col">
-            <label class="ucc-label">Versión</label>
-<input formControlName="version" placeholder="Versión" class="ucc-input">
-            @if(swForm.get('version')?.invalid && swForm.get('version')?.touched) {
-              <span class="text-red-400 text-xs mt-1">La versión es requerida.</span>
-            }
-          </div>
-
-          <div class="flex flex-col">
-            <label class="ucc-label">Fabricante</label>
-<input formControlName="fabricante" placeholder="Fabricante" class="ucc-input">
-            @if(swForm.get('fabricante')?.invalid && swForm.get('fabricante')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El fabricante es requerido.</span>
-            }
-          </div>
-        </div>
-
-        <div class="mt-4">
-          @if(!isReadOnly) {
-  <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="swForm.invalid" class="ucc-btn-primary">
-    @if(isEditing) {
-      Actualizar
-    } @else {
-      Agregar
-    }
-  </button>
-}
-
-          @if(isEditing || isReadOnly) {
-  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
-  </button>
-}
-        </div>
-      </form>
-</section>
+        </form>
+      </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/25 bg-ucc-secondary" style="background-color: #356575;">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">table_chart</span> Registros Actuales
+          </h3>
+        </div>
+
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Código Puesto</th>
@@ -128,41 +133,117 @@ import { PermissionService } from '../../services/permission.service';
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2">
-              <input type="text" [(ngModel)]="filtroCodigoPuesto" (input)="aplicarFiltros()" placeholder="Filtrar Cód..." class="...">
-            </td>            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroEquipo" placeholder="Filtrar Equipo..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroSoftware" placeholder="Filtrar Software..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroVersion" placeholder="Filtrar Versión..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroFabricante" placeholder="Filtrar Fabricante..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <div class="flex flex-col gap-1">
-                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
-                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+            <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+            <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+              <!-- Código Puesto -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroCodigoPuesto" (input)="aplicarFiltros()" (focus)="showFiltroCodP = true" (blur)="cerrarFiltroCodP()" placeholder="Buscar cód..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroCodP) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroCodigoPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (c of codigosPuestoFiltrados; track c) {
+                      <li (mousedown)="seleccionarFiltroCodigoPuesto(c)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ c }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Puesto -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" (focus)="showFiltroP = true" (blur)="cerrarFiltroP()" placeholder="Buscar puesto..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroP) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (p of puestosTablaFiltrados; track p) {
+                      <li (mousedown)="seleccionarFiltroPuesto(p)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ p }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Equipo Asignado -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroEquipo" (input)="aplicarFiltros()" (focus)="showFiltroEq = true" (blur)="cerrarFiltroEq()" placeholder="Buscar equipo..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroEq) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroEquipo('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (eq of equiposTablaFiltrados; track eq) {
+                      <li (mousedown)="seleccionarFiltroEquipo(eq)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ eq }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Software -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroSoftware" (input)="aplicarFiltros()" (focus)="showFiltroSw = true" (blur)="cerrarFiltroSw()" placeholder="Buscar software..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroSw) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroSoftware('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (sw of softwareTablaFiltrados; track sw) {
+                      <li (mousedown)="seleccionarFiltroSoftware(sw)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ sw }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Versión -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroVersion" (input)="aplicarFiltros()" (focus)="showFiltroVer = true" (blur)="cerrarFiltroVer()" placeholder="Buscar versión..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroVer) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroVersion('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (v of versionesTablaFiltradas; track v) {
+                      <li (mousedown)="seleccionarFiltroVersion(v)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ v }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Fabricante -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroFabricante" (input)="aplicarFiltros()" (focus)="showFiltroFab = true" (blur)="cerrarFiltroFab()" placeholder="Buscar fabricante..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroFab) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroFabricante('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (f of fabricantesTablaFiltrados; track f) {
+                      <li (mousedown)="seleccionarFiltroFabricante(f)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ f }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <td class="p-3 text-center">
+                <div class="flex justify-center">
+                  <div class="flex flex-col gap-1">
+                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Exportar</button>
+                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar</button>
+                  </div>
                 </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
           </thead>
           <tbody>
-            @for(sw of listaFiltradaTabla; track sw.id) {
+            @for(sw of paginatedList; track sw.id) {
               <tr>
                 <td>{{sw.codigoPuesto}}</td>
                 <td>{{sw.nombrePuesto || getPuestoByEmpleadoId(sw.empleadoId)}}</td>
                 <td>{{getEquipoPlaca(sw.empleadoId)}}</td>
-                <td>{{sw.nombreSoftware || sw.NombreSoftware}}</td> 
-                <td>{{sw.version || sw.Version}}</td>
-                <td>{{sw.fabricante || sw.Fabricante}}</td>
+                <td>{{sw.nombreSoftware}}</td> 
+                <td>{{sw.version}}</td>
+                <td>{{sw.fabricante}}</td>
                 <td>
-                  <div class="flex justify-center gap-3"><button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
-  <span class="material-symbols-outlined">visibility</span>
-</button>
-<button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'EDITAR'}" (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-  <span class="material-symbols-outlined">edit</span>
-</button>
-                  <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'ELIMINAR'}" (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-  <span class="material-symbols-outlined">delete</span>
-</button></div>
+                  <div class="flex justify-center gap-3">
+                    <button (click)="verDetalle(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'EDITAR'}" (click)="edit(sw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button *appPermiso="{pantalla: 'SOFTWARE_LOCAL', accion: 'ELIMINAR'}" (click)="delete(sw.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
@@ -173,7 +254,6 @@ import { PermissionService } from '../../services/permission.service';
               </tr>
             }
           </tbody>
-
         </table>
 
         <!-- FOOTER PAGINACIÓN DINÁMICA -->
@@ -194,8 +274,7 @@ import { PermissionService } from '../../services/permission.service';
             <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
           </div>
         </div>
-
-</section>
+      </section>
     </div>
   `
 })
@@ -204,23 +283,94 @@ export class SoftwareComponent implements OnInit {
   puestos: any[] = [];
   listaFiltradaTabla: any[] = [];
 
+  showFiltroCodP = false;
+  showFiltroP = false;
+  showFiltroEq = false;
+  showFiltroSw = false;
+  showFiltroVer = false;
+  showFiltroFab = false;
+
+  get codigosPuestoUnicos(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => s.codigoPuesto).filter((c): c is string => Boolean(c)))).sort();
+  }
+
+  get puestosUnicos(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => s.nombrePuesto || this.getPuestoByEmpleadoId(s.empleadoId)).filter((p): p is string => Boolean(p)))).sort();
+  }
+
+  get equiposUnicos(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => this.getEquipoPlaca(s.empleadoId)).filter((eq): eq is string => Boolean(eq)))).sort();
+  }
+
+  get softwareUnicos(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => s.nombreSoftware).filter((sw): sw is string => Boolean(sw)))).sort();
+  }
+
+  get versionesUnicas(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => s.version).filter((v): v is string => Boolean(v)))).sort();
+  }
+
+  get fabricantesUnicos(): string[] {
+    return Array.from(new Set(this.softwareList.map(s => s.fabricante).filter((f): f is string => Boolean(f)))).sort();
+  }
+
+  get codigosPuestoFiltrados() {
+    return this.codigosPuestoUnicos.filter(c => c.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+  }
+
+  get puestosTablaFiltrados() {
+    return this.puestosUnicos.filter(p => p.toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+  }
+
+  get equiposTablaFiltrados() {
+    return this.equiposUnicos.filter(eq => eq.toLowerCase().includes(this.filtroEquipo.toLowerCase()));
+  }
+
+  get softwareTablaFiltrados() {
+    return this.softwareUnicos.filter(sw => sw.toLowerCase().includes(this.filtroSoftware.toLowerCase()));
+  }
+
+  get versionesTablaFiltradas() {
+    return this.versionesUnicas.filter(v => v.toLowerCase().includes(this.filtroVersion.toLowerCase()));
+  }
+
+  get fabricantesTablaFiltrados() {
+    return this.fabricantesUnicos.filter(f => f.toLowerCase().includes(this.filtroFabricante.toLowerCase()));
+  }
+
+  seleccionarFiltroCodigoPuesto(val: string) { this.filtroCodigoPuesto = val; this.showFiltroCodP = false; this.aplicarFiltros(); }
+  seleccionarFiltroPuesto(val: string) { this.filtroPuesto = val; this.showFiltroP = false; this.aplicarFiltros(); }
+  seleccionarFiltroEquipo(val: string) { this.filtroEquipo = val; this.showFiltroEq = false; this.aplicarFiltros(); }
+  seleccionarFiltroSoftware(val: string) { this.filtroSoftware = val; this.showFiltroSw = false; this.aplicarFiltros(); }
+  seleccionarFiltroVersion(val: string) { this.filtroVersion = val; this.showFiltroVer = false; this.aplicarFiltros(); }
+  seleccionarFiltroFabricante(val: string) { this.filtroFabricante = val; this.showFiltroFab = false; this.aplicarFiltros(); }
+
+  cerrarFiltroCodP() { setTimeout(() => this.showFiltroCodP = false, 200); }
+  cerrarFiltroP() { setTimeout(() => this.showFiltroP = false, 200); }
+  cerrarFiltroEq() { setTimeout(() => this.showFiltroEq = false, 200); }
+  cerrarFiltroSw() { setTimeout(() => this.showFiltroSw = false, 200); }
+  cerrarFiltroVer() { setTimeout(() => this.showFiltroVer = false, 200); }
+  cerrarFiltroFab() { setTimeout(() => this.showFiltroFab = false, 200); }
+
   aplicarFiltros() {
-  // Si no hay datos, no hacemos nada
-  if (!this.softwareList || this.softwareList.length === 0) return;
+    if (!this.softwareList || this.softwareList.length === 0) {
+      this.listaFiltradaTabla = [];
+      return;
+    }
 
-  this.listaFiltradaTabla = this.softwareList.filter((item: any) => {
-    const matchCod = item.codigoPuesto?.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()) ?? true;
-    const matchPuesto = item.nombrePuesto?.toLowerCase().includes(this.filtroPuesto.toLowerCase()) ?? true;
-    const matchEquipo = item.equipo?.toLowerCase().includes(this.filtroEquipo.toLowerCase()) ?? true;
-    const matchSoftware = (item.nombreSoftware || item.NombreSoftware)?.toLowerCase().includes(this.filtroSoftware.toLowerCase()) ?? true;
-    const matchVersion = (item.version || item.Version)?.toLowerCase().includes(this.filtroVersion.toLowerCase()) ?? true;
-    const matchFabricante = (item.fabricante || item.Fabricante)?.toLowerCase().includes(this.filtroFabricante.toLowerCase()) ?? true;
+    this.listaFiltradaTabla = this.softwareList.filter((item: any) => {
+      const matchCod = !this.filtroCodigoPuesto || (item.codigoPuesto && item.codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+      const matchPuesto = !this.filtroPuesto || ((item.nombrePuesto || this.getPuestoByEmpleadoId(item.empleadoId)).toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+      const matchEquipo = !this.filtroEquipo || (this.getEquipoPlaca(item.empleadoId).toLowerCase().includes(this.filtroEquipo.toLowerCase()));
+      const matchSoftware = !this.filtroSoftware || ((item.nombreSoftware || '').toLowerCase().includes(this.filtroSoftware.toLowerCase()));
+      const matchVersion = !this.filtroVersion || ((item.version || '').toLowerCase().includes(this.filtroVersion.toLowerCase()));
+      const matchFabricante = !this.filtroFabricante || ((item.fabricante || '').toLowerCase().includes(this.filtroFabricante.toLowerCase()));
 
-    return matchCod && matchPuesto && matchEquipo && matchSoftware && matchVersion && matchFabricante;
-  });
+      return matchCod && matchPuesto && matchEquipo && matchSoftware && matchVersion && matchFabricante;
+    });
 
-  this.currentPage = 1;
-}
+    this.currentPage = 1;
+  }
 
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
@@ -251,18 +401,15 @@ export class SoftwareComponent implements OnInit {
   filtroVersion: string = '';
   filtroFabricante: string = '';
 
-
-
-
   exportarReporte() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const data = this.listaFiltradaTabla.map((row: any) => ({
       'CÓDIGO PUESTO': row.codigoPuesto || 'N/A',
       'PUESTO': row.nombrePuesto || this.getPuestoByEmpleadoId(row.empleadoId) || 'N/A',
       'EQUIPO': this.getEquipoPlaca(row.empleadoId) || 'N/A',
-      'SOFTWARE': row.nombreSoftware || row.NombreSoftware || 'N/A',
-      'VERSIÓN': row.version || row.Version || 'N/A',
-      'FABRICANTE': row.fabricante || row.Fabricante || 'N/A',
+      'SOFTWARE': row.nombreSoftware || 'N/A',
+      'VERSIÓN': row.version || 'N/A',
+      'FABRICANTE': row.fabricante || 'N/A',
       'SISTEMA OPERATIVO': row.sistemaOperativo || 'N/A',
       'OBSERVACIONES': row.observaciones || 'N/A'
     }));
@@ -281,6 +428,7 @@ export class SoftwareComponent implements OnInit {
     this.filtroVersion = '';
     this.filtroFabricante = '';
     this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
   softwareList: SoftwareLocal[] = [];
@@ -290,7 +438,6 @@ export class SoftwareComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
-  // Buscador Autocompletado: Equipos
   showDropdownEquipos = false;
   searchTermEquipos = '';
 
@@ -325,8 +472,6 @@ export class SoftwareComponent implements OnInit {
     }, 200);
   }
 
-
-  // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
@@ -358,7 +503,6 @@ export class SoftwareComponent implements OnInit {
     this.currentPage = 1;
   }
 
-
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.swForm = this.fb.group({
       empleadoId: [null, Validators.required],
@@ -374,36 +518,24 @@ export class SoftwareComponent implements OnInit {
     this.loadData();
     this.updateFilterConfig();
   }
-loadData() {
-  console.log('Iniciando carga de datos...');
-  
-  // 1. Cargar Software
-  this.api.getSoftwareLocales().subscribe({
-    next: (res: any) => {
-      console.log('Respuesta cruda del API (Software):', res);
-      
-      // Si el API devuelve un objeto con una propiedad de lista, cámbialo a res.data o lo que sea necesario
-      // Aquí estamos forzando que sea un array
-      this.softwareList = Array.isArray(res) ? res : [];
-      
-      console.log('Asignando a listaFiltradaTabla, cantidad:', this.softwareList.length);
-      this.listaFiltradaTabla = [...this.softwareList];
-      
-      this.currentPage = 1;
-      this.aplicarFiltros();
-    },
-    error: (err) => console.error('Error fatal al cargar software:', err)
-  });
 
-  // 2. Cargar Equipos
-  this.api.getHardwareAsignado().subscribe({
-    next: (res: any) => {
-      console.log('Equipos cargados correctamente:', res);
-      this.equipos = res;
-    },
-    error: (err) => console.error('Error en Hardware:', err)
-  });
-}
+  loadData() {
+    this.api.getSoftwareLocales().subscribe({
+      next: (res: any) => {
+        this.softwareList = Array.isArray(res) ? res : [];
+        this.listaFiltradaTabla = [...this.softwareList];
+        this.aplicarFiltros();
+      },
+      error: (err) => console.error('Error fatal al cargar software:', err)
+    });
+
+    this.api.getHardwareAsignado().subscribe({
+      next: (res: any) => {
+        this.equipos = res;
+      },
+      error: (err) => console.error('Error en Hardware:', err)
+    });
+  }
 
   getPuestoByEmpleadoId(empleadoId: number): string {
     const hw = this.equipos.find(e => e.empleadoId === empleadoId);

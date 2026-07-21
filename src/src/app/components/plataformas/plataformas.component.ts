@@ -10,10 +10,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { PermisoDirective } from '../../directives/permiso.directive';
-import {
-  BaseFilterBarComponent,
-  FilterColumn,
-} from '../shared/base-filter-bar/base-filter-bar.component';
 import { PermissionService } from '../../services/permission.service';
 import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
 
@@ -25,7 +21,6 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
     ReactiveFormsModule,
     FormsModule,
     PermisoDirective,
-    BaseFilterBarComponent,
   ],
   template: `
     <div class="p-gutter max-w-container-max-width mx-auto space-y-8">
@@ -66,41 +61,33 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   (blur)="cerrarDropdownEmpleados()"
                   [disabled]="isReadOnly"
                 />
-                <ul
-                  class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEmpleados || isReadOnly"
-                >
-                  <li
-                    class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarEmpleado(null)"
+                @if (showDropdownEmpleados && !isReadOnly) {
+                  <ul
+                    class="absolute z-10 w-full mt-1 bg-white border border-ucc-neutral-outline/50 rounded-lg shadow-lg max-h-48 overflow-y-auto"
                   >
-                    Ninguno
-                  </li>
-                  @for (emp of empleadosFiltrados; track emp.id) {
                     <li
-                      class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarEmpleado(emp)"
+                      (mousedown)="seleccionarEmpleado(null)"
+                      class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic"
                     >
-                      {{ emp.nombreCompleto }}
+                      -- Limpiar selección --
                     </li>
-                  } @empty {
-                    <li class="px-4 py-3 text-ucc-neutral-variant italic">
-                      No se encontraron resultados
-                    </li>
-                  }
-                </ul>
+                    @for (emp of empleadosFiltrados; track emp.id) {
+                      <li
+                        (mousedown)="seleccionarEmpleado(emp)"
+                        class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral"
+                      >
+                        {{ emp.nombreCompleto }}
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
-              @if (
-                plataformaForm.get('empleadoId')?.invalid &&
-                plataformaForm.get('empleadoId')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >El empleado es requerido.</span
+              @if (selectedEmpleadoPuestoId) {
+                <span
+                  class="text-xs text-ucc-neutral-variant mt-1 ml-1 font-semibold"
+                  >Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span
                 >
               }
-              <span class="text-sm text-gray-400 mt-1"
-                >Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span
-              >
             </div>
 
             <div class="flex flex-col">
@@ -116,38 +103,27 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   (blur)="cerrarDropdownLicencias()"
                   [disabled]="isReadOnly"
                 />
-                <ul
-                  class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownLicencias || isReadOnly"
-                >
-                  <li
-                    class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarLicencia(null)"
+                @if (showDropdownLicencias && !isReadOnly) {
+                  <ul
+                    class="absolute z-10 w-full mt-1 bg-white border border-ucc-neutral-outline/50 rounded-lg shadow-lg max-h-48 overflow-y-auto"
                   >
-                    Ninguno
-                  </li>
-                  @for (lic of licenciasFiltrados; track lic.id) {
                     <li
-                      class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarLicencia(lic)"
+                      (mousedown)="seleccionarLicencia(null)"
+                      class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic"
                     >
-                      {{ lic.nombre }}
+                      -- Limpiar selección --
                     </li>
-                  } @empty {
-                    <li class="px-4 py-3 text-ucc-neutral-variant italic">
-                      No se encontraron resultados
-                    </li>
-                  }
-                </ul>
+                    @for (lic of licenciasFiltrados; track lic.id) {
+                      <li
+                        (mousedown)="seleccionarLicencia(lic)"
+                        class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral"
+                      >
+                        {{ lic.nombre }}
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
-              @if (
-                plataformaForm.get('licencias')?.invalid &&
-                plataformaForm.get('licencias')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >La licencia es requerida.</span
-                >
-              }
             </div>
 
             <div class="flex flex-col">
@@ -163,72 +139,47 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   (blur)="cerrarDropdownPlataformas()"
                   [disabled]="isReadOnly"
                 />
-                <ul
-                  class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownPlataformas || isReadOnly"
-                >
-                  <li
-                    class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarPlataforma(null)"
+                @if (showDropdownPlataformas && !isReadOnly) {
+                  <ul
+                    class="absolute z-10 w-full mt-1 bg-white border border-ucc-neutral-outline/50 rounded-lg shadow-lg max-h-48 overflow-y-auto"
                   >
-                    Ninguno
-                  </li>
-                  @for (plat of plataformasNombresFiltrados; track plat.id) {
                     <li
-                      class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarPlataforma(plat)"
+                      (mousedown)="seleccionarPlataforma(null)"
+                      class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic"
                     >
-                      {{ plat.nombre }}
+                      -- Limpiar selección --
                     </li>
-                  } @empty {
-                    <li class="px-4 py-3 text-ucc-neutral-variant italic">
-                      No se encontraron resultados
-                    </li>
-                  }
-                </ul>
+                    @for (plat of plataformasNombresFiltrados; track plat.id) {
+                      <li
+                        (mousedown)="seleccionarPlataforma(plat)"
+                        class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral"
+                      >
+                        {{ plat.nombre }}
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
-              @if (
-                plataformaForm.get('nombrePlataforma')?.invalid &&
-                plataformaForm.get('nombrePlataforma')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >La plataforma es requerida.</span
-                >
-              }
             </div>
 
             <div class="flex flex-col">
               <label class="ucc-label">Módulos</label>
               <input
                 formControlName="modulos"
-                placeholder="Módulos"
+                type="text"
                 class="ucc-input"
+                placeholder="Módulos"
               />
-              @if (
-                plataformaForm.get('modulos')?.invalid &&
-                plataformaForm.get('modulos')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >Los módulos son requeridos.</span
-                >
-              }
             </div>
 
             <div class="flex flex-col">
               <label class="ucc-label">Accesos y Permisos</label>
               <input
                 formControlName="accesosPermisos"
-                placeholder="Accesos y Permisos"
+                type="text"
                 class="ucc-input"
+                placeholder="Accesos y Permisos"
               />
-              @if (
-                plataformaForm.get('accesosPermisos')?.invalid &&
-                plataformaForm.get('accesosPermisos')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >Los accesos son requeridos.</span
-                >
-              }
             </div>
 
             <div class="flex flex-col">
@@ -244,132 +195,200 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                   (blur)="cerrarDropdownNiveles()"
                   [disabled]="isReadOnly"
                 />
-                <ul
-                  class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownNiveles || isReadOnly"
-                >
-                  <li
-                    class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarNivel(null)"
+                @if (showDropdownNiveles && !isReadOnly) {
+                  <ul
+                    class="absolute z-10 w-full mt-1 bg-white border border-ucc-neutral-outline/50 rounded-lg shadow-lg max-h-48 overflow-y-auto"
                   >
-                    Ninguno
-                  </li>
-                  @for (nivel of nivelesFiltrados; track nivel.id) {
                     <li
-                      class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarNivel(nivel)"
+                      (mousedown)="seleccionarNivel(null)"
+                      class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic"
                     >
-                      {{ nivel.nombre }}
+                      -- Limpiar selección --
                     </li>
-                  } @empty {
-                    <li class="px-4 py-3 text-ucc-neutral-variant italic">
-                      No se encontraron resultados
-                    </li>
-                  }
-                </ul>
+                    @for (nivel of nivelesFiltrados; track nivel.id) {
+                      <li
+                        (mousedown)="seleccionarNivel(nivel)"
+                        class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral"
+                      >
+                        {{ nivel.nombre }}
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
-              @if (
-                plataformaForm.get('nivelAcceso')?.invalid &&
-                plataformaForm.get('nivelAcceso')?.touched
-              ) {
-                <span class="text-red-400 text-xs mt-1"
-                  >El nivel de acceso es requerido.</span
-                >
-              }
             </div>
           </div>
 
-          <div class="mt-4">
+          <div class="mt-6 flex gap-3 justify-end">
             @if (!isReadOnly) {
               <button
-                *appPermiso="{
-                  pantalla: 'PLATAFORMAS',
-                  accion: isEditing ? 'EDITAR' : 'CREAR',
-                }"
                 type="submit"
                 [disabled]="plataformaForm.invalid"
                 class="ucc-btn-primary"
               >
-                @if (isEditing) {
-                  Actualizar
-                } @else {
-                  Agregar
-                }
+                <span class="material-symbols-outlined text-[20px]">{{
+                  isEditing ? 'save' : 'add_circle'
+                }}</span>
+                {{ isEditing ? 'Actualizar' : 'Agregar' }}
               </button>
             }
-
             @if (isEditing || isReadOnly) {
               <button
                 type="button"
                 (click)="resetForm()"
                 class="ucc-btn-secondary"
               >
-                {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+                <span class="material-symbols-outlined text-[20px]"
+                  >cancel</span
+                >
+                Cancelar
               </button>
             }
           </div>
         </form>
       </section>
 
+      <!-- CONTENEDOR ESTÁNDAR IDÉNTICO A BASE DE DATOS -->
       <section class="ucc-table-container">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-2 text-ucc-secondary">
-            <span class="material-symbols-outlined">table</span>
-            <h3 class="text-xl font-bold">Registros Actuales</h3>
-          </div>
+        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">table_chart</span> Registros de Plataformas
+          </h3>
         </div>
-
-
 
         <div class="overflow-x-auto">
           <table class="ucc-table">
             <thead>
               <tr>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Código Puesto
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Persona
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Puesto
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Licencia
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Plataforma
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Módulos
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Accesos
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                >
-                  Nivel
-                </th>
-                <th
-                  class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase"
-                >
-                  Acciones
-                </th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Código Puesto</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Persona</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Puesto</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Licencia</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Plataforma</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Módulos</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Accesos</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Nivel</th>
+                <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center w-32">Acciones</th>
+              </tr>
+
+              <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+              <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+                <!-- Código Puesto -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['codigoPuesto']" (input)="aplicarFiltros()" (focus)="showFiltroCodP = true" (blur)="cerrarFiltroCodP()" placeholder="Buscar cód..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroCodP) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('codigoPuesto', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (c of codigosPuestoFiltradosTabla; track c) {
+                        <li (mousedown)="seleccionarFiltroCombobox('codigoPuesto', c)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ c }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Persona -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['persona']" (input)="aplicarFiltros()" (focus)="showFiltroPers = true" (blur)="cerrarFiltroPers()" placeholder="Buscar persona..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroPers) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('persona', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (pers of personasFiltradasTabla; track pers) {
+                        <li (mousedown)="seleccionarFiltroCombobox('persona', pers)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ pers }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Puesto -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['nombrePuesto']" (input)="aplicarFiltros()" (focus)="showFiltroPue = true" (blur)="cerrarFiltroPue()" placeholder="Buscar puesto..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroPue) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('nombrePuesto', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (pue of puestosFiltradosTabla; track pue) {
+                        <li (mousedown)="seleccionarFiltroCombobox('nombrePuesto', pue)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ pue }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Licencia -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['licencias']" (input)="aplicarFiltros()" (focus)="showFiltroLic = true" (blur)="cerrarFiltroLic()" placeholder="Buscar licencia..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroLic) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('licencias', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (lic of licenciasFiltradasTabla; track lic) {
+                        <li (mousedown)="seleccionarFiltroCombobox('licencias', lic)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ lic }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Plataforma -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['nombrePlataforma']" (input)="aplicarFiltros()" (focus)="showFiltroPlat = true" (blur)="cerrarFiltroPlat()" placeholder="Buscar plataforma..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroPlat) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('nombrePlataforma', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (plat of plataformasFiltradasTabla; track plat) {
+                        <li (mousedown)="seleccionarFiltroCombobox('nombrePlataforma', plat)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ plat }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Módulos -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['modulos']" (input)="aplicarFiltros()" (focus)="showFiltroMod = true" (blur)="cerrarFiltroMod()" placeholder="Buscar módulos..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroMod) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('modulos', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (mod of modulosFiltradosTabla; track mod) {
+                        <li (mousedown)="seleccionarFiltroCombobox('modulos', mod)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ mod }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Accesos -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['accesosPermisos']" (input)="aplicarFiltros()" (focus)="showFiltroAcc = true" (blur)="cerrarFiltroAcc()" placeholder="Buscar accesos..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroAcc) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('accesosPermisos', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (acc of accesosFiltradosTabla; track acc) {
+                        <li (mousedown)="seleccionarFiltroCombobox('accesosPermisos', acc)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ acc }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <!-- Nivel -->
+                <td class="p-3 relative">
+                  <input type="text" [(ngModel)]="filtros['nivelAcceso']" (input)="aplicarFiltros()" (focus)="showFiltroNiv = true" (blur)="cerrarFiltroNiv()" placeholder="Buscar nivel..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                  @if (showFiltroNiv) {
+                    <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <li (mousedown)="seleccionarFiltroCombobox('nivelAcceso', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                      @for (niv of nivelesFiltradosTabla; track niv) {
+                        <li (mousedown)="seleccionarFiltroCombobox('nivelAcceso', niv)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ niv }}</li>
+                      }
+                    </ul>
+                  }
+                </td>
+
+                <td class="p-3 text-center">
+                  <div class="flex justify-center">
+                    <div class="flex flex-col gap-1">
+                      <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">download</span> Exportar
+                      </button>
+                      <button (click)="limpiarFiltros()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                      </button>
+                    </div>
+                  </div>
+                </td>
               </tr>
             </thead>
             <tbody>
@@ -411,10 +430,14 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                     <div class="flex justify-center gap-3">
                       <button
                         (click)="verDetalle(p)"
-                        class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all"
+                        *appPermiso="{
+                          pantalla: 'PLATAFORMAS',
+                          accion: 'VER',
+                        }"
+                        class="p-2 text-ucc-primary hover:bg-ucc-primary/10 rounded-full transition-all"
                         title="Ver Detalles"
                       >
-                        <span class="material-symbols-outlined"
+                        <span class="material-symbols-outlined text-[20px]"
                           >visibility</span
                         >
                       </button>
@@ -424,10 +447,12 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                           accion: 'EDITAR',
                         }"
                         (click)="edit(p)"
-                        class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all"
+                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition-all"
                         title="Editar"
                       >
-                        <span class="material-symbols-outlined">edit</span>
+                        <span class="material-symbols-outlined text-[20px]"
+                          >edit</span
+                        >
                       </button>
                       <button
                         *appPermiso="{
@@ -435,66 +460,80 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                           accion: 'ELIMINAR',
                         }"
                         (click)="delete(p.id)"
-                        class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-all"
                         title="Eliminar"
                       >
-                        <span class="material-symbols-outlined">delete</span>
+                        <span class="material-symbols-outlined text-[20px]"
+                          >delete</span
+                        >
                       </button>
                     </div>
                   </td>
                 </tr>
-              } @empty {
+              }
+              @if (paginatedList.length === 0) {
                 <tr>
                   <td
                     colspan="9"
-                    class="p-gutter max-w-container-max-width mx-auto space-y-8 text-center text-gray-400 bg-gray-800"
+                    class="text-center py-12 text-ucc-neutral-variant"
                   >
-                    No hay plataformas registradas en el sistema.
+                    <div class="flex flex-col items-center gap-3">
+                      <span
+                        class="material-symbols-outlined text-[48px] opacity-50"
+                        >devices</span
+                      >
+                      <p class="font-medium">
+                        No hay plataformas registradas en el sistema.
+                      </p>
+                    </div>
                   </td>
                 </tr>
               }
             </tbody>
           </table>
-        </div>
-        <!-- FOOTER PAGINACIÓN DINÁMICA -->
-        <div
-          class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg"
-        >
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-ucc-neutral-variant"
-              >Mostrar:</span
-            >
-            <select
-              class="ucc-input py-1 px-2 text-sm w-20"
-              (change)="changePageSize($event)"
-            >
-              @for (size of pageSizeOptions; track size) {
-                <option [value]="size" [selected]="size === pageSize">
-                  {{ size }}
-                </option>
-              }
-            </select>
-          </div>
 
-          <span class="text-sm font-medium text-ucc-neutral-variant"
-            >Mostrando página {{ currentPage }} de {{ totalPages }}</span
-          >
-
-          <div class="flex gap-2">
-            <button
-              (click)="prevPage()"
-              [disabled]="currentPage === 1"
-              class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all"
+          <!-- FOOTER PAGINACIÓN -->
+          <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface-container-lowest">
+            <div
+              class="flex items-center gap-4 text-sm text-ucc-neutral-variant"
             >
-              Anterior
-            </button>
-            <button
-              (click)="nextPage()"
-              [disabled]="currentPage === totalPages"
-              class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all"
-            >
-              Siguiente
-            </button>
+              <span
+                >Mostrando {{ (currentPage - 1) * pageSize + 1 }} -
+                {{
+                  Math.min(currentPage * pageSize, listaFiltradaTabla.length)
+                }}
+                de {{ listaFiltradaTabla.length }}</span
+              >
+              <select
+                (change)="changePageSize($event)"
+                class="bg-transparent border border-ucc-neutral-outline/50 rounded px-2 py-1 outline-none focus:border-ucc-primary"
+              >
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size" [selected]="size === pageSize">
+                    {{ size }} por pág.
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                (click)="prevPage()"
+                [disabled]="currentPage === 1"
+                class="p-1 rounded hover:bg-ucc-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <span class="text-sm font-medium min-w-[3rem] text-center"
+                >Pág. {{ currentPage }}</span
+              >
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage >= totalPages"
+                class="p-1 rounded hover:bg-ucc-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -502,10 +541,100 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
   `,
 })
 export class PlataformasComponent implements OnInit {
+  Math = Math;
+  listaPlataformas: Plataforma[] = [];
   listaFiltradaTabla: any[] = [];
+  empleados: Empleado[] = [];
+  puestos: Puesto[] = [];
+  plataformaForm: FormGroup;
+  isEditing = false;
+  isReadOnly = false;
+  currentId: number | null = null;
+
+  showFiltroCodP = false;
+  showFiltroPers = false;
+  showFiltroPue = false;
+  showFiltroLic = false;
+  showFiltroPlat = false;
+  showFiltroMod = false;
+  showFiltroAcc = false;
+  showFiltroNiv = false;
+
+  get codigosPuestoUnicos(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.codigoPuesto).filter((c): c is string => Boolean(c)))).sort();
+  }
+
+  get personasUnicas(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => this.getEmpleadoName(p.empleadoId)).filter((n): n is string => Boolean(n) && n !== 'Desconocido'))).sort();
+  }
+
+  get puestosUnicos(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.nombrePuesto).filter((pu): pu is string => Boolean(pu)))).sort();
+  }
+
+  get licenciasUnicas(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.licencias).filter((l): l is string => Boolean(l)))).sort();
+  }
+
+  get plataformasUnicas(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.nombrePlataforma).filter((pl): pl is string => Boolean(pl)))).sort();
+  }
+
+  get modulosUnicos(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.modulos).filter((m): m is string => Boolean(m)))).sort();
+  }
+
+  get accesosUnicos(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.accesosPermisos).filter((a): a is string => Boolean(a)))).sort();
+  }
+
+  get nivelesUnicos(): string[] {
+    return Array.from(new Set(this.listaPlataformas.map(p => p.nivelAcceso).filter((n): n is string => Boolean(n)))).sort();
+  }
+
+  get codigosPuestoFiltradosTabla() { return this.codigosPuestoUnicos.filter(c => c.toLowerCase().includes((this.filtros['codigoPuesto'] || '').toLowerCase())); }
+  get personasFiltradasTabla() { return this.personasUnicas.filter(p => p.toLowerCase().includes((this.filtros['persona'] || '').toLowerCase())); }
+  get puestosFiltradosTabla() { return this.puestosUnicos.filter(p => p.toLowerCase().includes((this.filtros['nombrePuesto'] || '').toLowerCase())); }
+  get licenciasFiltradasTabla() { return this.licenciasUnicas.filter(l => l.toLowerCase().includes((this.filtros['licencias'] || '').toLowerCase())); }
+  get plataformasFiltradasTabla() { return this.plataformasUnicas.filter(pl => pl.toLowerCase().includes((this.filtros['nombrePlataforma'] || '').toLowerCase())); }
+  get modulosFiltradosTabla() { return this.modulosUnicos.filter(m => m.toLowerCase().includes((this.filtros['modulos'] || '').toLowerCase())); }
+  get accesosFiltradosTabla() { return this.accesosUnicos.filter(a => a.toLowerCase().includes((this.filtros['accesosPermisos'] || '').toLowerCase())); }
+  get nivelesFiltradosTabla() { return this.nivelesUnicos.filter(n => n.toLowerCase().includes((this.filtros['nivelAcceso'] || '').toLowerCase())); }
+
+  seleccionarFiltroCombobox(key: string, val: string) {
+    this.filtros[key] = val;
+    this.showFiltroCodP = false;
+    this.showFiltroPers = false;
+    this.showFiltroPue = false;
+    this.showFiltroLic = false;
+    this.showFiltroPlat = false;
+    this.showFiltroMod = false;
+    this.showFiltroAcc = false;
+    this.showFiltroNiv = false;
+    this.aplicarFiltros();
+  }
+
+  cerrarFiltroCodP() { setTimeout(() => this.showFiltroCodP = false, 200); }
+  cerrarFiltroPers() { setTimeout(() => this.showFiltroPers = false, 200); }
+  cerrarFiltroPue() { setTimeout(() => this.showFiltroPue = false, 200); }
+  cerrarFiltroLic() { setTimeout(() => this.showFiltroLic = false, 200); }
+  cerrarFiltroPlat() { setTimeout(() => this.showFiltroPlat = false, 200); }
+  cerrarFiltroMod() { setTimeout(() => this.showFiltroMod = false, 200); }
+  cerrarFiltroAcc() { setTimeout(() => this.showFiltroAcc = false, 200); }
+  cerrarFiltroNiv() { setTimeout(() => this.showFiltroNiv = false, 200); }
+
+  filtros: { [key: string]: any } = {
+    codigoPuesto: '',
+    persona: '',
+    nombrePuesto: '',
+    licencias: '',
+    nombrePlataforma: '',
+    modulos: '',
+    accesosPermisos: '',
+    nivelAcceso: '',
+  };
 
   aplicarFiltros() {
-    // Fuerza a usar siempre listaPlataformas en lugar de intentar adivinar con Object.keys
     const dataList = this.listaPlataformas;
 
     if (!dataList || dataList.length === 0) {
@@ -515,11 +644,18 @@ export class PlataformasComponent implements OnInit {
 
     this.listaFiltradaTabla = dataList.filter((item: any) => {
       let matches = true;
+      const personaNombre = this.getEmpleadoName(item.empleadoId).toLowerCase();
+
       for (const key in this.filtros) {
         if (this.filtros[key]) {
-          // Obtenemos el valor del filtro y el valor del item
           const valorFiltro = this.filtros[key].toString().toLowerCase();
-          const valorItem = (item[key] || '').toString().toLowerCase();
+          let valorItem = '';
+
+          if (key === 'persona') {
+            valorItem = personaNombre;
+          } else {
+            valorItem = (item[key] || '').toString().toLowerCase();
+          }
 
           if (!valorItem.includes(valorFiltro)) {
             matches = false;
@@ -533,27 +669,10 @@ export class PlataformasComponent implements OnInit {
     if (this.currentPage > this.totalPages) this.currentPage = 1;
   }
 
-
-
-  filtros: any = {};
-
-
   onFiltersChanged(newFilters: any) {
     this.filtros = newFilters;
     this.aplicarFiltros();
   }
-
-
-
-  // Filtros de Tabla
-  filtroCodigoPuesto: string = '';
-  filtroPersona: string = '';
-  filtroPuesto: string = '';
-  filtroLicencia: string = '';
-  filtroPlataforma: string = '';
-  filtroModulos: string = '';
-  filtroAccesos: string = '';
-  filtroNivel: string = '';
 
   exportarReporte() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -584,29 +703,22 @@ export class PlataformasComponent implements OnInit {
   }
 
   limpiarFiltros() {
-    this.filtroCodigoPuesto = '';
-    this.filtroPersona = '';
-    this.filtroPuesto = '';
-    this.filtroLicencia = '';
-    this.filtroPlataforma = '';
-    this.filtroModulos = '';
-    this.filtroAccesos = '';
-    this.filtroNivel = '';
+    this.filtros = {
+      codigoPuesto: '',
+      persona: '',
+      nombrePuesto: '',
+      licencias: '',
+      nombrePlataforma: '',
+      modulos: '',
+      accesosPermisos: '',
+      nivelAcceso: '',
+    };
     this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
-  listaPlataformas: Plataforma[] = [];
-  empleados: Empleado[] = [];
-  puestos: Puesto[] = [];
-  plataformaForm: FormGroup;
-  isEditing = false;
-  isReadOnly = false;
-  currentId: number | null = null;
-
-  // Buscador Autocompletado: Empleados
   showDropdownEmpleados = false;
   searchTermEmpleados = '';
-
   get empleadosFiltrados() {
     return this.empleados.filter((e) =>
       e.nombreCompleto
@@ -640,10 +752,8 @@ export class PlataformasComponent implements OnInit {
     }, 200);
   }
 
-  // Buscador Autocompletado: Tipo Licencia
   showDropdownLicencias = false;
   searchTermLicencias = '';
-
   get licenciasFiltrados() {
     return this.tiposLicencia.filter((l) =>
       l.nombre.toLowerCase().includes(this.searchTermLicencias.toLowerCase()),
@@ -674,10 +784,8 @@ export class PlataformasComponent implements OnInit {
     }, 200);
   }
 
-  // Buscador Autocompletado: Plataforma
   showDropdownPlataformas = false;
   searchTermPlataformas = '';
-
   get plataformasNombresFiltrados() {
     return this.plataformasNombres.filter((p) =>
       p.nombre.toLowerCase().includes(this.searchTermPlataformas.toLowerCase()),
@@ -710,10 +818,8 @@ export class PlataformasComponent implements OnInit {
     }, 200);
   }
 
-  // Buscador Autocompletado: Nivel Acceso
   showDropdownNiveles = false;
   searchTermNiveles = '';
-
   get nivelesFiltrados() {
     return this.nivelesAcceso.filter((n) =>
       n.nombre.toLowerCase().includes(this.searchTermNiveles.toLowerCase()),
@@ -744,7 +850,6 @@ export class PlataformasComponent implements OnInit {
     }, 200);
   }
 
-  // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
@@ -777,8 +882,6 @@ export class PlataformasComponent implements OnInit {
   }
 
   selectedEmpleadoPuestoId: number | undefined | null = null;
-
-  // Catálogos dinámicos
   nivelesAcceso: Catalogo[] = [];
   plataformasNombres: Catalogo[] = [];
   tiposLicencia: Catalogo[] = [];
@@ -799,17 +902,12 @@ export class PlataformasComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Cargamos los catálogos base primero
     this.loadCatalogos();
-
-
-    // Esperamos a tener los datos de empleados y puestos antes de cargar las plataformas
-    // Si tienes métodos como api.getEmpleados() y api.getPuestos(), úsalos aquí
     this.api.getEmpleados().subscribe((res) => {
       this.empleados = res;
       this.api.getPuestos().subscribe((p) => {
         this.puestos = p;
-        this.loadData(); // Cargar plataformas solo después de tener empleados y puestos
+        this.loadData();
       });
     });
   }
@@ -821,7 +919,6 @@ export class PlataformasComponent implements OnInit {
           id: item.id || item.Id,
           empleadoId: item.empleadoId || item.EmpleadoId,
           codigoPuesto: item.codigoPuesto || item.CodigoPuesto || 'N/A',
-          // Asegúrate de usar la propiedad tal cual viene del SP (NombrePuesto)
           nombrePuesto: item.nombrePuesto || item.NombrePuesto || 'N/A',
           nombrePlataforma:
             item.nombrePlataforma || item.NombrePlataforma || 'N/A',

@@ -17,126 +17,131 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
       <div class="mb-8"><h2 class="font-headline-lg text-headline-lg text-ucc-secondary">Permisos por Sitio</h2><p class="font-body-lg text-body-lg text-ucc-neutral-variant mt-1">Gestión administrativa de los registros y asignaciones.</p></div>
 
       <section class="ucc-card mb-8">
-<div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Permisos Sitio' : (isEditing ? 'Editar Permisos Sitio' : 'Registrar Permisos Sitio') }}</h3></div>
-<form [formGroup]="sitioForm" (ngSubmit)="onSubmit()" >
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="flex flex-col">
-            <label class="ucc-label">Seleccione Opción</label>
-<div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar empleado..."
-                     [(ngModel)]="searchTermEmpleados"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownEmpleados = true"
-                     (blur)="cerrarDropdownEmpleados()"
-                     [disabled]="isReadOnly">
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownEmpleados || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
-                @for(emp of empleadosFiltrados; track emp.id) {
+        <div class="flex items-center gap-2 mb-6 text-ucc-secondary"><span class="material-symbols-outlined">edit_document</span><h3 class="text-xl font-bold">{{ isReadOnly ? 'Detalles de Permisos Sitio' : (isEditing ? 'Editar Permisos Sitio' : 'Registrar Permisos Sitio') }}</h3></div>
+        <form [formGroup]="sitioForm" (ngSubmit)="onSubmit()" >
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col">
+              <label class="ucc-label">Seleccione Opción</label>
+              <div class="relative">
+                <input type="text"
+                       class="ucc-input w-full"
+                       placeholder="Buscar o seleccionar empleado..."
+                       [(ngModel)]="searchTermEmpleados"
+                       [ngModelOptions]="{standalone: true}"
+                       (focus)="showDropdownEmpleados = true"
+                       (blur)="cerrarDropdownEmpleados()"
+                       [disabled]="isReadOnly">
+                <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                    [hidden]="!showDropdownEmpleados || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
+                      (mousedown)="seleccionarEmpleado(null)">Ninguno</li>
+                  @for(emp of empleadosFiltrados; track emp.id) {
+                    <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                        (mousedown)="seleccionarEmpleado(emp)">{{emp.nombreCompleto}}</li>
+                  } @empty {
+                    <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                  }
+                </ul>
+              </div>
+              @if(sitioForm.get('empleadoId')?.invalid && sitioForm.get('empleadoId')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
+              }
+              <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
             </div>
-            @if(sitioForm.get('empleadoId')?.invalid && sitioForm.get('empleadoId')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El empleado es requerido.</span>
-            }
-            <span class="text-sm text-gray-400 mt-1">Puesto: {{ getPuestoName(selectedEmpleadoPuestoId) }}</span>
-          </div>
 
-          <div class="flex flex-col">
-            <label class="ucc-label">Seleccione Opción</label>
-<div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar sitio..."
-                     [(ngModel)]="searchTermSitios"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownSitios = true"
-                     (blur)="cerrarDropdownSitios()"
-                     [disabled]="isReadOnly">
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownSitios || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarSitio(null)">Ninguno</li>
-                @for(sitio of sitiosFiltrados; track sitio.id) {
+            <div class="flex flex-col">
+              <label class="ucc-label">Seleccione Opción</label>
+              <div class="relative">
+                <input type="text"
+                       class="ucc-input w-full"
+                       placeholder="Buscar o seleccionar sitio..."
+                       [(ngModel)]="searchTermSitios"
+                       [ngModelOptions]="{standalone: true}"
+                       (focus)="showDropdownSitios = true"
+                       (blur)="cerrarDropdownSitios()"
+                       [disabled]="isReadOnly">
+                <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                    [hidden]="!showDropdownSitios || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
+                      (mousedown)="seleccionarSitio(null)">Ninguno</li>
+                  @for(sitio of sitiosFiltrados; track sitio.id) {
+                    <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                        (mousedown)="seleccionarSitio(sitio)">{{sitio.nombre}}</li>
+                  } @empty {
+                    <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                  }
+                </ul>
+              </div>
+              @if(sitioForm.get('sitio')?.invalid && sitioForm.get('sitio')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El sitio es requerido.</span>
+              }
             </div>
-            @if(sitioForm.get('sitio')?.invalid && sitioForm.get('sitio')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El sitio es requerido.</span>
-            }
-          </div>
 
-          <div class="flex flex-col">
-            <label class="ucc-label">Seleccione Opción</label>
-<div class="relative">
-              <input type="text"
-                     class="ucc-input w-full"
-                     placeholder="Buscar o seleccionar ambiente..."
-                     [(ngModel)]="searchTermAmbientes"
-                     [ngModelOptions]="{standalone: true}"
-                     (focus)="showDropdownAmbientes = true"
-                     (blur)="cerrarDropdownAmbientes()"
-                     [disabled]="isReadOnly">
-              <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
-                  [hidden]="!showDropdownAmbientes || isReadOnly">
-                <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (mousedown)="seleccionarAmbiente(null)">Ninguno</li>
-                @for(amb of ambientesFiltrados; track amb.id) {
+            <div class="flex flex-col">
+              <label class="ucc-label">Seleccione Opción</label>
+              <div class="relative">
+                <input type="text"
+                       class="ucc-input w-full"
+                       placeholder="Buscar o seleccionar ambiente..."
+                       [(ngModel)]="searchTermAmbientes"
+                       [ngModelOptions]="{standalone: true}"
+                       (focus)="showDropdownAmbientes = true"
+                       (blur)="cerrarDropdownAmbientes()"
+                       [disabled]="isReadOnly">
+                <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
+                    [hidden]="!showDropdownAmbientes || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
-                } @empty {
-                  <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
-                }
-              </ul>
+                      (mousedown)="seleccionarAmbiente(null)">Ninguno</li>
+                  @for(amb of ambientesFiltrados; track amb.id) {
+                    <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
+                        (mousedown)="seleccionarAmbiente(amb)">{{amb.nombre}}</li>
+                  } @empty {
+                    <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
+                  }
+                </ul>
+              </div>
+              @if(sitioForm.get('ambiente')?.invalid && sitioForm.get('ambiente')?.touched) {
+                <span class="text-red-400 text-xs mt-1">El ambiente es requerido.</span>
+              }
             </div>
-            @if(sitioForm.get('ambiente')?.invalid && sitioForm.get('ambiente')?.touched) {
-              <span class="text-red-400 text-xs mt-1">El ambiente es requerido.</span>
-            }
+
+            <div class="flex flex-col lg:col-span-3">
+              <label class="ucc-label">Grupos de Permisos (ej. Soporte-Consulta)</label>
+              <input formControlName="gruposPermisos" placeholder="Grupos de Permisos (ej. Soporte-Consulta)" class="ucc-input">
+              @if(sitioForm.get('gruposPermisos')?.invalid && sitioForm.get('gruposPermisos')?.touched) {
+                <span class="text-red-400 text-xs mt-1">Los grupos son requeridos.</span>
+              }
+            </div>
           </div>
 
-          <div class="flex flex-col lg:col-span-3">
-            <label class="ucc-label">Grupos de Permisos (ej. Soporte-Consulta)</label>
-<input formControlName="gruposPermisos" placeholder="Grupos de Permisos (ej. Soporte-Consulta)" class="ucc-input">
-            @if(sitioForm.get('gruposPermisos')?.invalid && sitioForm.get('gruposPermisos')?.touched) {
-              <span class="text-red-400 text-xs mt-1">Los grupos son requeridos.</span>
+          <div class="mt-4">
+            @if(!isReadOnly) {
+              <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
+                @if(isEditing) {
+                  Actualizar
+                } @else {
+                  Agregar
+                }
+              </button>
+            }
+
+            @if(isEditing || isReadOnly) {
+              <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
+                {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+              </button>
             }
           </div>
-        </div>
-
-        <div class="mt-4">
-          @if(!isReadOnly) {
-  <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="sitioForm.invalid" class="ucc-btn-primary">
-    @if(isEditing) {
-      Actualizar
-    } @else {
-      Agregar
-    }
-  </button>
-}
-
-          @if(isEditing || isReadOnly) {
-  <button type="button" (click)="resetForm()" class="ucc-btn-secondary">
-    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
-  </button>
-}
-        </div>
-      </form>
-</section>
+        </form>
+      </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
-<table class="ucc-table">
+        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/25 bg-ucc-secondary" style="background-color: #356575;">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">table_chart</span> Registros Actuales
+          </h3>
+        </div>
+
+        <table class="ucc-table">
           <thead>
             <tr>
               <th>Código Puesto</th>
@@ -148,40 +153,117 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface border-b border-ucc-neutral-outline/20">
-            <td class="p-2"><input type="text" [(ngModel)]="filtroCodigoPuesto" placeholder="Filtrar Cód..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPersona" placeholder="Filtrar Persona..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroPuesto" placeholder="Filtrar Puesto..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroSitio" placeholder="Filtrar Sitio..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroAmbiente" placeholder="Filtrar Ambiente..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2"><input type="text" [(ngModel)]="filtroGrupos" placeholder="Filtrar Grupos..." class="w-full text-sm py-1 px-2 border border-ucc-neutral-outline rounded-lg focus:ring-1 focus:ring-ucc-primary"></td>
-            <td class="p-2 text-center">
-              <div class="flex flex-col gap-1">
-                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">download</span> Exportar</button>
-                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary hover:underline flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">refresh</span> Limpiar</button>
+            <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+            <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+              <!-- Código Puesto -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroCodigoPuesto" (input)="aplicarFiltros()" (focus)="showFiltroCodP = true" (blur)="cerrarFiltroCodP()" placeholder="Buscar cód..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroCodP) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroCodigoPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (c of codigosPuestoFiltrados; track c) {
+                      <li (mousedown)="seleccionarFiltroCodigoPuesto(c)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ c }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Persona -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroPersona" (input)="aplicarFiltros()" (focus)="showFiltroPers = true" (blur)="cerrarFiltroPers()" placeholder="Buscar persona..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroPers) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroPersona('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (pers of personasFiltradas; track pers) {
+                      <li (mousedown)="seleccionarFiltroPersona(pers)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ pers }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Puesto -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroPuesto" (input)="aplicarFiltros()" (focus)="showFiltroPue = true" (blur)="cerrarFiltroPue()" placeholder="Buscar puesto..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroPue) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (pue of puestosFiltradosTabla; track pue) {
+                      <li (mousedown)="seleccionarFiltroPuesto(pue)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ pue }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Sitio -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroSitio" (input)="aplicarFiltros()" (focus)="showFiltroSit = true" (blur)="cerrarFiltroSit()" placeholder="Buscar sitio..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroSit) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroSitio('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (sit of sitiosFiltroTabla; track sit) {
+                      <li (mousedown)="seleccionarFiltroSitio(sit)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ sit }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Ambiente -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroAmbiente" (input)="aplicarFiltros()" (focus)="showFiltroAmb = true" (blur)="cerrarFiltroAmb()" placeholder="Buscar ambiente..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroAmb) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroAmbiente('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (amb of ambientesFiltroTabla; track amb) {
+                      <li (mousedown)="seleccionarFiltroAmbiente(amb)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ amb }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Grupos Permisos -->
+              <td class="p-3 relative">
+                <input type="text" [(ngModel)]="filtroGrupos" (input)="aplicarFiltros()" (focus)="showFiltroGrup = true" (blur)="cerrarFiltroGrup()" placeholder="Buscar grupos..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroGrup) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroGrupos('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                    @for (grup of gruposFiltroTabla; track grup) {
+                      <li (mousedown)="seleccionarFiltroGrupos(grup)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ grup }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <td class="p-3 text-center">
+                <div class="flex justify-center">
+                  <div class="flex flex-col gap-1">
+                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Exportar</button>
+                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar</button>
+                  </div>
                 </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
           </thead>
           <tbody>
-            @for(sitio of listaFiltradaTabla; track sitio.id) {
-            <tr>
-              <td>{{ sitio.codigoPuesto }}</td>
-              <td>{{ sitio.nombreCompleto }}</td>
-              <td>{{ sitio.nombrePuesto }}</td>
-              <td>{{ sitio.sitio }}</td>
-              <td>{{ sitio.ambiente }}</td>
-              <td>{{ sitio.gruposPermisos }}</td>
+            @for(sitio of paginatedList; track sitio.id) {
+              <tr>
+                <td>{{ sitio.codigoPuesto }}</td>
+                <td>{{ sitio.nombreCompleto }}</td>
+                <td>{{ sitio.nombrePuesto }}</td>
+                <td>{{ sitio.sitio }}</td>
+                <td>{{ sitio.ambiente }}</td>
+                <td>{{ sitio.gruposPermisos }}</td>
                 <td>
-                  <div class="flex justify-center gap-3"><button (click)="verDetalle(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
-  <span class="material-symbols-outlined">visibility</span>
-</button>
-<button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'EDITAR'}" (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
-  <span class="material-symbols-outlined">edit</span>
-</button>
-                  <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'ELIMINAR'}" (click)="delete(sitio.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
-  <span class="material-symbols-outlined">delete</span>
-</button></div>
+                  <div class="flex justify-center gap-3">
+                    <button (click)="verDetalle(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'EDITAR'}" (click)="edit(sitio)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button *appPermiso="{pantalla: 'PERMISOS_SITIOS', accion: 'ELIMINAR'}" (click)="delete(sitio.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
@@ -192,7 +274,6 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
               </tr>
             }
           </tbody>
-
         </table>
 
         <!-- FOOTER PAGINACIÓN DINÁMICA -->
@@ -213,8 +294,7 @@ import { PermisosSitio, Empleado, Puesto, Catalogo } from '../../models/models';
             <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
           </div>
         </div>
-
-</section>
+      </section>
     </div>
   `
 })
@@ -223,20 +303,91 @@ export class SitiosComponent implements OnInit {
   ambientes: any[] = [];
   listaFiltradaTabla: any[] = [];
 
-  aplicarFiltros() {
-  if (!this.permisosSitios) return;
+  showFiltroCodP = false;
+  showFiltroPers = false;
+  showFiltroPue = false;
+  showFiltroSit = false;
+  showFiltroAmb = false;
+  showFiltroGrup = false;
 
-  // Filtro simplificado para depuración
-  this.listaFiltradaTabla = this.permisosSitios.filter((item: any) => {
-    const matchCod = item.codigoPuesto?.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()) ?? true;
-    const matchPersona = item.nombreCompleto?.toLowerCase().includes(this.filtroPersona.toLowerCase()) ?? true;
-    const matchSitio = item.sitio?.toLowerCase().includes(this.filtroSitio.toLowerCase()) ?? true;
+  get codigosPuestoUnicos(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.codigoPuesto).filter((c): c is string => Boolean(c)))).sort();
+  }
+
+  get personasUnicas(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.nombreCompleto).filter((p): p is string => Boolean(p)))).sort();
+  }
+
+  get puestosUnicos(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.nombrePuesto).filter((p): p is string => Boolean(p)))).sort();
+  }
+
+  get sitiosUnicos(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.sitio).filter((s): s is string => Boolean(s)))).sort();
+  }
+
+  get ambientesUnicos(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.ambiente).filter((a): a is string => Boolean(a)))).sort();
+  }
+
+  get gruposUnicos(): string[] {
+    return Array.from(new Set(this.permisosSitios.map(s => s.gruposPermisos).filter((g): g is string => Boolean(g)))).sort();
+  }
+
+  get codigosPuestoFiltrados() {
+    return this.codigosPuestoUnicos.filter(c => c.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+  }
+
+  get personasFiltradas() {
+    return this.personasUnicas.filter(p => p.toLowerCase().includes(this.filtroPersona.toLowerCase()));
+  }
+
+  get puestosFiltradosTabla() {
+    return this.puestosUnicos.filter(p => p.toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+  }
+
+  get sitiosFiltroTabla() {
+    return this.sitiosUnicos.filter(s => s.toLowerCase().includes(this.filtroSitio.toLowerCase()));
+  }
+
+  get ambientesFiltroTabla() {
+    return this.ambientesUnicos.filter(a => a.toLowerCase().includes(this.filtroAmbiente.toLowerCase()));
+  }
+
+  get gruposFiltroTabla() {
+    return this.gruposUnicos.filter(g => g.toLowerCase().includes(this.filtroGrupos.toLowerCase()));
+  }
+
+  seleccionarFiltroCodigoPuesto(val: string) { this.filtroCodigoPuesto = val; this.showFiltroCodP = false; this.aplicarFiltros(); }
+  seleccionarFiltroPersona(val: string) { this.filtroPersona = val; this.showFiltroPers = false; this.aplicarFiltros(); }
+  seleccionarFiltroPuesto(val: string) { this.filtroPuesto = val; this.showFiltroPue = false; this.aplicarFiltros(); }
+  seleccionarFiltroSitio(val: string) { this.filtroSitio = val; this.showFiltroSit = false; this.aplicarFiltros(); }
+  seleccionarFiltroAmbiente(val: string) { this.filtroAmbiente = val; this.showFiltroAmb = false; this.aplicarFiltros(); }
+  seleccionarFiltroGrupos(val: string) { this.filtroGrupos = val; this.showFiltroGrup = false; this.aplicarFiltros(); }
+
+  cerrarFiltroCodP() { setTimeout(() => this.showFiltroCodP = false, 200); }
+  cerrarFiltroPers() { setTimeout(() => this.showFiltroPers = false, 200); }
+  cerrarFiltroPue() { setTimeout(() => this.showFiltroPue = false, 200); }
+  cerrarFiltroSit() { setTimeout(() => this.showFiltroSit = false, 200); }
+  cerrarFiltroAmb() { setTimeout(() => this.showFiltroAmb = false, 200); }
+  cerrarFiltroGrup() { setTimeout(() => this.showFiltroGrup = false, 200); }
+
+  aplicarFiltros() {
+    if (!this.permisosSitios) return;
+
+    this.listaFiltradaTabla = this.permisosSitios.filter((item: any) => {
+      const matchCod = !this.filtroCodigoPuesto || (item.codigoPuesto && item.codigoPuesto.toLowerCase().includes(this.filtroCodigoPuesto.toLowerCase()));
+      const matchPersona = !this.filtroPersona || (item.nombreCompleto && item.nombreCompleto.toLowerCase().includes(this.filtroPersona.toLowerCase()));
+      const matchPuesto = !this.filtroPuesto || (item.nombrePuesto && item.nombrePuesto.toLowerCase().includes(this.filtroPuesto.toLowerCase()));
+      const matchSitio = !this.filtroSitio || (item.sitio && item.sitio.toLowerCase().includes(this.filtroSitio.toLowerCase()));
+      const matchAmbiente = !this.filtroAmbiente || (item.ambiente && item.ambiente.toLowerCase().includes(this.filtroAmbiente.toLowerCase()));
+      const matchGrupos = !this.filtroGrupos || (item.gruposPermisos && item.gruposPermisos.toLowerCase().includes(this.filtroGrupos.toLowerCase()));
+      
+      return matchCod && matchPersona && matchPuesto && matchSitio && matchAmbiente && matchGrupos;
+    });
     
-    return matchCod && matchPersona && matchSitio;
-  });
-  
-  this.currentPage = 1;
-}
+    this.currentPage = 1;
+  }
 
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
@@ -265,9 +416,6 @@ export class SitiosComponent implements OnInit {
   filtroAmbiente: string = '';
   filtroGrupos: string = '';
 
-
-
-
   exportarReporte() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const data = this.listaFiltradaTabla.map((row: any) => ({
@@ -294,6 +442,7 @@ export class SitiosComponent implements OnInit {
     this.filtroAmbiente = '';
     this.filtroGrupos = '';
     this.currentPage = 1;
+    this.aplicarFiltros();
   }
 
   permisosSitios: PermisosSitio[] = [];
@@ -304,7 +453,6 @@ export class SitiosComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
-  // Buscador Autocompletado: Empleados
   showDropdownEmpleados = false;
   searchTermEmpleados = '';
 
@@ -337,7 +485,6 @@ export class SitiosComponent implements OnInit {
     }, 200);
   }
 
-  // Buscador Autocompletado: Sitios
   showDropdownSitios = false;
   searchTermSitios = '';
 
@@ -369,7 +516,6 @@ export class SitiosComponent implements OnInit {
     }, 200);
   }
 
-  // Buscador Autocompletado: Ambientes
   showDropdownAmbientes = false;
   searchTermAmbientes = '';
 
@@ -401,8 +547,6 @@ export class SitiosComponent implements OnInit {
     }, 200);
   }
 
-
-  // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
@@ -436,7 +580,6 @@ export class SitiosComponent implements OnInit {
 
   selectedEmpleadoPuestoId: number | undefined | null = null;
 
-  // Catálogos dinámicos
   ambientesOpciones: Catalogo[] = [];
   sitiosOpciones: Catalogo[] = [];
 
@@ -454,32 +597,31 @@ export class SitiosComponent implements OnInit {
     this.updateFilterConfig();
   }
 
- loadData() {
-  this.api.getPermisosSitios().subscribe({
-    next: (res: any[]) => {
-      this.permisosSitios = res.map(item => ({
-        id: item.id || item.Id,
-        empleadoId: item.empleadoId || item.EmpleadoId,
-        // Usamos OR para capturar si viene en mayúscula o minúscula
-        codigoPuesto: item.codigoPuesto || item.CodigoPuesto || 'N/A',
-        nombrePuesto: item.nombrePuesto || item.NombrePuesto || 'N/A',
-        nombreCompleto: item.nombreCompleto || item.NombreCompleto || 'Desconocido',
-        sitio: item.sitio || item.Sitio || '',
-        ambiente: item.ambiente || item.Ambiente || '',
-        gruposPermisos: item.gruposPermisos || item.GruposPermisos || ''
-      }));
-      
-      this.listaFiltradaTabla = [...this.permisosSitios];
-      this.aplicarFiltros();
-    },
-    error: (err) => console.error('Error:', err)
-  });
-  // Carga de catálogos...
-  this.api.getEmpleados().subscribe(res => this.empleados = res);
-  this.api.getPuestos().subscribe(res => this.puestos = res);
-  this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);
-  this.api.getSitiosCat().subscribe(res => this.sitiosOpciones = res);
-}
+  loadData() {
+    this.api.getPermisosSitios().subscribe({
+      next: (res: any[]) => {
+        this.permisosSitios = res.map(item => ({
+          id: item.id || item.Id,
+          empleadoId: item.empleadoId || item.EmpleadoId,
+          codigoPuesto: item.codigoPuesto || item.CodigoPuesto || 'N/A',
+          nombrePuesto: item.nombrePuesto || item.NombrePuesto || 'N/A',
+          nombreCompleto: item.nombreCompleto || item.NombreCompleto || 'Desconocido',
+          sitio: item.sitio || item.Sitio || '',
+          ambiente: item.ambiente || item.Ambiente || '',
+          gruposPermisos: item.gruposPermisos || item.GruposPermisos || ''
+        }));
+        
+        this.listaFiltradaTabla = [...this.permisosSitios];
+        this.aplicarFiltros();
+      },
+      error: (err) => console.error('Error:', err)
+    });
+
+    this.api.getEmpleados().subscribe(res => this.empleados = res);
+    this.api.getPuestos().subscribe(res => this.puestos = res);
+    this.api.getAmbientes().subscribe(res => this.ambientesOpciones = res);
+    this.api.getSitiosCat().subscribe(res => this.sitiosOpciones = res);
+  }
 
   onEmpleadoChange(event: any) {
     const empId = this.sitioForm.get('empleadoId')?.value;

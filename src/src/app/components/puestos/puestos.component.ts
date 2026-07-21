@@ -11,10 +11,6 @@ import { ApiService } from '../../services/api.service';
 import { PermissionService } from '../../services/permission.service';
 import { Puesto } from '../../models/models';
 import { PermisoDirective } from '../../directives/permiso.directive';
-import {
-  BaseFilterBarComponent,
-  FilterColumn,
-} from '../shared/base-filter-bar/base-filter-bar.component';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -25,7 +21,6 @@ import * as XLSX from 'xlsx';
     ReactiveFormsModule,
     FormsModule,
     PermisoDirective,
-    BaseFilterBarComponent,
   ],
   template: `
     <main class="p-gutter max-w-container-max-width mx-auto space-y-8">
@@ -43,7 +38,6 @@ import * as XLSX from 'xlsx';
         </p>
       </div>
       <div class="grid grid-cols-12 gap-gutter">
-        <!-- Registration & Table Section (Left + Center) -->
         <div class="col-span-12 space-y-gutter">
           <!-- Registration Card -->
           <section class="ucc-card">
@@ -125,7 +119,7 @@ import * as XLSX from 'xlsx';
                   <button
                     type="submit"
                     [disabled]="puestoForm.invalid"
-                    class="w-full ucc-btn-primary w-full"
+                    class="w-full ucc-btn-primary"
                   >
                     @if (isEditing) {
                       <span class="material-symbols-outlined" data-icon="save"
@@ -152,56 +146,90 @@ import * as XLSX from 'xlsx';
               </div>
             </form>
           </section>
-          <!-- Data Table -->
+
+          <!-- TABLA CON FILTROS TIPO COMBOBOX BUSCABLE -->
           <section class="ucc-table-container">
-            <!-- Toolbar de Filtros Estándar -->
-            <app-base-filter-bar
-              [config]="filterConfig"
-              [initialFilters]="filtros"
-              [showExportButton]="true"
-              (exportData)="exportarReporte()"
-              (filtersChanged)="onFiltersChanged($event)"
-              (filtersCleared)="limpiarFiltros()"
-            >
-            </app-base-filter-bar>
+            <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined">work</span> Puestos Registrados
+              </h3>
+            </div>
 
             <div class="overflow-x-auto">
               <table class="ucc-table">
                 <thead>
                   <tr>
-                    <th
-                      class="py-4 px-6 font-label-md text-label-md tracking-wider"
-                    >
-                      ID
-                    </th>
-                    <th
-                      class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                    >
-                      Código
-                    </th>
-                    <th
-                      class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                    >
-                      Nombre
-                    </th>
-                    <th
-                      class="py-4 px-6 font-label-md text-label-md tracking-wider uppercase"
-                    >
-                      Descripción
-                    </th>
-                    <th
-                      class="py-4 px-6 font-label-md text-label-md tracking-wider text-center uppercase"
-                    >
-                      Acciones
-                    </th>
+                    <th class="py-4 px-6 font-label-md text-label-md tracking-wider">ID</th>
+                    <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Código Puesto</th>
+                    <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Nombre</th>
+                    <th class="py-4 px-6 font-label-md text-label-md tracking-wider">Descripción</th>
+                    <th class="py-4 px-6 font-label-md text-label-md tracking-wider text-center w-32">Acciones</th>
+                  </tr>
+
+                  <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+                  <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+                    <td class="p-3"></td> <!-- ID sin filtro -->
+                    
+                    <!-- Código Puesto -->
+                    <td class="p-3 relative">
+                      <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">filter_list</span>
+                        <input type="text" [(ngModel)]="filtros['codigoPuesto']" (input)="aplicarFiltros()" (focus)="showFiltroCod = true" (blur)="cerrarFiltroCod()" placeholder="Buscar código..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                      </div>
+                      @if (showFiltroCod) {
+                        <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                          <li (mousedown)="seleccionarFiltro('codigoPuesto', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                          @for (c of codigosFiltradosTabla; track c) {
+                            <li (mousedown)="seleccionarFiltro('codigoPuesto', c)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ c }}</li>
+                          }
+                        </ul>
+                      }
+                    </td>
+
+                    <!-- Nombre Puesto -->
+                    <td class="p-3 relative">
+                      <input type="text" [(ngModel)]="filtros['nombrePuesto']" (input)="aplicarFiltros()" (focus)="showFiltroNom = true" (blur)="cerrarFiltroNom()" placeholder="Buscar nombre..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                      @if (showFiltroNom) {
+                        <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                          <li (mousedown)="seleccionarFiltro('nombrePuesto', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                          @for (n of nombresFiltradosTabla; track n) {
+                            <li (mousedown)="seleccionarFiltro('nombrePuesto', n)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ n }}</li>
+                          }
+                        </ul>
+                      }
+                    </td>
+
+                    <!-- Descripción -->
+                    <td class="p-3 relative">
+                      <input type="text" [(ngModel)]="filtros['descripcion']" (input)="aplicarFiltros()" (focus)="showFiltroDesc = true" (blur)="cerrarFiltroDesc()" placeholder="Buscar descripción..." class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                      @if (showFiltroDesc) {
+                        <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                          <li (mousedown)="seleccionarFiltro('descripcion', '')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos --</li>
+                          @for (d of descripcionesFiltradasTabla; track d) {
+                            <li (mousedown)="seleccionarFiltro('descripcion', d)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ d }}</li>
+                          }
+                        </ul>
+                      }
+                    </td>
+
+                    <td class="p-3 text-center">
+                      <div class="flex justify-center">
+                        <div class="flex flex-col gap-1">
+                          <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-[16px]">download</span> Exportar
+                          </button>
+                          <button (click)="limpiarFiltros()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                          </button>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 </thead>
                 <tbody>
                   @for (puesto of paginatedList; track puesto.id) {
                     <tr>
-                      <td
-                        class="py-4 px-6 font-code text-code text-on-surface-variant"
-                      >
+                      <td class="py-4 px-6 font-code text-code text-on-surface-variant">
                         {{ puesto.id }}
                       </td>
                       <td class="py-4 px-6 font-body-md text-body-md font-bold">
@@ -210,9 +238,7 @@ import * as XLSX from 'xlsx';
                       <td class="py-4 px-6 font-body-md text-body-md">
                         {{ puesto.nombrePuesto }}
                       </td>
-                      <td
-                        class="py-4 px-6 font-body-md text-body-md text-on-surface-variant truncate max-w-xs"
-                      >
+                      <td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant truncate max-w-xs">
                         {{ puesto.descripcion || 'N/A' }}
                       </td>
                       <td class="py-4 px-6">
@@ -222,43 +248,24 @@ import * as XLSX from 'xlsx';
                             class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all"
                             title="Ver Detalles"
                           >
-                            <span
-                              class="material-symbols-outlined"
-                              data-icon="visibility"
-                              >visibility</span
-                            >
+                            <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
                           </button>
-                          @if (
-                            permissionService.tienePermiso('PUESTOS', 'EDITAR')
-                          ) {
+                          @if (permissionService.tienePermiso('PUESTOS', 'EDITAR')) {
                             <button
                               (click)="edit(puesto)"
                               class="p-2 text-secondary hover:bg-secondary/10 rounded-full transition-all"
                               title="Editar"
                             >
-                              <span
-                                class="material-symbols-outlined"
-                                data-icon="edit"
-                                >edit</span
-                              >
+                              <span class="material-symbols-outlined" data-icon="edit">edit</span>
                             </button>
                           }
-                          @if (
-                            permissionService.tienePermiso(
-                              'PUESTOS',
-                              'ELIMINAR'
-                            )
-                          ) {
+                          @if (permissionService.tienePermiso('PUESTOS', 'ELIMINAR')) {
                             <button
                               (click)="delete(puesto.id)"
                               class="p-2 text-error hover:bg-error/10 rounded-full transition-all"
                               title="Eliminar"
                             >
-                              <span
-                                class="material-symbols-outlined"
-                                data-icon="delete"
-                                >delete</span
-                              >
+                              <span class="material-symbols-outlined" data-icon="delete">delete</span>
                             </button>
                           }
                         </div>
@@ -266,201 +273,89 @@ import * as XLSX from 'xlsx';
                     </tr>
                   } @empty {
                     <tr>
-                      <td
-                        colspan="5"
-                        class="py-8 px-6 text-center font-body-md text-on-surface-variant"
-                      >
+                      <td colspan="5" class="py-8 px-6 text-center font-body-md text-on-surface-variant">
                         No hay puestos registrados en el sistema.
                       </td>
                     </tr>
                   }
                 </tbody>
               </table>
-
-              <!-- FOOTER PAGINACIÓN DINÁMICA -->
-              <div
-                class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg"
-              >
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium text-ucc-neutral-variant"
-                    >Mostrar:</span
-                  >
-                  <select
-                    class="ucc-input py-1 px-2 text-sm w-20"
-                    (change)="changePageSize($event)"
-                  >
-                    @for (size of pageSizeOptions; track size) {
-                      <option [value]="size" [selected]="size === pageSize">
-                        {{ size }}
-                      </option>
-                    }
-                  </select>
-                </div>
-
-                <span class="text-sm font-medium text-ucc-neutral-variant"
-                  >Mostrando página {{ currentPage }} de {{ totalPages }}</span
-                >
-
-                <div class="flex gap-2">
-                  <button
-                    (click)="prevPage()"
-                    [disabled]="currentPage === 1"
-                    class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    (click)="nextPage()"
-                    [disabled]="currentPage === totalPages"
-                    class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              </div>
             </div>
-            <div
-              class="p-4 bg-surface-container-low flex justify-between items-center text-on-surface-variant"
-            >
-              <p class="font-label-md text-label-md">
-                Mostrando {{ listaFiltradaTabla.length }} puestos registrados
-              </p>
+
+            <!-- FOOTER PAGINACIÓN -->
+            <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface rounded-b-lg">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+                <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+                  @for(size of pageSizeOptions; track size) {
+                    <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+                  }
+                </select>
+              </div>
+
+              <span class="text-sm font-medium text-ucc-neutral-variant">Mostrando página {{currentPage}} de {{totalPages}}</span>
+
               <div class="flex gap-2">
-                <button
-                  class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container-highest transition-all disabled:opacity-50"
-                  disabled
-                >
-                  <span
-                    class="material-symbols-outlined text-[18px]"
-                    data-icon="chevron_left"
-                    >chevron_left</span
-                  >
-                </button>
-                <button
-                  class="w-8 h-8 flex items-center justify-center rounded bg-secondary text-on-secondary font-bold text-xs"
-                >
-                  1
-                </button>
-                <button
-                  class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container-highest transition-all disabled:opacity-50"
-                  disabled
-                >
-                  <span
-                    class="material-symbols-outlined text-[18px]"
-                    data-icon="chevron_right"
-                    >chevron_right</span
-                  >
-                </button>
+                <button (click)="prevPage()" [disabled]="currentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Anterior</button>
+                <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
               </div>
             </div>
           </section>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter mt-8"
-          >
-            <!-- Resumen de Puestos -->
-            <div
-              class="bg-surface-container-low p-8 rounded-xl card-shadow border border-outline-variant/20"
-            >
-              <h3 class="font-title-lg text-title-lg text-secondary mb-6">
-                Resumen de Puestos
-              </h3>
+
+          <!-- Resumen y Cards inferiores -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter mt-8">
+            <div class="bg-surface-container-low p-8 rounded-xl card-shadow border border-outline-variant/20">
+              <h3 class="font-title-lg text-title-lg text-secondary mb-6">Resumen de Puestos</h3>
               <div class="space-y-4">
-                <div
-                  class="flex items-center justify-between p-6 bg-secondary-container/20 rounded-lg"
-                >
+                <div class="flex items-center justify-between p-6 bg-secondary-container/20 rounded-lg">
                   <div class="flex items-center gap-3">
                     <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
                       <span class="material-symbols-outlined">assessment</span>
                     </div>
-                    <span
-                      class="font-body-md text-body-md text-secondary font-bold"
-                      >Total Puestos</span
-                    >
+                    <span class="font-body-md text-body-md text-secondary font-bold">Total Puestos</span>
                   </div>
-                  <span
-                    class="font-headline-md text-headline-md text-secondary"
-                    >{{ puestos.length }}</span
-                  >
+                  <span class="font-headline-md text-headline-md text-secondary">{{ puestos.length }}</span>
                 </div>
-                <div
-                  class="flex items-center justify-between p-6 bg-primary-container/10 rounded-lg"
-                >
+                <div class="flex items-center justify-between p-6 bg-primary-container/10 rounded-lg">
                   <div class="flex items-center gap-3">
-                    <div
-                      class="p-2 bg-primary-container/10 rounded-lg text-primary"
-                    >
-                      <span class="material-symbols-outlined"
-                        >check_circle</span
-                      >
+                    <div class="p-2 bg-primary-container/10 rounded-lg text-primary">
+                      <span class="material-symbols-outlined">check_circle</span>
                     </div>
-                    <span
-                      class="font-body-md text-body-md text-primary font-bold"
-                      >Puestos Activos</span
-                    >
+                    <span class="font-body-md text-body-md text-primary font-bold">Puestos Activos</span>
                   </div>
-                  <span
-                    class="font-headline-md text-headline-md text-primary"
-                    >{{ puestos.length }}</span
-                  >
+                  <span class="font-headline-md text-headline-md text-primary">{{ puestos.length }}</span>
                 </div>
               </div>
-              <button
-                class="w-full mt-6 py-2 text-center text-secondary font-bold font-label-md text-label-md border border-secondary/20 rounded-lg hover:bg-secondary/5 transition-all"
-              >
+              <button class="w-full mt-6 py-2 text-center text-secondary font-bold font-label-md text-label-md border border-secondary/20 rounded-lg hover:bg-secondary/5 transition-all">
                 Ver Reporte Detallado
               </button>
             </div>
-            <!-- Cambios Recientes -->
-            <div
-              class="bg-surface-container-low p-md rounded-xl card-shadow border border-outline-variant/20"
-            >
-              <h3 class="font-title-lg text-title-lg text-secondary mb-6">
-                Cambios Recientes
-              </h3>
+            
+            <div class="bg-surface-container-low p-md rounded-xl card-shadow border border-outline-variant/20">
+              <h3 class="font-title-lg text-title-lg text-secondary mb-6">Cambios Recientes</h3>
               <div class="space-y-6">
                 <div class="flex gap-4">
                   <div class="relative">
-                    <div
-                      class="w-8 h-8 bg-primary-container/20 rounded-full flex items-center justify-center text-primary-container"
-                    >
-                      <span class="material-symbols-outlined text-[18px]"
-                        >add</span
-                      >
+                    <div class="w-8 h-8 bg-primary-container/20 rounded-full flex items-center justify-center text-primary-container">
+                      <span class="material-symbols-outlined text-[18px]">add</span>
                     </div>
-                    <div
-                      class="absolute top-8 left-1/2 -translate-x-1/2 w-[1px] h-6 bg-outline-variant/30"
-                    ></div>
+                    <div class="absolute top-8 left-1/2 -translate-x-1/2 w-[1px] h-6 bg-outline-variant/30"></div>
                   </div>
                   <div>
-                    <p class="font-label-md text-label-md font-bold">
-                      Base de Datos
-                    </p>
-                    <p class="text-[11px] text-on-surface-variant">
-                      Sincronizado
-                    </p>
-                    <p
-                      class="text-[10px] text-on-surface-variant/60 mt-1 uppercase"
-                    >
-                      Ahora
-                    </p>
+                    <p class="font-label-md text-label-md font-bold">Base de Datos</p>
+                    <p class="text-[11px] text-on-surface-variant">Sincronizado</p>
+                    <p class="text-[10px] text-on-surface-variant/60 mt-1 uppercase">Ahora</p>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- Contextual Tip -->
-            <div
-              class="bg-secondary p-6 rounded-xl text-on-secondary relative overflow-hidden flex flex-col justify-center"
-            >
+            
+            <div class="bg-secondary p-6 rounded-xl text-on-secondary relative overflow-hidden flex flex-col justify-center">
               <div class="absolute -right-4 -bottom-4 opacity-10">
-                <span class="material-symbols-outlined text-[120px]"
-                  >lightbulb</span
-                >
+                <span class="material-symbols-outlined text-[120px]">lightbulb</span>
               </div>
-              <h4
-                class="font-label-md text-label-md font-bold mb-2 flex items-center gap-2"
-              >
-                <span class="material-symbols-outlined text-[18px]">info</span
-                >Tip de Administración
+              <h4 class="font-label-md text-label-md font-bold mb-2 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">info</span>Tip de Administración
               </h4>
               <p class="text-xs leading-relaxed text-on-secondary/80">
                 Mantener los códigos de puesto estandarizados (Ej: DEPT-NUM)
@@ -483,26 +378,51 @@ export class PuestosComponent implements OnInit {
   currentId: number | null = null;
   Math = Math;
 
-  filtros: any = {
+  showFiltroCod = false;
+  showFiltroNom = false;
+  showFiltroDesc = false;
+
+  filtros: { [key: string]: any } = {
     codigoPuesto: '',
     nombrePuesto: '',
     descripcion: '',
   };
 
-  filterConfig: FilterColumn[] = [];
+  get codigosUnicos(): string[] {
+    return Array.from(new Set(this.puestos.map(p => p.codigoPuesto).filter((c): c is string => Boolean(c)))).sort();
+  }
 
-  onFiltersChanged(newFilters: any) {
-    this.filtros = newFilters;
+  get nombresUnicos(): string[] {
+    return Array.from(new Set(this.puestos.map(p => p.nombrePuesto).filter((n): n is string => Boolean(n)))).sort();
+  }
+
+  get descripcionesUnicas(): string[] {
+    return Array.from(new Set(this.puestos.map(p => p.descripcion).filter((d): d is string => Boolean(d)))).sort();
+  }
+
+  get codigosFiltradosTabla() {
+    return this.codigosUnicos.filter(c => c.toLowerCase().includes((this.filtros['codigoPuesto'] || '').toLowerCase()));
+  }
+
+  get nombresFiltradosTabla() {
+    return this.nombresUnicos.filter(n => n.toLowerCase().includes((this.filtros['nombrePuesto'] || '').toLowerCase()));
+  }
+
+  get descripcionesFiltradasTabla() {
+    return this.descripcionesUnicas.filter(d => d.toLowerCase().includes((this.filtros['descripcion'] || '').toLowerCase()));
+  }
+
+  seleccionarFiltro(key: string, val: string) {
+    this.filtros[key] = val;
+    this.showFiltroCod = false;
+    this.showFiltroNom = false;
+    this.showFiltroDesc = false;
     this.aplicarFiltros();
   }
 
-  updateFilterConfig() {
-    this.filterConfig = [
-      { field: 'codigoPuesto', placeholder: 'Código Puesto', type: 'text' },
-      { field: 'nombrePuesto', placeholder: 'Nombre Puesto', type: 'text' },
-      { field: 'descripcion', placeholder: 'Descripción', type: 'text' },
-    ];
-  }
+  cerrarFiltroCod() { setTimeout(() => this.showFiltroCod = false, 200); }
+  cerrarFiltroNom() { setTimeout(() => this.showFiltroNom = false, 200); }
+  cerrarFiltroDesc() { setTimeout(() => this.showFiltroDesc = false, 200); }
 
   aplicarFiltros() {
     this.listaFiltradaTabla = this.puestos.filter((item: any) => {
@@ -528,6 +448,7 @@ export class PuestosComponent implements OnInit {
 
   limpiarFiltros() {
     this.filtros = { codigoPuesto: '', nombrePuesto: '', descripcion: '' };
+    this.currentPage = 1;
     this.aplicarFiltros();
   }
 
@@ -587,7 +508,6 @@ export class PuestosComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-    this.updateFilterConfig();
   }
 
   loadData() {
@@ -595,7 +515,6 @@ export class PuestosComponent implements OnInit {
       next: (data) => {
         this.puestos = data;
         this.aplicarFiltros();
-        this.updateFilterConfig();
       },
       error: (err) => console.error('Error cargando puestos', err),
     });

@@ -86,26 +86,26 @@ import { Empleado, Puesto } from '../../models/models';
 
           <div class="flex gap-4 mt-6">
             @if(!isReadOnly) {
-  <button *appPermiso="{pantalla: 'COLABORADORES', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
-    @if(isEditing) {
-      <span class="material-symbols-outlined">save</span> Actualizar
-    } @else {
-      <span class="material-symbols-outlined">add</span> Agregar
-    }
-  </button>
-}
+              <button *appPermiso="{pantalla: 'COLABORADORES', accion: isEditing ? 'EDITAR' : 'CREAR'}" type="submit" [disabled]="empleadoForm.invalid" class="ucc-btn-primary w-full md:w-auto">
+                @if(isEditing) {
+                  <span class="material-symbols-outlined">save</span> Actualizar
+                } @else {
+                  <span class="material-symbols-outlined">add</span> Agregar
+                }
+              </button>
+            }
 
             @if(isEditing || isReadOnly) {
-  <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full md:w-auto">
-    {{ isReadOnly ? 'Volver' : 'Cancelar' }}
-  </button>
-}
+              <button type="button" (click)="resetForm()" class="ucc-btn-secondary w-full md:w-auto">
+                {{ isReadOnly ? 'Volver' : 'Cancelar' }}
+              </button>
+            }
           </div>
         </form>
       </section>
 
       <section class="ucc-table-container">
-        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary">
+        <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/25 bg-ucc-secondary" style="background-color: #356575;">
           <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <span class="material-symbols-outlined">group</span> Colaboradores Registrados
           </h3>
@@ -121,29 +121,96 @@ import { Empleado, Puesto } from '../../models/models';
               <th class="text-center w-32">Acciones</th>
             </tr>
 
-          <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
-            <td class="p-3">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">filter_list</span>
-                <input type="text" [(ngModel)]="filtroCodigo" placeholder="Código..." class="w-full bg-white border border-ucc-neutral-outline/50 rounded-md py-1.5 px-3 text-xs placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-1 focus:ring-ucc-primary outline-none transition-all">
-              </div>
-            </td>
-            <td class="p-3"><input type="text" [(ngModel)]="filtroNombre" placeholder="Nombre..." class="w-full bg-white border border-ucc-neutral-outline/50 rounded-md py-1.5 px-3 text-xs placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-1 focus:ring-ucc-primary outline-none transition-all"></td>
-            <td class="p-3"><input type="text" [(ngModel)]="filtroCorreo" placeholder="Correo..." class="w-full bg-white border border-ucc-neutral-outline/50 rounded-md py-1.5 px-3 text-xs placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-1 focus:ring-ucc-primary outline-none transition-all"></td>
-            <td class="p-3"><input type="text" [(ngModel)]="filtroPuestoTabla" placeholder="Puesto..." class="w-full bg-white border border-ucc-neutral-outline/50 rounded-md py-1.5 px-3 text-xs placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-1 focus:ring-ucc-primary outline-none transition-all"></td>
-            <td class="p-3 text-center">
-              <div class="flex justify-center">
-                <div class="flex flex-col gap-1">
-                  <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                    <span class="material-symbols-outlined text-[16px]">download</span> Exportar
-                  </button>
-                  <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                    <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
-                  </button>
+            <!-- FILA DE FILTROS TIPO COMBOBOX BUSCABLE AMPLIOS Y ESTILIZADOS -->
+            <tr class="bg-ucc-surface-container-low border-b border-ucc-neutral-outline/20">
+              <!-- Filtro Código -->
+              <td class="p-3 relative">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-ucc-neutral-variant text-[18px]">filter_list</span>
+                  <input type="text" 
+                         [(ngModel)]="filtroCodigo" 
+                         (focus)="showFiltroCod = true" 
+                         (blur)="cerrarFiltroCod()" 
+                         placeholder="Buscar código..." 
+                         class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
                 </div>
-              </div>
-            </td>
-          </tr>
+                @if (showFiltroCod) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroCodigo('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos los códigos --</li>
+                    @for (cod of codigosFiltrados; track cod) {
+                      <li (mousedown)="seleccionarFiltroCodigo(cod)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ cod }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Filtro Nombre -->
+              <td class="p-3 relative">
+                <input type="text" 
+                       [(ngModel)]="filtroNombre" 
+                       (focus)="showFiltroNom = true" 
+                       (blur)="cerrarFiltroNom()" 
+                       placeholder="Buscar nombre..." 
+                       class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroNom) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroNombre('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos los nombres --</li>
+                    @for (nom of nombresFiltrados; track nom) {
+                      <li (mousedown)="seleccionarFiltroNombre(nom)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ nom }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Filtro Correo -->
+              <td class="p-3 relative">
+                <input type="text" 
+                       [(ngModel)]="filtroCorreo" 
+                       (focus)="showFiltroCor = true" 
+                       (blur)="cerrarFiltroCor()" 
+                       placeholder="Buscar correo..." 
+                       class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroCor) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroCorreo('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos los correos --</li>
+                    @for (correo of correosFiltrados; track correo) {
+                      <li (mousedown)="seleccionarFiltroCorreo(correo)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ correo }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <!-- Filtro Puesto -->
+              <td class="p-3 relative">
+                <input type="text" 
+                       [(ngModel)]="filtroPuestoTabla" 
+                       (focus)="showFiltroPue = true" 
+                       (blur)="cerrarFiltroPue()" 
+                       placeholder="Buscar puesto..." 
+                       class="w-full bg-white border border-ucc-neutral-outline/40 rounded-lg py-2 px-3.5 text-sm font-medium placeholder:text-ucc-neutral-variant focus:border-ucc-primary focus:ring-2 focus:ring-ucc-primary/20 outline-none transition-all shadow-sm">
+                @if (showFiltroPue) {
+                  <ul class="absolute z-50 left-3 right-3 mt-1 bg-white border border-outline-variant/30 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                    <li (mousedown)="seleccionarFiltroPuesto('')" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral-variant italic font-medium">-- Todos los puestos --</li>
+                    @for (puesto of puestosTablaFiltrados; track puesto) {
+                      <li (mousedown)="seleccionarFiltroPuesto(puesto)" class="px-4 py-2.5 text-sm hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral font-medium">{{ puesto }}</li>
+                    }
+                  </ul>
+                }
+              </td>
+
+              <td class="p-3 text-center">
+                <div class="flex justify-center">
+                  <div class="flex flex-col gap-1">
+                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                      <span class="material-symbols-outlined text-[16px]">download</span> Exportar
+                    </button>
+                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
+                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
           </thead>
           <tbody>
             @for(emp of paginatedList; track emp.id) {
@@ -159,9 +226,9 @@ import { Empleado, Puesto } from '../../models/models';
                 <td>
                   <div class="flex justify-center gap-3">
                     <button (click)="verDetalle(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">
-<span class="material-symbols-outlined">visibility</span>
-</button>
-<button *appPermiso="{pantalla: 'COLABORADORES', accion: 'EDITAR'}" (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
+                      <span class="material-symbols-outlined">visibility</span>
+                    </button>
+                    <button *appPermiso="{pantalla: 'COLABORADORES', accion: 'EDITAR'}" (click)="edit(emp)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Editar">
                       <span class="material-symbols-outlined">edit</span>
                     </button>
                     <button *appPermiso="{pantalla: 'COLABORADORES', accion: 'ELIMINAR'}" (click)="delete(emp.id)" class="p-2 text-ucc-error hover:bg-ucc-error/10 rounded-full transition-all" title="Eliminar">
@@ -178,7 +245,6 @@ import { Empleado, Puesto } from '../../models/models';
               </tr>
             }
           </tbody>
-
         </table>
 
         <!-- FOOTER PAGINACIÓN DINÁMICA -->
@@ -199,55 +265,96 @@ import { Empleado, Puesto } from '../../models/models';
             <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface transition-all">Siguiente</button>
           </div>
         </div>
-
       </section>
     </div>
   `
 })
 export class ColaboradoresComponent implements OnInit {
   listaFiltradaTabla: any[] = [];
-
-  aplicarFiltros() {
-    const listName = Object.keys(this).find(k => Array.isArray((this as any)[k]) && k !== 'listaFiltradaTabla' && k !== 'filterConfig' && !(this as any)[k].length && !k.endsWith('List') && !k.endsWith('Filtrados'));
-
-    // Simplistic generic filter logic to resolve compile errors for components without it
-    const dataList = (this as any)['puestos'] || (this as any)['empleados'] || (this as any)['hardwareIdeales'] || (this as any)['equipos'] || (this as any)['softwareLocal'] || (this as any)['permisosSitio'] || (this as any)['plataformas'];
-
-    if(!dataList) return;
-
-    this.listaFiltradaTabla = dataList.filter((item: any) => {
-      let matches = true;
-      for (const key in this.filtros) {
-        if (this.filtros[key]) {
-          if (!item[key] || !item[key].toString().toLowerCase().includes(this.filtros[key].toString().toLowerCase())) {
-            matches = false;
-            break;
-          }
-        }
-      }
-      return matches;
-    });
-
-    if((this as any).currentPage) (this as any).currentPage = 1;
-  }
   filtros: any = {};
   filterConfig: FilterColumn[] = [];
 
+  showFiltroCod = false;
+  showFiltroNom = false;
+  showFiltroCor = false;
+  showFiltroPue = false;
+
+  get codigosDisponibles(): string[] {
+    return Array.from(new Set(this.empleados.map(e => e.codigoEmpleado).filter(Boolean))).sort();
+  }
+
+  get nombresDisponibles(): string[] {
+    return Array.from(new Set(this.empleados.map(e => e.nombreCompleto).filter(Boolean))).sort();
+  }
+
+  get correosDisponibles(): string[] {
+    return Array.from(new Set(this.empleados.map(e => e.correoInstitucional).filter(Boolean))).sort();
+  }
+
+  get puestosDisponibles(): string[] {
+    return Array.from(new Set(this.empleados.map(e => e.nombrePuesto || 'No Asignado').filter(Boolean))).sort();
+  }
+
+  get codigosFiltrados() {
+    return this.codigosDisponibles.filter(c => c.toLowerCase().includes(this.filtroCodigo.toLowerCase()));
+  }
+
+  get nombresFiltrados() {
+    return this.nombresDisponibles.filter(n => n.toLowerCase().includes(this.filtroNombre.toLowerCase()));
+  }
+
+  get correosFiltrados() {
+    return this.correosDisponibles.filter(cor => cor.toLowerCase().includes(this.filtroCorreo.toLowerCase()));
+  }
+
+  get puestosTablaFiltrados() {
+    return this.puestosDisponibles.filter(p => p.toLowerCase().includes(this.filtroPuestoTabla.toLowerCase()));
+  }
+
+  seleccionarFiltroCodigo(val: string) {
+    this.filtroCodigo = val;
+    this.showFiltroCod = false;
+    this.currentPage = 1;
+  }
+
+  seleccionarFiltroNombre(val: string) {
+    this.filtroNombre = val;
+    this.showFiltroNom = false;
+    this.currentPage = 1;
+  }
+
+  seleccionarFiltroCorreo(val: string) {
+    this.filtroCorreo = val;
+    this.showFiltroCor = false;
+    this.currentPage = 1;
+  }
+
+  seleccionarFiltroPuesto(val: string) {
+    this.filtroPuestoTabla = val;
+    this.showFiltroPue = false;
+    this.currentPage = 1;
+  }
+
+  cerrarFiltroCod() {
+    setTimeout(() => this.showFiltroCod = false, 200);
+  }
+
+  cerrarFiltroNom() {
+    setTimeout(() => this.showFiltroNom = false, 200);
+  }
+
+  cerrarFiltroCor() {
+    setTimeout(() => this.showFiltroCor = false, 200);
+  }
+
+  cerrarFiltroPue() {
+    setTimeout(() => this.showFiltroPue = false, 200);
+  }
+
   onFiltersChanged(newFilters: any) {
     this.filtros = newFilters;
-    this.aplicarFiltros();
   }
 
-  updateFilterConfig() {
-    this.filterConfig = [
-      { field: 'codigoEmpleado', placeholder: 'Código Empleado', type: 'text' },
-      { field: 'nombreCompleto', placeholder: 'Nombre', type: 'text' },
-      { field: 'correoInstitucional', placeholder: 'Correo', type: 'text' },
-      { field: 'nombrePuesto', placeholder: 'Puesto', type: 'select', options: this.puestos, optionValueKey: 'nombrePuesto', optionLabelKey: 'nombrePuesto' }
-    ];
-  }
-
-  // Filtros de Tabla
   filtroCodigo: string = '';
   filtroNombre: string = '';
   filtroCorreo: string = '';
@@ -255,15 +362,19 @@ export class ColaboradoresComponent implements OnInit {
 
   get empleadosFiltradosTabla() {
     return this.empleados.filter(emp => {
-      const matchCodigo = emp.codigoEmpleado?.toLowerCase().includes(this.filtroCodigo.toLowerCase()) ?? true;
-      const matchNombre = emp.nombreCompleto?.toLowerCase().includes(this.filtroNombre.toLowerCase()) ?? true;
-      const matchCorreo = emp.correoInstitucional?.toLowerCase().includes(this.filtroCorreo.toLowerCase()) ?? true;
-      const matchPuesto = (emp.nombrePuesto || 'No Asignado').toLowerCase().includes(this.filtroPuestoTabla.toLowerCase());
+      const matchCodigo = !this.filtroCodigo || (emp.codigoEmpleado && emp.codigoEmpleado.toLowerCase().includes(this.filtroCodigo.toLowerCase()));
+      const matchNombre = !this.filtroNombre || (emp.nombreCompleto && emp.nombreCompleto.toLowerCase().includes(this.filtroNombre.toLowerCase()));
+      const matchCorreo = !this.filtroCorreo || (emp.correoInstitucional && emp.correoInstitucional.toLowerCase().includes(this.filtroCorreo.toLowerCase()));
+      const puestoActual = emp.nombrePuesto || 'No Asignado';
+      const matchPuesto = !this.filtroPuestoTabla || puestoActual.toLowerCase().includes(this.filtroPuestoTabla.toLowerCase());
 
       return matchCodigo && matchNombre && matchCorreo && matchPuesto;
     });
   }
 
+  aplicarFiltrosTabla() {
+    this.currentPage = 1;
+  }
 
   exportarReporte() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -296,7 +407,6 @@ export class ColaboradoresComponent implements OnInit {
   isReadOnly = false;
   currentId: number | null = null;
 
-  // Buscador Autocompletado: Puestos
   showDropdownPuestos = false;
   searchTermPuestos = '';
 
@@ -328,20 +438,16 @@ export class ColaboradoresComponent implements OnInit {
     }, 200);
   }
 
-
-  // Paginación Dinámica
   currentPage: number = 1;
   pageSize: number = 20;
   pageSizeOptions: number[] = [10, 20, 50, 100];
 
   get paginatedList() {
     const start = (this.currentPage - 1) * this.pageSize;
-    // AQUÍ ESTÁ LA MAGIA: Cambiamos a empleadosFiltradosTabla
     return this.empleadosFiltradosTabla.slice(start, start + this.pageSize);
   }
 
   get totalPages() {
-    // AQUÍ TAMBIÉN: Cambiamos a empleadosFiltradosTabla
     return Math.ceil(this.empleadosFiltradosTabla.length / this.pageSize) || 1;
   }
 
@@ -363,7 +469,6 @@ export class ColaboradoresComponent implements OnInit {
     this.currentPage = 1;
   }
 
-
   constructor(private api: ApiService, private fb: FormBuilder, public permissionService: PermissionService) {
     this.empleadoForm = this.fb.group({
       codigoEmpleado: ['', Validators.required],
@@ -375,7 +480,6 @@ export class ColaboradoresComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
-    this.updateFilterConfig();
   }
 
   loadData() {
@@ -386,7 +490,7 @@ export class ColaboradoresComponent implements OnInit {
 
     this.api.getEmpleados().subscribe({
       next: (res) => {
-        this.empleados = res; // Solo dejamos la asignación de datos
+        this.empleados = res;
       },
       error: (err) => {
         console.error('Error al cargar empleados', err);
@@ -435,7 +539,7 @@ export class ColaboradoresComponent implements OnInit {
     this.isEditing = true;
     this.isReadOnly = false;
     this.currentId = emp.id;
-        this.empleadoForm.enable();
+    this.empleadoForm.enable();
     this.searchTermPuestos = '';
     this.empleadoForm.patchValue({
       codigoEmpleado: emp.codigoEmpleado,
@@ -495,7 +599,7 @@ export class ColaboradoresComponent implements OnInit {
       correoInstitucional: '',
       puestoId: null
     });
-        this.empleadoForm.enable();
+    this.empleadoForm.enable();
     this.searchTermPuestos = '';
   }
 }
