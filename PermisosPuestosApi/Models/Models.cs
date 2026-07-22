@@ -269,6 +269,7 @@ public class PermisosSitio
     public class ReporteIntegralResponse
     {
         public List<ReporteHardwareDto> Hardware { get; set; } = new();
+        public List<ReporteHardwareDto> EquipoIdeal { get; set; } = new();
         public List<ReporteSitioDto> Sitios { get; set; } = new();
         public List<ReportePlataformaDto> Plataformas { get; set; } = new();
         public List<ReporteAccesoBDDto> BasesDatos { get; set; } = new();

@@ -188,7 +188,65 @@ import * as XLSX from 'xlsx';
             }
           </section>
 
-          <!-- SECTION 2: SITIOS -->
+                    <!-- SECTION 1.5: EQUIPO IDEAL -->
+          <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-tertiary">
+            <div class="p-4 bg-ucc-tertiary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-ucc-tertiary">devices</span>
+               <h3 class="font-bold text-ucc-tertiary">Sección 1.5: Equipo Ideal del Puesto</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="ucc-table min-w-[1000px]">
+                <thead>
+                  <tr>
+                    <th>Puesto</th>
+                    <th>Nombre</th>
+                    <th>Tipo Equipo</th>
+                    <th>Procesador</th>
+                    <th>Memoria</th>
+                    <th>Disco</th>
+                    <th>Marca PC</th>
+                    <th>Otras Consideraciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for(ei of paginatedEquipoIdealList; track $index) {
+                    <tr>
+                      <td class="font-bold">{{ei.puesto}}</td>
+                      <td>{{ei.nombre}}</td>
+                      <td>{{ei.equipo || 'N/A'}}</td>
+                      <td>{{ei.procesador || 'N/A'}}</td>
+                      <td>{{ei.memoria || 'N/A'}}</td>
+                      <td>{{ei.disco || 'N/A'}}</td>
+                      <td>{{ei.marcaPC || 'N/A'}}</td>
+                      <td>{{ei.otrasConsideraciones || 'N/A'}}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="8" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay equipo ideal asociado al puesto.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <!-- EQUIPO IDEAL PAGINATION FOOTER -->
+            @if(data.equipoIdeal.length > pageSize) {
+                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+                    <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+                      @for(size of pageSizeOptions; track size) {
+                        <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+                      }
+                    </select>
+                  </div>
+                  <span class="text-sm text-ucc-neutral-variant">Mostrando página {{equipoIdealCurrentPage}} de {{equipoIdealTotalPages}}</span>
+                  <div class="flex gap-2">
+                      <button (click)="prevEquipoIdealPage()" [disabled]="equipoIdealCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                      <button (click)="nextEquipoIdealPage()" [disabled]="equipoIdealCurrentPage === equipoIdealTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                  </div>
+                </div>
+            }
+          </section>
+
+<!-- SECTION 2: SITIOS -->
           <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-primary-container">
             <div class="p-4 bg-ucc-primary-container/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-ucc-primary-container">location_on</span>
@@ -316,6 +374,7 @@ import * as XLSX from 'xlsx';
             }
           </section>
 
+          @if(data.basesDatos && data.basesDatos.length > 0) {
           <!-- SECTION 4: BASES DE DATOS -->
           <section class="ucc-table-container mb-8 border-l-4 border-l-orange-500">
             <div class="p-4 bg-orange-500/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
@@ -371,6 +430,8 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+
+          }
 
           <!-- SECTION 5: SOFTWARE LOCAL -->
           <section class="ucc-table-container mb-8 border-l-4 border-l-pink-500">
@@ -507,7 +568,7 @@ export class ReportesComponent implements OnInit {
 
 
   // Datos del Reporte
-  data: ReporteIntegralResponse = { hardware: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
+  data: ReporteIntegralResponse = { hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   isLoading = false;
   busquedaRealizada = false;
 
@@ -521,11 +582,35 @@ export class ReportesComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     this.pageSize = Number(target.value);
     this.hardwareCurrentPage = 1;
+    this.equipoIdealCurrentPage = 1;
     this.sitiosCurrentPage = 1;
     this.plataformasCurrentPage = 1;
     this.basesDatosCurrentPage = 1;
     this.softwareLocalCurrentPage = 1;
   }
+  equipoIdealCurrentPage: number = 1;
+
+  get paginatedEquipoIdealList() {
+    const startIndex = (this.equipoIdealCurrentPage - 1) * this.pageSize;
+    return this.data.equipoIdeal.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get equipoIdealTotalPages() {
+    return Math.ceil(this.data.equipoIdeal.length / this.pageSize) || 1;
+  }
+
+  nextEquipoIdealPage() {
+    if (this.equipoIdealCurrentPage < this.equipoIdealTotalPages) {
+      this.equipoIdealCurrentPage++;
+    }
+  }
+
+  prevEquipoIdealPage() {
+    if (this.equipoIdealCurrentPage > 1) {
+      this.equipoIdealCurrentPage--;
+    }
+  }
+
 hardwareCurrentPage: number = 1;
   sitiosCurrentPage: number = 1;
   plataformasCurrentPage: number = 1;
@@ -654,7 +739,7 @@ hardwareCurrentPage: number = 1;
   }
 
   get hasResults(): boolean {
-    return this.data.hardware.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0 || this.data.basesDatos.length > 0 || this.data.softwareLocal.length > 0;
+    return this.data.hardware.length > 0 || this.data.equipoIdeal.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0 || this.data.basesDatos.length > 0 || this.data.softwareLocal.length > 0;
   }
 
 
@@ -668,7 +753,7 @@ hardwareCurrentPage: number = 1;
     this.busquedaRealizada = false;
 
 
-    this.data = { hardware: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
+    this.data = { hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   }
 
   buscar() {
@@ -722,7 +807,24 @@ hardwareCurrentPage: number = 1;
       XLSX.utils.book_append_sheet(wb, wsHw, 'Hardware');
     }
 
-    // 2. Sitios Sheet
+        // 1.5 Equipo Ideal Sheet
+    if (this.data.equipoIdeal.length > 0) {
+      const eiData = this.data.equipoIdeal.map(row => ({
+        'PUESTO': row.puesto,
+        'NOMBRE': row.nombre,
+        'TIPO EQUIPO': row.equipo,
+        'PROCESADOR': row.procesador,
+        'MEMORIA': row.memoria,
+        'DISCO': row.disco,
+        'MARCA PC': row.marcaPC,
+        'OTRAS CONSIDERACIONES': row.otrasConsideraciones
+      }));
+      const wsEi: XLSX.WorkSheet = XLSX.utils.json_to_sheet(eiData);
+      wsEi['!cols'] = [{wch: 20}, {wch: 30}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 30}];
+      XLSX.utils.book_append_sheet(wb, wsEi, 'Equipo Ideal');
+    }
+
+
     if (this.data.sitios.length > 0) {
       const sitData = this.data.sitios.map(row => ({
         'PUESTO': row.puesto,
