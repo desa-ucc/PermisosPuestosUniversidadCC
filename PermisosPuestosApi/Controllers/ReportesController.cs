@@ -62,7 +62,7 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(B.Observaciones, '') AS Observaciones
                 FROM pt_Empleados E
                 LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                INNER JOIN pt_AccesoBD B ON B.EmpleadoId = E.Id
+                INNER JOIN pt_AccesosBD B ON B.EmpleadoId = E.Id
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
