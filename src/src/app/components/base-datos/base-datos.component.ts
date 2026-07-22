@@ -382,13 +382,9 @@ import {
                         pantalla: 'ADMINBASEDATOS',
                         accion: 'ELIMINAR',
                       }"
-                      [disabled]="!puedeEliminarNivel(acbd.nivelAcceso)"
-                      [ngClass]="
-                        puedeEliminarNivel(acbd.nivelAcceso)
-                          ? 'text-red-600 hover:bg-red-50'
-                          : 'text-gray-400 cursor-not-allowed opacity-50'
-                      "
-                      class="p-2 rounded-full transition-all tooltip-trigger"
+
+class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-all tooltip-trigger"
+
                       title="Eliminar"
                     >
                       <span class="material-symbols-outlined text-[20px]"
@@ -443,15 +439,9 @@ import {
   `,
 })
 export class BaseDatosComponent implements OnInit {
-  puedeEliminarNivel(nivelNombre: string): boolean {
-    const nivel = this.nivelesAcceso.find((n) => n.nombre === nivelNombre);
-    return nivel ? nivel.puedeEliminar : false;
-  }
 
-  puedeEditarNivel(nivelNombre: string): boolean {
-    const nivel = this.nivelesAcceso.find((n) => n.nombre === nivelNombre);
-    return nivel ? nivel.puedeEditar : false;
-  }
+
+
 
   Math = Math;
   accesosBD: AccesoBD[] = [];
@@ -878,12 +868,6 @@ export class BaseDatosComponent implements OnInit {
   }
 
   delete(id: number, nivelNombre: string) {
-    if (!this.puedeEliminarNivel(nivelNombre)) {
-      alert(
-        'Acceso denegado: El nivel de acceso actual no permite eliminar este registro.',
-      );
-      return;
-    }
     if (!this.permissionService.tienePermiso('ADMINBASEDATOS', 'ELIMINAR')) {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;

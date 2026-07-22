@@ -1,7 +1,8 @@
-# PLAN: Unificar Módulo de Reportes
+# PLAN: Unificar Módulo de Reportes & Fix UI Base de Datos
 
 ## Objetivo
-Actualizar y unificar el módulo de Reportes (`/reportes`) para que permita consultar de manera integral todo a lo que tiene acceso un colaborador o un puesto específico, incorporando Bases de Datos (`pt_AccesoBD`) y Software Local (`pt_SoftwareLocal`) a las consultas preexistentes.
+1. Actualizar y unificar el módulo de Reportes (`/reportes`) para que permita consultar de manera integral todo a lo que tiene acceso un colaborador o un puesto específico, incorporando Bases de Datos (`pt_AccesoBD`) y Software Local (`pt_SoftwareLocal`) a las consultas preexistentes.
+2. Solucionar el bug lógico que bloqueaba en la interfaz de "Bases de Datos" los botones de Editar y Eliminar a los usuarios con permisos.
 
 ## Arquitectura y Tareas Realizadas
 
@@ -15,6 +16,7 @@ Actualizar y unificar el módulo de Reportes (`/reportes`) para que permita cons
    - **Tipos y DTOs (`models.ts` & Component)**: Añadidos los modelos respectivos al stack de Frontend, alineados a los que devuelve el API en el Response.
    - **UI y Paginación**: Ajustado el control de estado de paginación para cada una de las nuevas tablas. Añadidas e inyectadas visualmente de forma coherente las secciones 4 y 5 ("Bases de Datos", "Software Local") utilizando `@if` y `@for`.
    - **Exportación Excel**: Ajustado el método de parseo `exportarAExcel()` para serializar el JSON mapeando columnas estéticas, ajustando su tamaño (`wch`) y anexando 2 hojas (sheets) más al output final.
+   - **Fix UI Permisos (Base de Datos)**: Removidos los métodos obsoletos `puedeEliminarNivel` y `puedeEditarNivel` en `base-datos.component.ts`. Estos métodos intentaban erróneamente validar atributos inexistentes sobre el catálogo `Cat_NivelesAcceso`, desactivando innecesariamente controles en UI. Ahora la renderización respeta correctamente la directiva maestro `*appPermiso`.
 
 ## Tests y Verificaciones Realizadas
 - `dotnet build` & `dotnet test`: El proyecto compila y los tests pasan sin regresiones.
