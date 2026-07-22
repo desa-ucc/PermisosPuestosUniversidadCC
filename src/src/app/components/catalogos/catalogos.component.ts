@@ -125,10 +125,21 @@ import { PermissionService } from '../../services/permission.service';
                                 }
                             } @else {
                                 <tr>
-                                    <td colspan="4" class="p-6 text-center text-ucc-neutral-variant bg-ucc-surface">
-                                        No hay elementos registrados en este catálogo.
+                                    <td
+                                        colspan="9"
+                                        class="text-center py-12 text-ucc-neutral-variant"
+                                    >
+                                        <div class="flex flex-col items-center gap-3">
+                                        <span
+                                            class="material-symbols-outlined text-[48px] opacity-50"
+                                            >devices</span
+                                        >
+                                        <p class="font-medium">
+                                            No hay catálogos registrados en el sistema.
+                                        </p>
+                                        </div>
                                     </td>
-                                </tr>
+                                    </tr>
                             }
                         </tbody>
                     </table>
