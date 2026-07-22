@@ -164,6 +164,7 @@ export interface ReporteSoftwareLocal {
 }
 
 export interface ReporteIntegralResponse {
+  equipoIdeal: ReporteHardware[];
   hardware: ReporteHardware[];
   sitios: ReporteSitio[];
   plataformas: ReportePlataforma[];

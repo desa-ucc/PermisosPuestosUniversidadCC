@@ -39,6 +39,7 @@ namespace PermisosPuestosApi.Controllers
             var p3 = new SqlParameter("@TerminoBusqueda", termino);
             var p4 = new SqlParameter("@TerminoBusqueda", termino);
             var p5 = new SqlParameter("@TerminoBusqueda", termino);
+            var p6 = new SqlParameter("@TerminoBusqueda", termino);
 
             var hw = await _context.ReportesHardwareDto
                 .FromSqlRaw("EXEC sp_GetReporteIntegralHardware @TerminoBusqueda", p1)
@@ -89,9 +90,31 @@ namespace PermisosPuestosApi.Controllers
                 .FromSqlRaw(sqlSl, p5)
                 .ToListAsync();
 
-            var result = new ReporteIntegralResponse
+
+            var sqlEi = @"
+                SELECT
+                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+                    E.NombreCompleto AS Nombre,
+                    ISNULL(H.TipoEquipo, '') AS Equipo,
+                    ISNULL(H.Procesador, '') AS Procesador,
+                    ISNULL(H.Memoria, '') AS Memoria,
+                    ISNULL(H.Disco, '') AS Disco,
+                    ISNULL(H.MarcaPC, '') AS MarcaPC,
+                    ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
+                FROM pt_Empleados E
+                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+                INNER JOIN pt_HardwareIdeal H ON H.PuestoId = P.Id
+                WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
+            var ei = await _context.ReportesHardwareDto
+                .FromSqlRaw(sqlEi, p6)
+                .ToListAsync();
+
+var result = new ReporteIntegralResponse
             {
                 Hardware = hw,
+                EquipoIdeal = ei,
                 Sitios = sit,
                 Plataformas = plat,
                 BasesDatos = bd,
