@@ -1,5 +1,0 @@
-fix(reportes,dashboard): mejorar gráficos y dropdown de reportes, corrige hardware N/A en sp_GetReporteIntegralHardware
-
-- Modificado el frontend del Dashboard para que su calificación se base en Asignación Equipos (proporción de equipos/colaboradores).
-- Corregida la especificación del SP `sp_GetReporteIntegralHardware` en la BD (insertada en los scripts InitDB) para que haga LEFT JOIN y aplique ISNULL, y así ya no arroje "N/A" para colaboradores sin equipo, permitiéndolos aparecer de todas formas.
-- Validado el Dropdown de Puestos en el Reporte (el componente no limitaba mediante arrays truncados internamente la cantidad, por lo tanto si faltaban datos proviene de la cantidad poblada desde C# sin top explicit).

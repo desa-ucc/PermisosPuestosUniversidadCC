@@ -44,7 +44,7 @@ import * as XLSX from 'xlsx';
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
                       (mousedown)="seleccionarPuesto(puesto)">
-                    {{puesto.nombrePuesto}}
+                    [{{puesto.codigoPuesto}}] {{puesto.nombrePuesto}}
                   </li>
                 } @empty {
                   <li class="px-4 py-3 text-ucc-neutral-variant italic">No se encontraron resultados</li>
@@ -514,13 +514,13 @@ export class ReportesComponent implements OnInit {
   searchTermPuestos = '';
 
   get puestosFiltrados() {
-    return this.listaPuestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
+    return this.listaPuestos.filter(p => p.nombrePuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()) || p.codigoPuesto.toLowerCase().includes(this.searchTermPuestos.toLowerCase()));
   }
 
   seleccionarPuesto(puesto: Puesto | null) {
     if (puesto) {
         this.filtroPuesto = puesto.nombrePuesto;
-        this.searchTermPuestos = puesto.nombrePuesto;
+        this.searchTermPuestos = `[${puesto.codigoPuesto}] ${puesto.nombrePuesto}`;
     } else {
         this.filtroPuesto = '';
         this.searchTermPuestos = '';

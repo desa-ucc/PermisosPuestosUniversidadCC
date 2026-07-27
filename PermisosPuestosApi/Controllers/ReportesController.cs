@@ -63,7 +63,7 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(B.Observaciones, '') AS Observaciones
                 FROM pt_Empleados E
                 LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                INNER JOIN pt_AccesosBD B ON B.EmpleadoId = E.Id
+                LEFT JOIN pt_AccesosBD B ON B.EmpleadoId = E.Id
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
@@ -82,7 +82,7 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(S.Fabricante, '') AS Fabricante
                 FROM pt_Empleados E
                 LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                INNER JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
+                LEFT JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
@@ -103,7 +103,7 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
                 FROM pt_Empleados E
                 LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                INNER JOIN pt_HardwareIdeal H ON H.PuestoId = P.Id
+                LEFT JOIN pt_HardwareIdeal H ON H.PuestoId = P.Id
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
