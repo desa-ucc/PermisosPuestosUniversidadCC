@@ -1,4 +1,0 @@
-Optimize BULK_UPDATE Permissions SQL call
-
-- Refactored `GuardarPermisos` endpoint to strictly pass only `@Accion` and `@JsonData` via SQL named variable assignment (`EXEC sp_GestionarPermisos @Accion = @AccionParam, @JsonData = @JsonDataParam`).
-- Bypassed sequential mapping requirements, preventing type inference failures caused by passing unused parameters sequentially.

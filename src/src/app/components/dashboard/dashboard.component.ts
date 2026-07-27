@@ -55,7 +55,7 @@ import * as XLSX from 'xlsx';
       <span class="material-symbols-outlined p-2 rounded-lg" [ngClass]="puntajeSeguridad >= 90 ? 'text-primary bg-primary-container' : puntajeSeguridad >= 70 ? 'text-tertiary-container bg-tertiary-container/30' : 'text-error bg-error-container'" data-weight="fill">verified_user</span>
       <span class="font-bold text-label-md flex items-center px-2 py-0.5 rounded-full" [ngClass]="puntajeSeguridad >= 90 ? 'text-primary bg-primary-container/50' : puntajeSeguridad >= 70 ? 'text-tertiary-container bg-tertiary-container/50' : 'text-error bg-error-container/50'">Calc</span>
     </div>
-    <h3 class="text-on-surface-variant font-label-md text-label-md">Puntaje Seguridad</h3>
+    <h3 class="text-on-surface-variant font-label-md text-label-md">Asignación Equipos</h3>
     <p class="text-headline-md font-headline-md text-secondary">{{ puntajeSeguridad }}%</p>
   </div>
 </div>
@@ -168,14 +168,14 @@ import * as XLSX from 'xlsx';
     <div class="py-6">
       <div class="text-[64px] font-bold text-primary-container leading-none">{{ puntajeSeguridad }}%</div>
       <p class="text-label-md text-primary font-bold uppercase tracking-wider mt-2">
-        Nivel de Confianza: {{ puntajeSeguridad >= 90 ? 'ALTO' : puntajeSeguridad >= 70 ? 'MEDIO' : 'BAJO' }}
+        Nivel de Asignación: {{ puntajeSeguridad >= 90 ? 'ALTO' : puntajeSeguridad >= 70 ? 'MEDIO' : 'BAJO' }}
       </p>
     </div>
 
     <div class="bg-white/60 backdrop-blur p-4 rounded-lg flex items-center gap-4">
       <span class="material-symbols-outlined text-primary-container animate-float">info</span>
       <p class="text-label-md text-on-secondary-fixed-variant">
-        Datos calculados en tiempo real basados en {{ totalEquipos }} equipos asignados a {{ totalPuestos }} puestos activos.
+        Datos calculados en tiempo real basados en {{ totalEquipos }} equipos asignados a un total de {{ totalColaboradores }} colaboradores activos.
       </p>
     </div>
   </div>
@@ -256,14 +256,12 @@ export class DashboardComponent implements OnInit {
   }
 
   calculateSecurityScore() {
-    // Simple mock algorithm to calculate a real-looking score based on assignments
     if (this.totalColaboradores > 0) {
+      // Calculate real assignment compliance: total assigned equipment / total employees
       const ratio = this.totalEquipos / this.totalColaboradores;
-      // Ideal is 1:1, max score 100
-      let score = 100 - Math.abs(1 - ratio) * 50;
-      // Add slight randomness based on current counts to seem dynamic
-      score -= (this.totalPuestos % 5);
-      this.puntajeSeguridad = Math.max(0, Math.min(100, Math.round(score * 10) / 10));
+      // Cap at 100% just in case there are more equipments than employees
+      let score = Math.min(ratio * 100, 100);
+      this.puntajeSeguridad = Math.round(score * 10) / 10;
     } else {
       this.puntajeSeguridad = 0;
     }
