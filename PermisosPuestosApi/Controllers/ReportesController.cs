@@ -62,17 +62,12 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(B.NivelAcceso, '') AS NivelAcceso,
                     ISNULL(B.Observaciones, '') AS Observaciones
                 FROM pt_Empleados E
-<<<<<<< HEAD
                 LEFT JOIN pt_Puestos_X_Empleado PXE
                     ON E.Id = PXE.EmpleadoId
                 LEFT JOIN pt_Puestos P
                     ON PXE.PuestoId = P.Id
                 INNER JOIN pt_AccesosBD B
                     ON B.EmpleadoId = E.Id
-=======
-                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                LEFT JOIN pt_AccesosBD B ON B.EmpleadoId = E.Id
->>>>>>> origin/jules-7189672295677850618-309fa348
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
@@ -90,17 +85,12 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(S.Version, '') AS Version,
                     ISNULL(S.Fabricante, '') AS Fabricante
                 FROM pt_Empleados E
-<<<<<<< HEAD
                 LEFT JOIN pt_Puestos_X_Empleado PXE
                     ON E.Id = PXE.EmpleadoId
                 LEFT JOIN pt_Puestos P
                     ON PXE.PuestoId = P.Id
                 INNER JOIN pt_SoftwareLocal S
                     ON S.EmpleadoId = E.Id
-=======
-                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                LEFT JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
->>>>>>> origin/jules-7189672295677850618-309fa348
                 WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
@@ -120,20 +110,18 @@ namespace PermisosPuestosApi.Controllers
                     ISNULL(H.MarcaPC, '') AS MarcaPC,
                     ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
                 FROM pt_Empleados E
-<<<<<<< HEAD
                 LEFT JOIN pt_Puestos_X_Empleado PXE
                     ON E.Id = PXE.EmpleadoId
                 LEFT JOIN pt_Puestos P
                     ON PXE.PuestoId = P.Id
                 INNER JOIN pt_HardwareIdeal H
                     ON H.PuestoId = P.Id
-=======
-                LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-                LEFT JOIN pt_HardwareIdeal H ON H.PuestoId = P.Id
->>>>>>> origin/jules-7189672295677850618-309fa348
-                WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+                WHERE (
+                    P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
                     OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
-                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
+                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%'
+                )";
+
             var ei = await _context.ReportesHardwareDto
                 .FromSqlRaw(sqlEi, p6)
                 .ToListAsync();
