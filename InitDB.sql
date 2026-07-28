@@ -999,3 +999,64 @@ BEGIN
         DELETE FROM pt_Usuarios WHERE Id = @Id
     END
 END
+CREATE OR ALTER PROCEDURE sp_GetReporteIntegralSitios
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        ISNULL(S.Sitio, '') AS Sitio,
+        ISNULL(S.Ambiente, '') AS Ambiente,
+        ISNULL(S.GruposPermisos, '') AS GruposPermisos
+    FROM pt_Empleados E
+    LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+    LEFT JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+
+CREATE OR ALTER PROCEDURE sp_GetReporteIntegralPlataformas
+    @TerminoBusqueda VARCHAR(100)
+AS
+BEGIN
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        ISNULL(Pl.Licencias, '') AS Licencias,
+        ISNULL(Pl.NombrePlataforma, '') AS Plataformas,
+        ISNULL(Pl.Modulos, '') AS Modulos,
+        ISNULL(Pl.AccesosPermisos, '') AS AccesosYPermisos,
+        ISNULL(Pl.NivelAcceso, '') AS NivelAcceso
+    FROM pt_Empleados E
+    LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+    LEFT JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+       OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END
+GO
+CREATE OR ALTER PROCEDURE [dbo].[sp_GetReporteIntegralHardware]
+    @TerminoBusqueda NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
+        E.NombreCompleto AS Nombre,
+        ISNULL(H.TipoEquipo, '') AS Equipo,
+        ISNULL(H.Procesador, '') AS Procesador,
+        ISNULL(H.Memoria, '') AS Memoria,
+        ISNULL(H.Disco, '') AS Disco,
+        ISNULL(H.MarcaPC, '') AS MarcaPC,
+        ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
+    FROM pt_Empleados E
+    LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
+    LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
+    WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
+        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
+        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
+END

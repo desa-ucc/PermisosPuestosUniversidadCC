@@ -37,3 +37,4 @@ Utilice las credenciales del usuario semilla para ingresar en el frontend:
 - **Base de datos Externa:** No se incluye contenedor de DB, todo apunta a 172.29.99.8.
 - **Backend (.NET 8):** Expone endpoints protegidos con JWT que interactúan con la BD **100% a través de Stored Procedures (0 LINQ)**.
 - **Frontend (Angular 17):** Implementa todo el CRUD de Puestos, Empleados, Hardware y Software simulando un Excel interactivo. Incluye Dark Mode con TailwindCSS.
+/audit
