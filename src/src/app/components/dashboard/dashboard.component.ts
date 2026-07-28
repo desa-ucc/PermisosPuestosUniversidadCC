@@ -50,13 +50,12 @@ import * as XLSX from 'xlsx';
     <p class="text-headline-md font-headline-md text-secondary">{{ totalSoftware }}</p>
   </div>
 
-  <div class="ucc-card flex flex-col gap-2 border-l-4 hover:-translate-y-1 transition-transform duration-300" [ngClass]="puntajeSeguridad >= 90 ? 'border-primary' : puntajeSeguridad >= 70 ? 'border-tertiary-container' : 'border-error'">
+  <div class="ucc-card flex flex-col gap-2 border-l-4 hover:-translate-y-1 transition-transform duration-300 border-primary">
     <div class="flex justify-between items-start">
-      <span class="material-symbols-outlined p-2 rounded-lg" [ngClass]="puntajeSeguridad >= 90 ? 'text-primary bg-primary-container' : puntajeSeguridad >= 70 ? 'text-tertiary-container bg-tertiary-container/30' : 'text-error bg-error-container'" data-weight="fill">verified_user</span>
-      <span class="font-bold text-label-md flex items-center px-2 py-0.5 rounded-full" [ngClass]="puntajeSeguridad >= 90 ? 'text-primary bg-primary-container/50' : puntajeSeguridad >= 70 ? 'text-tertiary-container bg-tertiary-container/50' : 'text-error bg-error-container/50'">Calc</span>
+      <span class="material-symbols-outlined p-2 rounded-lg text-primary bg-primary-container" data-weight="fill">verified_user</span>
     </div>
     <h3 class="text-on-surface-variant font-label-md text-label-md">Asignación Equipos</h3>
-    <p class="text-headline-md font-headline-md text-secondary">{{ puntajeSeguridad }}%</p>
+    <p class="text-headline-md font-headline-md text-secondary">{{ totalEquipos }}</p>
   </div>
 </div>
 
@@ -66,7 +65,7 @@ import * as XLSX from 'xlsx';
   <div class="col-span-12 lg:col-span-8 ucc-card p-0 flex flex-col">
     <div class="flex justify-between items-center mb-2 px-6 pt-6">
       <div>
-        <h3 class="font-title-lg text-title-lg text-secondary">Equipos por Puesto</h3>
+        <h3 class="font-title-lg text-title-lg text-secondary">Distribución de Hardware por Puesto</h3>
         <p class="text-body-md text-on-surface-variant">Distribución de hardware por jerarquía organizacional.</p>
       </div>
 
@@ -154,28 +153,31 @@ import * as XLSX from 'xlsx';
     </div>
   </div>
 
-  <!-- Status Indicator: Cumplimiento Total -->
-  <div class="col-span-12 lg:col-span-4 bg-ucc-primary-fixed/20 p-md rounded-xl border border-ucc-primary-container relative overflow-hidden flex flex-col justify-between">
-    <div class="absolute top-0 right-0 p-4 opacity-10">
-      <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-    </div>
-
+  <!-- Status Indicator: Métricas de Gestión -->
+  <div class="col-span-12 lg:col-span-4 bg-ucc-primary-fixed/20 p-md rounded-xl border border-ucc-primary-container flex flex-col justify-between">
     <div>
-      <h3 class="font-title-lg text-title-lg text-on-primary-fixed-variant mb-2">Cumplimiento Total</h3>
-      <p class="text-body-md text-primary font-medium">Estado General de Infraestructura</p>
+      <h3 class="font-title-lg text-title-lg text-on-primary-fixed-variant mb-4">Métricas de Gestión</h3>
     </div>
 
-    <div class="py-6">
-      <div class="text-[64px] font-bold text-primary-container leading-none">{{ puntajeSeguridad }}%</div>
-      <p class="text-label-md text-primary font-bold uppercase tracking-wider mt-2">
-        Nivel de Asignación: {{ puntajeSeguridad >= 90 ? 'ALTO' : puntajeSeguridad >= 70 ? 'MEDIO' : 'BAJO' }}
-      </p>
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-between items-center bg-white/60 p-3 rounded-lg shadow-sm">
+        <span class="text-label-md text-on-surface-variant">Total Puestos Registrados</span>
+        <span class="font-bold text-title-lg text-primary">{{ totalPuestos }}</span>
+      </div>
+      <div class="flex justify-between items-center bg-white/60 p-3 rounded-lg shadow-sm">
+        <span class="text-label-md text-on-surface-variant">Colaboradores sin Puesto</span>
+        <span class="font-bold text-title-lg text-error">{{ colaboradoresSinPuesto }}</span>
+      </div>
+      <div class="flex justify-between items-center bg-white/60 p-3 rounded-lg shadow-sm">
+        <span class="text-label-md text-on-surface-variant">Colaboradores Multi-Puesto</span>
+        <span class="font-bold text-title-lg text-tertiary">{{ colaboradoresMultiPuesto }}</span>
+      </div>
     </div>
 
-    <div class="bg-white/60 backdrop-blur p-4 rounded-lg flex items-center gap-4">
+    <div class="bg-white/60 backdrop-blur p-4 rounded-lg flex items-center gap-4 mt-6">
       <span class="material-symbols-outlined text-primary-container animate-float">info</span>
       <p class="text-label-md text-on-secondary-fixed-variant">
-        Datos calculados en tiempo real basados en {{ totalEquipos }} equipos asignados a un total de {{ totalColaboradores }} colaboradores activos.
+        Datos calculados en tiempo real basados en la plantilla de {{ totalColaboradores }} colaboradores activos.
       </p>
     </div>
   </div>
@@ -192,11 +194,12 @@ export class DashboardComponent implements OnInit {
   gerencialesCount: number = 0;
   directivosCount: number = 0;
 
-  puntajeSeguridad: number = 0;
+  colaboradoresSinPuesto: number = 0;
+  colaboradoresMultiPuesto: number = 0;
 
   // Chart data and state
   chartData: any[] = [];
-  chartType: 'pie' | 'bar' | 'list' = 'pie';
+  chartType: 'pie' | 'bar' | 'list' = 'bar';
   legendPosition = LegendPosition.Right;
   colorScheme: any = {
     domain: ['#0A2540', '#635BFF', '#00D4FF', '#FF007F', '#FFD700', '#2E8B57']
@@ -214,12 +217,20 @@ export class DashboardComponent implements OnInit {
   fetchData() {
     this.api.getPuestos().subscribe(res => {
       this.totalPuestos = res.length;
-      this.calculateSecurityScore();
-    });
+      });
 
     this.api.getEmpleados().subscribe(res => {
       this.totalColaboradores = res.length;
-      this.calculateSecurityScore();
+      this.colaboradoresSinPuesto = res.filter(e => !e.puestoId).length;
+
+      const countsByEmpleado = res.reduce((acc, curr) => {
+        if (curr.codigoEmpleado) {
+          acc[curr.codigoEmpleado] = (acc[curr.codigoEmpleado] || 0) + 1;
+        }
+        return acc;
+      }, {} as { [key: string]: number });
+
+      this.colaboradoresMultiPuesto = Object.values(countsByEmpleado).filter(count => count > 1).length;
     });
 
     this.api.getSoftwareLocales().subscribe(res => {
@@ -230,8 +241,7 @@ export class DashboardComponent implements OnInit {
       this.totalEquipos = res.length;
       this.rawHardwareData = res;
       this.processChartData(res);
-      this.calculateSecurityScore();
-    });
+      });
   }
 
   processChartData(hardware: any[]) {
@@ -255,30 +265,19 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  calculateSecurityScore() {
-    if (this.totalColaboradores > 0) {
-      // Calculate real assignment compliance: total assigned equipment / total employees
-      const ratio = this.totalEquipos / this.totalColaboradores;
-      // Cap at 100% just in case there are more equipments than employees
-      let score = Math.min(ratio * 100, 100);
-      this.puntajeSeguridad = Math.round(score * 10) / 10;
-    } else {
-      this.puntajeSeguridad = 0;
-    }
-  }
-
-  setChartType(type: 'pie' | 'bar' | 'list') {
+    setChartType(type: 'pie' | 'bar' | 'list') {
     this.chartType = type;
   }
 
   exportToExcel() {
     // Summary Data
     const summaryData = [
-      { Metrica: 'Puestos Activos', Valor: this.totalPuestos },
-      { Metrica: 'Colaboradores', Valor: this.totalColaboradores },
+      { Metrica: 'Total de Puestos', Valor: this.totalPuestos },
+      { Metrica: 'Colaboradores Totales', Valor: this.totalColaboradores },
+      { Metrica: 'Colaboradores sin Puesto', Valor: this.colaboradoresSinPuesto },
+      { Metrica: 'Colaboradores con Múltiples Puestos', Valor: this.colaboradoresMultiPuesto },
       { Metrica: 'Software Licenciado', Valor: this.totalSoftware },
-      { Metrica: 'Equipos Asignados', Valor: this.totalEquipos },
-      { Metrica: 'Puntaje Seguridad', Valor: `${this.puntajeSeguridad}%` }
+      { Metrica: 'Equipos Físicos Asignados', Valor: this.totalEquipos }
     ];
 
     // Chart Data
