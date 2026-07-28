@@ -22,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         {
             // Usamos la Acción SELECT del SP unificado
             var data = await _context.HardwareAsignados
-                .FromSqlRaw("EXEC sp_GestionarHardwareAsignado @Accion='SELECT'")
+                .FromSqlRaw("select * from v_GestionarHardwareAsignado")
                 .ToListAsync();
             return Ok(data);
         }

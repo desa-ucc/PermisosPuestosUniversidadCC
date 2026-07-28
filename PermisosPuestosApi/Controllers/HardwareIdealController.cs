@@ -22,7 +22,7 @@ namespace PermisosPuestosApi.Controllers
         {
             // Usamos la Acción SELECT
             var data = await _context.HardwareIdeales
-                .FromSqlRaw("EXEC sp_GestionarHardwareIdeal @Accion='SELECT'")
+                .FromSqlRaw("Select * from v_GestionarHardwareIdeal")
                 .ToListAsync();
             return Ok(data);
         }

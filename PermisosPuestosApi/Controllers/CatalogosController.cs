@@ -15,14 +15,9 @@ namespace PermisosPuestosApi.Controllers
         private readonly AppDbContext _context;
         public CatalogosController(AppDbContext context) { _context = context; }
 
-
-
-        // --- Ambientes ---
-       // --- Ambientes (Centralizado en sp_GestionarAmbientes) ---
-
 [HttpGet("Ambientes")]
 public async Task<IActionResult> GetAmbientes() => 
-    Ok(await _context.Cat_Ambientes.FromSqlRaw("EXEC sp_GestionarAmbientes @Accion='SELECT'").ToListAsync());
+    Ok(await _context.Cat_Ambientes.FromSqlRaw("SELECT * FROM v_GestionarAmbientes").ToListAsync());
 
 [HttpGet("Ambientes/{id}")]
 public async Task<IActionResult> GetAmbiente(int id)
@@ -58,12 +53,11 @@ public async Task<IActionResult> GetAmbiente(int id)
     // --- Sitios ---
     [HttpGet("Sitios")]
     public async Task<IActionResult> GetSitios() => 
-        Ok(await _context.Set<Cat_Sitio>().FromSqlRaw("EXEC sp_GestionarSitios @Accion='SELECT'").ToListAsync());
+        Ok(await _context.Set<Cat_Sitio>().FromSqlRaw("select * from v_GestionarSitios").ToListAsync());
 
     [HttpGet("Sitios/{id}")]
     public async Task<IActionResult> GetSitio(int id)
     {
-        // Usamos FromSqlRaw con el procedimiento centralizado
         var res = await _context.Set<Cat_Sitio>()
             .FromSqlRaw("EXEC sp_GestionarSitios @Accion='SELECT_ID', @Id={0}", id)
             .ToListAsync();
@@ -76,7 +70,6 @@ public async Task<IActionResult> GetAmbiente(int id)
     [HttpPost("Sitios")]
     public async Task<IActionResult> CreateSitio([FromBody] Cat_Sitio cat)
     {
-        // Ejecutamos el INSERT con el procedimiento centralizado
         await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='INSERT', @Nombre={0}", cat.Nombre);
         return Ok();
     }
@@ -84,7 +77,6 @@ public async Task<IActionResult> GetAmbiente(int id)
     [HttpPut("Sitios/{id}")]
     public async Task<IActionResult> UpdateSitio(int id, [FromBody] Cat_Sitio cat)
     {
-        // Ejecutamos el UPDATE con el procedimiento centralizado
         await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
         return Ok();
     }
@@ -92,7 +84,6 @@ public async Task<IActionResult> GetAmbiente(int id)
     [HttpDelete("Sitios/{id}")]
     public async Task<IActionResult> DeleteSitio(int id)
     {
-        // Ejecutamos el DELETE con el procedimiento centralizado
         await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='DELETE', @Id={0}", id);
         return NoContent();
     }
@@ -100,7 +91,7 @@ public async Task<IActionResult> GetAmbiente(int id)
 
     [HttpGet("Plataformas")]
     public async Task<IActionResult> GetPlataformas() => 
-        Ok(await _context.Set<Cat_Plataforma>().FromSqlRaw("EXEC sp_GestionarTiposPlataformas @Accion = 'SELECT'").ToListAsync());
+        Ok(await _context.Set<Cat_Plataforma>().FromSqlRaw("select * from v_GestionarTiposPlataformas").ToListAsync());
 
     [HttpGet("Plataformas/{id}")]
     public async Task<IActionResult> GetPlataforma(int id)
@@ -141,7 +132,7 @@ public async Task<IActionResult> GetAmbiente(int id)
         public async Task<IActionResult> GetTiposHardware()
         {
             var p = new SqlParameter("@Accion", "SELECT");
-            return Ok(await _context.Cat_TiposHardware.FromSqlRaw("EXEC sp_GestionarTiposHardware @Accion", p).ToListAsync());
+            return Ok(await _context.Cat_TiposHardware.FromSqlRaw("select * from v_GestionarTiposHardware", p).ToListAsync());
         }
 
         [HttpGet("TiposHardware/{id}")]
@@ -187,8 +178,7 @@ public async Task<IActionResult> GetAmbiente(int id)
         [HttpGet("NivelesAcceso")]
         public async Task<IActionResult> GetNivelesAcceso()
         {
-            var pAccion = new SqlParameter("@Accion", "SELECT");
-            var result = await _context.Cat_NivelesAccesos.FromSqlRaw("EXEC sp_GestionarNivelesAcceso @Accion", pAccion).ToListAsync();
+            var result = await _context.Cat_NivelesAccesos.FromSqlRaw("select * from v_GestionarNivelesAcceso").ToListAsync();
             return Ok(result);
         }
 
@@ -227,9 +217,9 @@ public async Task<IActionResult> GetAmbiente(int id)
         }
 
         [HttpGet("PlataformasNombres")]
-        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("EXEC sp_GestionarPlataformasNombres").ToListAsync());
+        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("select * from v_GestionarPlataformasNombres").ToListAsync());
 
         [HttpGet("TiposLicencia")]
-        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("EXEC sp_GestionarTiposLicencia").ToListAsync());
+        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("select * from v_GestionarTiposLicencia").ToListAsync());
     }
 }

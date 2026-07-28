@@ -22,8 +22,10 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAccesosBD()
         {
-            var pAccion = new SqlParameter("@Accion", "SELECT");
-            var data = await _context.AccesosBDDto.FromSqlRaw("EXEC sp_GestionarAccesosBD @Accion", pAccion).ToListAsync();
+            var data = await _context.AccesosBDDto
+                .FromSqlRaw("SELECT * FROM v_GestionarAccesosBD")
+                .ToListAsync();
+
             return Ok(data);
         }
 

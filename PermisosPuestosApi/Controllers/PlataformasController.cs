@@ -19,7 +19,7 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> GetPlataformas()
         {
             var data = await _context.Database.SqlQueryRaw<Plataforma>(
-                "EXEC sp_GestionarPlataformas @Accion='SELECT'"
+                "select * from v_GestionarPlataformas"
             ).ToListAsync();
             return Ok(data);
         }

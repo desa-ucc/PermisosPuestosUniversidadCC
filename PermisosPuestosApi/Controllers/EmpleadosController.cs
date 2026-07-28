@@ -20,7 +20,7 @@ namespace PermisosPuestosApi.Controllers
         {
             // Llamada al SP unificado con acción SELECT
             var data = await _context.EmpleadosDto
-                .FromSqlRaw("EXEC sp_GestionarEmpleados @Accion='SELECT'")
+                .FromSqlRaw("SELECT * FROM v_Empleados")
                 .ToListAsync();
             return Ok(data);
         }

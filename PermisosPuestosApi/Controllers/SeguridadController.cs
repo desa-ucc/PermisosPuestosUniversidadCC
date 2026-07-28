@@ -39,8 +39,7 @@ namespace PermisosPuestosApi.Controllers
             try
             {
                 var roles = await _context.Roles.FromSqlRaw(
-                    "EXEC sp_GestionarRoles @Accion",
-                    new SqlParameter("@Accion", "SELECT")
+                    "SELECT * FROM v_GestionarRoles ORDER BY Nombre"
                 ).ToListAsync();
                 return Ok(roles);
             }
@@ -116,7 +115,7 @@ namespace PermisosPuestosApi.Controllers
             var usuarios = new List<UsuarioListDto>(); // Usa el nuevo DTO
             using (var command = _context.Database.GetDbConnection().CreateCommand())
             {
-                command.CommandText = "EXEC sp_GestionarUsuarios @Accion='SELECT'";
+                command.CommandText = "select * from v_GestionarUsuarios";
                 await _context.Database.OpenConnectionAsync();
                 
                 using (var reader = await command.ExecuteReaderAsync())

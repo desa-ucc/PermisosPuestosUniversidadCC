@@ -18,9 +18,8 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPuestos()
         {
-            // Usamos el parámetro @Accion='SELECT'
             var data = await _context.Puestos
-                .FromSqlRaw("EXEC sp_GestionarPuestos @Accion='SELECT'")
+                .FromSqlRaw("Select * from v_GestionarPuestos")
                 .ToListAsync();
             return Ok(data);
         }

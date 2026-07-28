@@ -22,10 +22,8 @@ namespace PermisosPuestosApi.Controllers
        [HttpGet]
         public async Task<IActionResult> GetPermisosSitios()
         {
-            // Cambia _context.PermisosSitios.FromSqlRaw(...)
-            // Por esto:
             var data = await _context.Database.SqlQueryRaw<PermisosSitio>(
-                "EXEC sp_GestionarPermisosSitios @Accion='SELECT'"
+                "select * from v_GestionarPermisosSitios"
             ).ToListAsync();
 
             return Ok(data);

@@ -21,7 +21,7 @@ namespace PermisosPuestosApi.Controllers
         public async Task<IActionResult> GetSoftwareLocales()
         {
             var data = await _context.Database.SqlQueryRaw<SoftwareLocal>(
-                "EXEC sp_GestionarSoftwareLocal @Accion='SELECT'"
+                "select * from v_GestionarSoftwareLocal"
             ).ToListAsync();
             return Ok(data);
         }
