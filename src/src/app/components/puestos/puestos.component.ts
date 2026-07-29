@@ -149,7 +149,7 @@ import * as XLSX from 'xlsx';
 
           <!-- TABLA CON FILTROS TIPO COMBOBOX BUSCABLE -->
           <section class="ucc-table-container">
-            <div class="p-6 flex justify-between items-center border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+            <div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
               <h3 class="text-lg font-bold text-white flex items-center gap-2">
                 <span class="material-symbols-outlined">work</span> Puestos Registrados
               </h3>

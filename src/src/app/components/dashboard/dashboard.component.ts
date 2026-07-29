@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
   imports: [CommonModule, NgxChartsModule],
   template: `
 <!-- Dashboard Header -->
-<div class="flex justify-between items-end mb-8">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
   <div>
     <h2 class="font-display-lg text-headline-lg text-secondary">Dashboard Operativo</h2>
     <p class="text-body-lg font-body-lg text-on-surface-variant">Resumen ejecutivo del cumplimiento y asignaciones de activos.</p>
@@ -60,10 +60,10 @@ import * as XLSX from 'xlsx';
 </div>
 
 <!-- Bento Grid Layout -->
-<div class="grid grid-cols-12 gap-gutter">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
   <!-- Chart: Equipos por Puesto -->
   <div class="col-span-12 lg:col-span-8 ucc-card p-0 flex flex-col">
-    <div class="flex justify-between items-center mb-2 px-6 pt-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 px-6 pt-6 gap-4">
       <div>
         <h3 class="font-title-lg text-title-lg text-secondary">Distribución de Hardware por Puesto</h3>
         <p class="text-body-md text-on-surface-variant">Distribución de hardware por jerarquía organizacional.</p>

@@ -85,7 +85,7 @@ import { PermissionService } from '../../services/permission.service';
 
             <!-- Registers Table -->
             <div class="ucc-table-container">
-                <div class="px-6 py-4 bg-ucc-secondary flex justify-between items-center">
+                <div class="px-6 py-4 bg-ucc-secondary flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h3 class="text-white font-bold flex items-center gap-2 text-body-lg">
                         <span class="material-symbols-outlined">list_alt</span>
                         {{ getTabNamePlural() }} Registrados
