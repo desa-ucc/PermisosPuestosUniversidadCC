@@ -1,6 +1,6 @@
 @if (isLoggedIn) {
   <!-- Sidebar -->
-  <aside class="fixed left-0 top-0 h-full w-[280px] flex flex-col z-50 overflow-y-auto bg-ucc-secondary shadow-xl transition-all duration-300">
+  <aside [ngClass]="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'" class="fixed left-0 top-0 h-full w-[280px] flex flex-col z-50 overflow-y-auto bg-ucc-secondary shadow-xl transition-all duration-300">
     <div class="p-gutter pb-8 flex flex-col gap-1">
       <h1 class="text-2xl font-bold text-white">Perfiles Tecnológicos</h1>
       <p class="text-xs text-white/60 uppercase tracking-widest">Sistema Administrativo</p>
@@ -21,9 +21,18 @@
     </div>
   </aside>
 
+  <!-- Overlay -->
+  @if (isMobileMenuOpen) {
+    <div (click)="toggleMobileMenu()" class="fixed inset-0 bg-black/50 z-40 md:hidden"></div>
+  }
+
   <!-- Header -->
-  <header class="fixed top-0 right-0 left-[280px] h-16 flex justify-between items-center px-gutter z-40 bg-ucc-surface border-b border-ucc-neutral-outline/30 shadow-sm">
-    <div class="flex items-center flex-1 max-w-xl">
+  <header class="fixed top-0 right-0 left-0 md:left-[280px] h-16 flex justify-between items-center px-gutter z-30 bg-ucc-surface border-b border-ucc-neutral-outline/30 shadow-sm transition-all duration-300">
+    <div class="flex items-center flex-1 max-w-xl gap-4">
+      <!-- Hamburger Menu -->
+      <button (click)="toggleMobileMenu()" class="md:hidden text-ucc-secondary hover:text-ucc-primary transition-colors flex items-center justify-center">
+        <span class="material-symbols-outlined text-[28px]">menu</span>
+      </button>
       <div class="relative w-full">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ucc-neutral-variant">search</span>
         <input class="w-full bg-ucc-background border-none rounded-full pl-10 pr-4 py-2 focus:ring-2 focus:ring-ucc-primary-container text-sm transition-all outline-none" placeholder="Buscar..." type="text"/>
@@ -44,6 +53,6 @@
 }
 
 <!-- Main Content -->
-<main [ngClass]="isLoggedIn ? 'ml-[280px] pt-24 px-md pb-md' : ''">
+<main [ngClass]="isLoggedIn ? 'md:ml-[280px] pt-24 px-md pb-md transition-all duration-300' : ''">
   <router-outlet></router-outlet>
 </main>

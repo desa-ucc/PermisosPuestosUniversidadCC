@@ -21,7 +21,7 @@ body {
 }
 
 .ucc-table-container {
-  @apply bg-ucc-surface rounded-xl shadow-ucc-card border border-ucc-neutral-outline/30 overflow-hidden p-0;
+  @apply bg-ucc-surface rounded-xl shadow-ucc-card border border-ucc-neutral-outline/30 overflow-x-auto p-0;
 }
 
 .ucc-table {

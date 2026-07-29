@@ -15,6 +15,7 @@ import { PermissionService } from './services/permission.service';
 export class AppComponent implements OnInit {
   title = 'ProyectoPermisosXPuesto';
   isLoggedIn = false;
+  isMobileMenuOpen = false;
   filteredMenu$: Observable<any[]>;
 
   constructor(
@@ -76,13 +77,19 @@ export class AppComponent implements OnInit {
       } else if (this.isLoggedIn) {
           this.permissionService.cargarPermisosDesdeStorage();
       }
+      this.isMobileMenuOpen = false; // Close menu on navigation
     });
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('permisos');
     this.isLoggedIn = false;
+    this.isMobileMenuOpen = false;
     this.router.navigate(['/login']);
   }
 }

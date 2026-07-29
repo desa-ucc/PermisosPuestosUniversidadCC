@@ -169,7 +169,7 @@ import * as XLSX from 'xlsx';
             </div>
             <!-- HARDWARE PAGINATION FOOTER -->
             @if(data.hardware.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
             <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
@@ -228,7 +228,7 @@ import * as XLSX from 'xlsx';
             </div>
             <!-- EQUIPO IDEAL PAGINATION FOOTER -->
             @if(data.equipoIdeal.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
                     <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
@@ -289,7 +289,7 @@ import * as XLSX from 'xlsx';
             </div>
             <!-- SITIOS PAGINATION FOOTER -->
             @if(data.sitios.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
             <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
@@ -355,7 +355,7 @@ import * as XLSX from 'xlsx';
             </div>
             <!-- PLATAFORMAS PAGINATION FOOTER -->
             @if(data.plataformas.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
           <div class="flex items-center gap-2">
             <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
             <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
@@ -413,7 +413,7 @@ import * as XLSX from 'xlsx';
               </table>
             </div>
             @if(data.basesDatos.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
                     <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
@@ -471,7 +471,7 @@ import * as XLSX from 'xlsx';
               </table>
             </div>
             @if(data.softwareLocal.length > pageSize) {
-                <div class="flex items-center justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface">
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
                   <div class="flex items-center gap-2">
                     <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
                     <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
