@@ -536,9 +536,9 @@ BEGIN
         299.99 AS CostoEstimadoLicencias
     FROM pt_Empleados E
     INNER JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
+    INNER JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
     LEFT JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
-    LEFT JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
+    INNER JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
     WHERE P.CodigoPuesto = @CodigoPerfil;
 END
 GO
@@ -762,7 +762,7 @@ BEGIN
         ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
+    INNER JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -781,7 +781,7 @@ BEGIN
         ISNULL(S.Grupospt_Permisos, '') AS Grupospt_Permisos
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
+    INNER JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -802,7 +802,7 @@ BEGIN
         ISNULL(Pl.NivelAcceso, '') AS NivelAcceso
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
+    INNER JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -942,7 +942,7 @@ BEGIN
         ISNULL(H.OtrasConsideraciones, 'N/A') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
+    INNER JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
         OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
         OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -1011,7 +1011,7 @@ BEGIN
         ISNULL(S.GruposPermisos, '') AS GruposPermisos
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
+    INNER JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -1032,7 +1032,7 @@ BEGIN
         ISNULL(Pl.NivelAcceso, '') AS NivelAcceso
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
+    INNER JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
        OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
        OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
@@ -1055,7 +1055,7 @@ BEGIN
         ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
     FROM pt_Empleados E
     LEFT JOIN pt_Puestos P ON E.PuestoId = P.Id
-    LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
+    INNER JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
     WHERE (P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
         OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
         OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%');
