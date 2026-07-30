@@ -720,11 +720,20 @@ export class PlataformasComponent implements OnInit {
   showDropdownEmpleados = false;
   searchTermEmpleados = '';
   get empleadosFiltrados() {
-    return this.empleados.filter((e) =>
+    const filtrados = this.empleados.filter((e) =>
       e.nombreCompleto
         .toLowerCase()
         .includes(this.searchTermEmpleados.toLowerCase()),
     );
+
+    // Eliminar duplicados basados en el nombreCompleto
+    const unicosMap = new Map();
+    for (const emp of filtrados) {
+      if (!unicosMap.has(emp.nombreCompleto)) {
+        unicosMap.set(emp.nombreCompleto, emp);
+      }
+    }
+    return Array.from(unicosMap.values());
   }
 
   seleccionarEmpleado(empleado: Empleado | null) {

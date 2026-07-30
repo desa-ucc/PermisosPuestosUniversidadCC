@@ -578,7 +578,16 @@ export class ReportesComponent implements OnInit {
   searchTermColaboradores = '';
 
   get colaboradoresFiltrados() {
-    return this.listaEmpleados.filter(c => c.nombreCompleto.toLowerCase().includes(this.searchTermColaboradores.toLowerCase()));
+    const filtrados = this.listaEmpleados.filter(c => c.nombreCompleto.toLowerCase().includes(this.searchTermColaboradores.toLowerCase()));
+    
+    // Eliminar duplicados basados en el nombreCompleto
+    const unicosMap = new Map();
+    for (const emp of filtrados) {
+      if (!unicosMap.has(emp.nombreCompleto)) {
+        unicosMap.set(emp.nombreCompleto, emp);
+      }
+    }
+    return Array.from(unicosMap.values());
   }
 
   seleccionarColaborador(colaborador: Empleado | null) {

@@ -18,7 +18,6 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetEmpleados()
         {
-            // Llamada al SP unificado con acción SELECT
             var data = await _context.EmpleadosDto
                 .FromSqlRaw("SELECT * FROM v_GestionarEmpleados")
                 .ToListAsync();
