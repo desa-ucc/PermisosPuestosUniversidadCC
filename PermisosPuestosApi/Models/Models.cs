@@ -266,8 +266,19 @@ public class PermisosSitio
         public string Fabricante { get; set; } = string.Empty;
     }
 
+
+    public class ReporteBaseDto
+    {
+        public string Puesto { get; set; } = string.Empty;
+        public string CodigoPuesto { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Correo { get; set; } = string.Empty;
+    }
+
     public class ReporteIntegralResponse
     {
+        public List<ReporteBaseDto> InformacionBase { get; set; } = new();
+
         public List<ReporteHardwareDto> Hardware { get; set; } = new();
         public List<ReporteHardwareDto> EquipoIdeal { get; set; } = new();
         public List<ReporteSitioDto> Sitios { get; set; } = new();

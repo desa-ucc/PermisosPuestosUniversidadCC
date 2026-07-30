@@ -30,6 +30,21 @@ namespace PermisosPuestosApi.Controllers
             return Ok(reporte);
         }
 
+
+        [AllowAnonymous]
+        [HttpGet("ejecutar-sql")]
+        public async Task<IActionResult> EjecutarSql()
+        {
+            var sql = System.IO.File.ReadAllText("../update_reportes_sp.sql");
+            var batches = sql.Split(new[] { "GO\r\n", "GO\n", "GO" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var batch in batches)
+            {
+                if (string.IsNullOrWhiteSpace(batch)) continue;
+                await _context.Database.ExecuteSqlRawAsync(batch);
+            }
+            return Ok("Script ejecutado");
+        }
+
         [HttpGet("integral/{termino}")]
         public async Task<IActionResult> GetReporteIntegral(string termino)
         {
@@ -39,136 +54,39 @@ namespace PermisosPuestosApi.Controllers
             var p4 = new SqlParameter("@TerminoBusqueda", termino);
             var p5 = new SqlParameter("@TerminoBusqueda", termino);
             var p6 = new SqlParameter("@TerminoBusqueda", termino);
+            var p7 = new SqlParameter("@TerminoBusqueda", termino);
 
-            // 1. Hardware Asignado (Partiendo de Empleado y Puesto real)
-            var sqlHw = @"
-                SELECT
-                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
-                    E.NombreCompleto AS Nombre,
-                    ISNULL(H.TipoEquipo, '') AS Equipo,
-                    ISNULL(H.Procesador, '') AS Procesador,
-                    ISNULL(H.Memoria, '') AS Memoria,
-                    ISNULL(H.Disco, '') AS Disco,
-                    ISNULL(H.MarcaPC, '') AS MarcaPC,
-                    ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
-                FROM pt_Empleados E
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON E.Id = PXE.EmpleadoId
-                LEFT JOIN pt_Puestos P ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_HardwareAsignado H ON H.EmpleadoId = E.Id
-                WHERE (ISNULL(P.CodigoPuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR ISNULL(P.NombrePuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
+            var infoBase = await _context.ReportesBaseDto
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_Base @TerminoBusqueda", p1)
+                .ToListAsync();
+
             var hw = await _context.ReportesHardwareDto
-                .FromSqlRaw(sqlHw, p1)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_Hardware @TerminoBusqueda", p2)
                 .ToListAsync();
 
-            // 2. Sitios (Partiendo de Empleado y Puesto real)
-            var sqlSit = @"
-                SELECT
-                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
-                    E.NombreCompleto AS Nombre,
-                    ISNULL(S.Sitio, '') AS Sitio,
-                    ISNULL(S.Ambiente, '') AS Ambiente,
-                    ISNULL(S.GruposPermisos, '') AS GruposPermisos
-                FROM pt_Empleados E
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON E.Id = PXE.EmpleadoId
-                LEFT JOIN pt_Puestos P ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_PermisosSitio S ON S.EmpleadoId = E.Id
-                WHERE (ISNULL(P.CodigoPuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR ISNULL(P.NombrePuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var sit = await _context.ReportesSitiosDto
-                .FromSqlRaw(sqlSit, p2)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_Sitios @TerminoBusqueda", p3)
                 .ToListAsync();
 
-            // 3. Plataformas (Partiendo de Empleado y Puesto real)
-            var sqlPlat = @"
-                SELECT
-                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
-                    E.NombreCompleto AS Nombre,
-                    ISNULL(Pl.Licencias, '') AS Licencias,
-                    ISNULL(Pl.NombrePlataforma, '') AS Plataformas,
-                    ISNULL(Pl.Modulos, '') AS Modulos,
-                    ISNULL(Pl.AccesosPermisos, '') AS AccesosYPermisos,
-                    ISNULL(Pl.NivelAcceso, '') AS NivelAcceso
-                FROM pt_Empleados E
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON E.Id = PXE.EmpleadoId
-                LEFT JOIN pt_Puestos P ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_Plataformas Pl ON Pl.EmpleadoId = E.Id
-                WHERE (ISNULL(P.CodigoPuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR ISNULL(P.NombrePuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                   OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var plat = await _context.ReportesPlataformasDto
-                .FromSqlRaw(sqlPlat, p3)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_Plataformas @TerminoBusqueda", p4)
                 .ToListAsync();
 
-            // 4. Bases de Datos (Partiendo de Empleado y Puesto real)
-            var sqlBd = @"
-                SELECT
-                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
-                    E.NombreCompleto AS Nombre,
-                    ISNULL(B.Servidor, '') AS Servidor,
-                    ISNULL(B.BaseDatos, '') AS BaseDatos,
-                    ISNULL(B.NivelAcceso, '') AS NivelAcceso,
-                    ISNULL(B.Observaciones, '') AS Observaciones
-                FROM pt_Empleados E
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON E.Id = PXE.EmpleadoId
-                LEFT JOIN pt_Puestos P ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_AccesosBD B ON B.EmpleadoId = E.Id
-                WHERE (ISNULL(P.CodigoPuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                    OR ISNULL(P.NombrePuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var bd = await _context.ReportesBasesDatosDto
-                .FromSqlRaw(sqlBd, p4)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_BasesDatos @TerminoBusqueda", p5)
                 .ToListAsync();
 
-            // 5. Software Local (Partiendo de Empleado y Puesto real)
-            var sqlSl = @"
-                SELECT
-                    ISNULL(P.NombrePuesto, 'No Asignado') AS Puesto,
-                    E.NombreCompleto AS Nombre,
-                    ISNULL(S.Equipo, '') AS Equipo,
-                    ISNULL(S.GruposAD, '') AS GruposAD,
-                    ISNULL(S.NombreSoftware, '') AS NombreSoftware,
-                    ISNULL(S.Version, '') AS Version,
-                    ISNULL(S.Fabricante, '') AS Fabricante
-                FROM pt_Empleados E
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON E.Id = PXE.EmpleadoId
-                LEFT JOIN pt_Puestos P ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_SoftwareLocal S ON S.EmpleadoId = E.Id
-                WHERE (ISNULL(P.CodigoPuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                    OR ISNULL(P.NombrePuesto, '') LIKE '%' + @TerminoBusqueda + '%'
-                    OR E.NombreCompleto LIKE '%' + @TerminoBusqueda + '%')";
             var sl = await _context.ReportesSoftwareLocalDto
-                .FromSqlRaw(sqlSl, p5)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_SoftwareLocal @TerminoBusqueda", p6)
                 .ToListAsync();
 
-            // 6. Equipo Ideal del Puesto
-            var sqlEi = @"
-                SELECT
-                    P.NombrePuesto AS Puesto,
-                    ISNULL(E.NombreCompleto, 'Configuración General del Puesto') AS Nombre,
-                    ISNULL(H.TipoEquipo, '') AS Equipo,
-                    ISNULL(H.Procesador, '') AS Procesador,
-                    ISNULL(H.Memoria, '') AS Memoria,
-                    ISNULL(H.Disco, '') AS Disco,
-                    ISNULL(H.MarcaPC, '') AS MarcaPC,
-                    ISNULL(H.OtrasConsideraciones, '') AS OtrasConsideraciones
-                FROM pt_Puestos P
-                INNER JOIN pt_HardwareIdeal H ON H.PuestoId = P.Id
-                LEFT JOIN pt_Puestos_X_Empleado PXE ON PXE.PuestoId = P.Id
-                LEFT JOIN pt_Empleados E ON E.Id = PXE.EmpleadoId
-                WHERE (
-                    P.CodigoPuesto LIKE '%' + @TerminoBusqueda + '%'
-                    OR P.NombrePuesto LIKE '%' + @TerminoBusqueda + '%'
-                    OR ISNULL(E.NombreCompleto, '') LIKE '%' + @TerminoBusqueda + '%'
-                )";
             var ei = await _context.ReportesHardwareDto
-                .FromSqlRaw(sqlEi, p6)
+                .FromSqlRaw("EXEC sp_GetReporteIntegral_EquipoIdeal @TerminoBusqueda", p7)
                 .ToListAsync();
 
             var result = new ReporteIntegralResponse
             {
+                InformacionBase = infoBase,
                 Hardware = hw,
                 EquipoIdeal = ei,
                 Sitios = sit,
