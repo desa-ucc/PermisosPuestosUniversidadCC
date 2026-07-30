@@ -246,18 +246,22 @@ namespace PermisosPuestosApi.Controllers
         {
             try
             {
-                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-                var jsonData = JsonSerializer.Serialize(permisos, options);
+                // Asegurar que no vayan pantallas duplicadas para el mismo rol (se queda con la última o primera ocurrencia)
+                var permisosUnicos = permisos
+                    .GroupBy(p => new { p.RoleId, p.PantallaId })
+                    .Select(g => g.First())
+                    .ToList();
 
-                // Logging for debug as requested
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var jsonData = JsonSerializer.Serialize(permisosUnicos, options);
+
                 Console.WriteLine("JSON Payload for SP: " + jsonData);
 
-                var jsonParam = new SqlParameter("@JsonDataParam", System.Data.SqlDbType.NVarChar, -1) { Value = jsonData };
-                var accionParam = new SqlParameter("@AccionParam", "BULK_UPDATE");
+                var accionParam = new SqlParameter("@Accion", SqlDbType.NVarChar, 20) { Value = "BULK_UPDATE" };
+                var jsonParam = new SqlParameter("@JsonData", SqlDbType.NVarChar, -1) { Value = jsonData };
 
-                // Execute SQL using explicitly mapped variable names to bypass sequential mapping issues
                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarPermisos @Accion = @AccionParam, @JsonData = @JsonDataParam",
+                    "EXEC sp_GestionarPermisos @Accion = @Accion, @JsonData = @JsonData",
                     accionParam,
                     jsonParam
                 );
@@ -266,7 +270,7 @@ namespace PermisosPuestosApi.Controllers
             }
             catch (Exception ex)
             {
-                 return StatusCode(500, new { message = "Error al actualizar los permisos", error = ex.Message });
+                return StatusCode(500, new { message = "Error al actualizar los permisos", error = ex.Message });
             }
         }
     }
