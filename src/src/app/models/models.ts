@@ -163,7 +163,16 @@ export interface ReporteSoftwareLocal {
   fabricante: string;
 }
 
+
+export interface ReporteBaseDto {
+    puesto: string;
+    codigoPuesto: string;
+    nombre: string;
+    correo: string;
+}
+
 export interface ReporteIntegralResponse {
+  informacionBase: ReporteBaseDto[];
   equipoIdeal: ReporteHardware[];
   hardware: ReporteHardware[];
   sitios: ReporteSitio[];

@@ -110,7 +110,61 @@ import * as XLSX from 'xlsx';
             </button>
           </div>
 
+
+          <!-- SECTION 0: INFORMACIÓN BASE -->
+          @if (data.informacionBase && data.informacionBase.length > 0) {
+          <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-primary">
+            <div class="p-4 bg-ucc-primary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
+               <span class="material-symbols-outlined text-ucc-primary">badge</span>
+               <h3 class="font-bold text-ucc-primary">Sección 0: Información General del Colaborador</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="ucc-table min-w-[1000px]">
+                <thead>
+                  <tr>
+                    <th>Código Puesto</th>
+                    <th>Puesto</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for(base of paginatedInformacionBaseList; track $index) {
+                    <tr>
+                      <td class="font-bold">{{base.codigoPuesto}}</td>
+                      <td class="font-bold">{{base.puesto}}</td>
+                      <td>{{base.nombre}}</td>
+                      <td>{{base.correo}}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-center py-8 text-ucc-neutral-variant bg-ucc-surface">No hay resultados.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <!-- INFORMACION BASE PAGINATION FOOTER -->
+            @if(data.informacionBase.length > pageSize) {
+                <div class="flex flex-col sm:flex-row items-center sm:justify-between p-4 border-t border-ucc-neutral-outline/20 bg-ucc-surface gap-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-ucc-neutral-variant">Mostrar:</span>
+                    <select class="ucc-input py-1 px-2 text-sm w-20" (change)="changePageSize($event)">
+                      @for(size of pageSizeOptions; track size) {
+                        <option [value]="size" [selected]="size === pageSize">{{size}}</option>
+                      }
+                    </select>
+                  </div>
+                  <span class="text-sm text-ucc-neutral-variant">Mostrando página {{informacionBaseCurrentPage}} de {{informacionBaseTotalPages}}</span>
+                  <div class="flex gap-2">
+                      <button (click)="prevInformacionBasePage()" [disabled]="informacionBaseCurrentPage === 1" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Anterior</button>
+                      <button (click)="nextInformacionBasePage()" [disabled]="informacionBaseCurrentPage === informacionBaseTotalPages" class="px-4 py-2 text-sm font-semibold border border-ucc-neutral-outline rounded-lg hover:bg-ucc-surface-container disabled:opacity-50 disabled:cursor-not-allowed text-ucc-on-surface">Siguiente</button>
+                  </div>
+                </div>
+            }
+          </section>
+          }
+
           <!-- SECTION 1: HARDWARE -->
+          @if(data.hardware && data.hardware.length > 0) {
           <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-secondary">
             <div class="p-4 bg-ucc-secondary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-ucc-secondary">computer</span>
@@ -187,8 +241,10 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+          }
 
                     <!-- SECTION 1.5: EQUIPO IDEAL -->
+          @if(data.equipoIdeal && data.equipoIdeal.length > 0) {
           <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-tertiary">
             <div class="p-4 bg-ucc-tertiary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-ucc-tertiary">devices</span>
@@ -245,8 +301,10 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+          }
 
 <!-- SECTION 2: SITIOS -->
+          @if(data.sitios && data.sitios.length > 0) {
           <section class="ucc-table-container mb-8 border-l-4 border-l-ucc-primary-container">
             <div class="p-4 bg-ucc-primary-container/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-ucc-primary-container">location_on</span>
@@ -307,8 +365,10 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+          }
 
           <!-- SECTION 3: PLATAFORMAS -->
+          @if(data.plataformas && data.plataformas.length > 0) {
           <section class="ucc-table-container border-l-4 border-l-ucc-primary">
             <div class="p-4 bg-ucc-primary/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-ucc-primary">cloud_done</span>
@@ -373,6 +433,7 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+          }
 
           @if(data.basesDatos && data.basesDatos.length > 0) {
           <!-- SECTION 4: BASES DE DATOS -->
@@ -434,6 +495,7 @@ import * as XLSX from 'xlsx';
           }
 
           <!-- SECTION 5: SOFTWARE LOCAL -->
+          @if(data.softwareLocal && data.softwareLocal.length > 0) {
           <section class="ucc-table-container mb-8 border-l-4 border-l-pink-500">
             <div class="p-4 bg-pink-500/5 flex items-center gap-2 border-b border-ucc-neutral-outline/20">
                <span class="material-symbols-outlined text-pink-500">devices</span>
@@ -488,6 +550,7 @@ import * as XLSX from 'xlsx';
                 </div>
             }
           </section>
+          }
         } @else {
           <section class="ucc-card bg-ucc-background flex flex-col items-center justify-center p-12 text-ucc-neutral-variant shadow-none border-dashed border-2">
              <span class="material-symbols-outlined text-[64px] mb-4 opacity-50">search_off</span>
@@ -568,7 +631,7 @@ export class ReportesComponent implements OnInit {
 
 
   // Datos del Reporte
-  data: ReporteIntegralResponse = { hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
+  data: ReporteIntegralResponse = { informacionBase: [], hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   isLoading = false;
   busquedaRealizada = false;
 
@@ -581,6 +644,7 @@ export class ReportesComponent implements OnInit {
   changePageSize(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.pageSize = Number(target.value);
+    this.informacionBaseCurrentPage = 1;
     this.hardwareCurrentPage = 1;
     this.equipoIdealCurrentPage = 1;
     this.sitiosCurrentPage = 1;
@@ -588,6 +652,30 @@ export class ReportesComponent implements OnInit {
     this.basesDatosCurrentPage = 1;
     this.softwareLocalCurrentPage = 1;
   }
+
+  informacionBaseCurrentPage: number = 1;
+
+  get paginatedInformacionBaseList() {
+    const startIndex = (this.informacionBaseCurrentPage - 1) * this.pageSize;
+    return this.data.informacionBase.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get informacionBaseTotalPages() {
+    return Math.ceil(this.data.informacionBase.length / this.pageSize) || 1;
+  }
+
+  nextInformacionBasePage() {
+    if (this.informacionBaseCurrentPage < this.informacionBaseTotalPages) {
+      this.informacionBaseCurrentPage++;
+    }
+  }
+
+  prevInformacionBasePage() {
+    if (this.informacionBaseCurrentPage > 1) {
+      this.informacionBaseCurrentPage--;
+    }
+  }
+
   equipoIdealCurrentPage: number = 1;
 
   get paginatedEquipoIdealList() {
@@ -739,7 +827,7 @@ hardwareCurrentPage: number = 1;
   }
 
   get hasResults(): boolean {
-    return this.data.hardware.length > 0 || this.data.equipoIdeal.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0 || this.data.basesDatos.length > 0 || this.data.softwareLocal.length > 0;
+    return this.data.informacionBase.length > 0 || this.data.hardware.length > 0 || this.data.equipoIdeal.length > 0 || this.data.sitios.length > 0 || this.data.plataformas.length > 0 || this.data.basesDatos.length > 0 || this.data.softwareLocal.length > 0;
   }
 
 
@@ -753,7 +841,7 @@ hardwareCurrentPage: number = 1;
     this.busquedaRealizada = false;
 
 
-    this.data = { hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
+    this.data = { informacionBase: [], hardware: [], equipoIdeal: [], sitios: [], plataformas: [], basesDatos: [], softwareLocal: [] };
   }
 
   buscar() {
@@ -789,6 +877,20 @@ hardwareCurrentPage: number = 1;
 
   exportarAExcel() {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
+
+    // 0. Base Sheet
+    if (this.data.informacionBase.length > 0) {
+      const baseData = this.data.informacionBase.map(row => ({
+        'CÓDIGO PUESTO': row.codigoPuesto,
+        'PUESTO': row.puesto,
+        'NOMBRE': row.nombre,
+        'CORREO': row.correo
+      }));
+      const wsBase: XLSX.WorkSheet = XLSX.utils.json_to_sheet(baseData);
+      wsBase['!cols'] = [{wch: 15}, {wch: 30}, {wch: 30}, {wch: 30}];
+      XLSX.utils.book_append_sheet(wb, wsBase, 'Información Base');
+    }
 
     // 1. Hardware Sheet
     if (this.data.hardware.length > 0) {
