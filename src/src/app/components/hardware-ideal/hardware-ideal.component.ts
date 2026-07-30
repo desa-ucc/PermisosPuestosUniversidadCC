@@ -96,15 +96,13 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
             </div>
             }
 
-            @if(isPC) {
             <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
-              <label class="ucc-label">Marca de PC Estándar</label>
-              <input formControlName="marcaPC" placeholder="Marca de PC Estándar" class="ucc-input">
+              <label class="ucc-label">Marca </label>
+              <input formControlName="marcaPC" placeholder="Marca" class="ucc-input">
               @if(hwIdealForm.get('marcaPC')?.invalid && hwIdealForm.get('marcaPC')?.touched) {
                 <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
               }
             </div>
-            }
 
             <div class="flex flex-col w-full transition-all duration-300">
               <label class="ucc-label">Otras Consideraciones / Periféricos</label>
@@ -146,7 +144,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <th>Puesto Relacionado</th>
               <th>Equipo Base</th>
               <th>Procesador</th>
-              <th>Memoria</th>
+              <th>Marca</th>
               <th class="p-3 border-b border-gray-600 font-semibold text-center w-32">Acciones</th>
             </tr>
 
@@ -234,7 +232,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
                 <td>{{hw.nombrePuesto || hw.NombrePuesto || getPuestoName(hw.puestoId || hw.PuestoId)}}</td> 
                 <td>{{ getTipoName(hw.tipoHardwareId || hw.TipoHardwareId, hw.tipoEquipo || hw.TipoEquipo) || 'N/A' }}</td> 
                 <td>{{hw.procesador || hw.Procesador || 'N/A'}}</td> 
-                <td>{{hw.memoria || hw.Memoria || 'N/A'}}</td>
+                <td>{{hw.marcaPC || hw.MarcaPC || 'N/A'}}</td>
                 <td>
                   <div class="flex justify-center gap-3">
                     <button (click)="verDetalle(hw)" class="p-2 text-ucc-secondary hover:bg-ucc-secondary/10 rounded-full transition-all" title="Ver Detalles">

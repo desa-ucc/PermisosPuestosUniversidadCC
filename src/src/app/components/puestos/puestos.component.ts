@@ -326,9 +326,6 @@ import * as XLSX from 'xlsx';
                   <span class="font-headline-md text-headline-md text-primary">{{ puestos.length }}</span>
                 </div>
               </div>
-              <button class="w-full mt-6 py-2 text-center text-secondary font-bold font-label-md text-label-md border border-secondary/20 rounded-lg hover:bg-secondary/5 transition-all">
-                Ver Reporte Detallado
-              </button>
             </div>
             
             <div class="bg-surface-container-low p-md rounded-xl card-shadow border border-outline-variant/20">

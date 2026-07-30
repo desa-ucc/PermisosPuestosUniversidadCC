@@ -18,6 +18,11 @@ export class AppComponent implements OnInit {
   isMobileMenuOpen = false;
   filteredMenu$: Observable<any[]>;
 
+  // Propiedad dinâmica para el usuario logueado en el header
+  user: any = {
+    name: 'Usuario'
+  };
+
   constructor(
     private router: Router,
     public permissionService: PermissionService
@@ -73,12 +78,36 @@ export class AppComponent implements OnInit {
       if (this.isLoggedIn && !wasLoggedIn) {
           if (localStorage.getItem('token')) {
               this.permissionService.cargarPermisosDesdeStorage();
+              this.cargarDatosUsuario();
           }
       } else if (this.isLoggedIn) {
           this.permissionService.cargarPermisosDesdeStorage();
+          this.cargarDatosUsuario();
       }
-      this.isMobileMenuOpen = false; // Close menu on navigation
+      this.isMobileMenuOpen = false; 
     });
+  }
+
+  cargarDatosUsuario() {
+    // 1. Intenta obtener el nombre directamente si se guardó en el login
+    const nombreGuardado = localStorage.getItem('nombreUsuario');
+    if (nombreGuardado) {
+      this.user = { name: nombreGuardado };
+      return;
+    }
+
+    // 2. Si no, intenta decodificarlo dinámicamente desde el JWT token
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.user = {
+          name: payload.unique_name || payload.name || payload.sub || 'Usuario'
+        };
+      } catch (e) {
+        this.user = { name: 'Usuario' };
+      }
+    }
   }
 
   toggleMobileMenu() {
@@ -88,6 +117,7 @@ export class AppComponent implements OnInit {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('permisos');
+    localStorage.removeItem('nombreUsuario');
     this.isLoggedIn = false;
     this.isMobileMenuOpen = false;
     this.router.navigate(['/login']);

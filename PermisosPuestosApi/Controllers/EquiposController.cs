@@ -20,31 +20,32 @@ namespace PermisosPuestosApi.Controllers
         [HttpGet("Asignado")]
         public async Task<IActionResult> GetHardwareAsignado()
         {
-            // Usamos la Acción SELECT del SP unificado
             var data = await _context.HardwareAsignados
                 .FromSqlRaw("select * from v_GestionarHardwareAsignado")
                 .ToListAsync();
             return Ok(data);
         }
 
-        [HttpPost("Asignado")]
+      [HttpPost("Asignado")]
         public async Task<IActionResult> CreateHardwareAsignado([FromBody] HardwareAsignado h)
         {
             try 
             {
+                var pAccion = new SqlParameter("@Accion", "INSERT");
+                var pId = new SqlParameter("@Id", DBNull.Value);
                 var pEmpleado = new SqlParameter("@EmpleadoId", h.EmpleadoId);
-                var pTipoHw = new SqlParameter("@TipoHardwareId", (object)h.TipoHardwareId ?? DBNull.Value);
-                var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(h.TipoEquipo) ? DBNull.Value : (object)h.TipoEquipo);
-                var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? DBNull.Value : (object)h.Procesador);
-                var pMem = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? DBNull.Value : (object)h.Memoria);
-                var pDisco = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? DBNull.Value : (object)h.Disco);
-                var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? DBNull.Value : (object)h.MarcaPC);
-                var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(h.OtrasConsideraciones) ? DBNull.Value : (object)h.OtrasConsideraciones);
-                var pPlaca = new SqlParameter("@Placa", string.IsNullOrEmpty(h.Placa) ? DBNull.Value : (object)h.Placa);
+                var pTipoHw = new SqlParameter("@TipoHardwareId", h.TipoHardwareId != 0 ? (object)h.TipoHardwareId : DBNull.Value);
+                var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(h.TipoEquipo) ? (object)DBNull.Value : h.TipoEquipo);
+                var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? (object)DBNull.Value : h.Procesador);
+                var pMem = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? (object)DBNull.Value : h.Memoria);
+                var pDisco = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? (object)DBNull.Value : h.Disco);
+                var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? (object)DBNull.Value : h.MarcaPC);
+                var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(h.OtrasConsideraciones) ? (object)DBNull.Value : h.OtrasConsideraciones);
+                var pPlaca = new SqlParameter("@Placa", string.IsNullOrEmpty(h.Placa) ? (object)DBNull.Value : h.Placa);
 
                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC sp_GestionarHardwareAsignado @Accion='INSERT', @EmpleadoId=@EmpleadoId, @TipoHardwareId=@TipoHardwareId, @TipoEquipo=@TipoEquipo, @Procesador=@Procesador, @Memoria=@Memoria, @Disco=@Disco, @MarcaPC=@MarcaPC, @OtrasConsideraciones=@OtrasConsideraciones, @Placa=@Placa",
-                    pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
+                    "EXEC sp_GestionarHardwareAsignado @Accion, @Id, @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa",
+                    pAccion, pId, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
                 );
                 
                 return Ok();
@@ -54,29 +55,36 @@ namespace PermisosPuestosApi.Controllers
                 return StatusCode(500, $"Error al crear: {ex.Message}");
             }
         }
-
-        [HttpPut("Asignado/{id}")]
+       [HttpPut("Asignado/{id}")]
         public async Task<IActionResult> UpdateHardwareAsignado(int id, [FromBody] HardwareAsignado h)
         {
             if (id != h.Id) return BadRequest();
 
-            var pId = new SqlParameter("@Id", id);
-            var pEmpleado = new SqlParameter("@EmpleadoId", h.EmpleadoId);
-            var pTipoHw = new SqlParameter("@TipoHardwareId", (object)h.TipoHardwareId ?? DBNull.Value);
-            var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(h.TipoEquipo) ? DBNull.Value : (object)h.TipoEquipo);
-            var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? DBNull.Value : (object)h.Procesador);
-            var pMem = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? DBNull.Value : (object)h.Memoria);
-            var pDisco = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? DBNull.Value : (object)h.Disco);
-            var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? DBNull.Value : (object)h.MarcaPC);
-            var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(h.OtrasConsideraciones) ? DBNull.Value : (object)h.OtrasConsideraciones);
-            var pPlaca = new SqlParameter("@Placa", string.IsNullOrEmpty(h.Placa) ? DBNull.Value : (object)h.Placa);
+            try
+            {
+                var pAccion = new SqlParameter("@Accion", "UPDATE");
+                var pId = new SqlParameter("@Id", id);
+                var pEmpleado = new SqlParameter("@EmpleadoId", h.EmpleadoId);
+                var pTipoHw = new SqlParameter("@TipoHardwareId", h.TipoHardwareId != 0 ? (object)h.TipoHardwareId : DBNull.Value);
+                var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(h.TipoEquipo) ? (object)DBNull.Value : h.TipoEquipo);
+                var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(h.Procesador) ? (object)DBNull.Value : h.Procesador);
+                var pMem = new SqlParameter("@Memoria", string.IsNullOrEmpty(h.Memoria) ? (object)DBNull.Value : h.Memoria);
+                var pDisco = new SqlParameter("@Disco", string.IsNullOrEmpty(h.Disco) ? (object)DBNull.Value : h.Disco);
+                var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(h.MarcaPC) ? (object)DBNull.Value : h.MarcaPC);
+                var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(h.OtrasConsideraciones) ? (object)DBNull.Value : h.OtrasConsideraciones);
+                var pPlaca = new SqlParameter("@Placa", string.IsNullOrEmpty(h.Placa) ? (object)DBNull.Value : h.Placa);
 
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GestionarHardwareAsignado @Accion='UPDATE', @Id=@Id, @EmpleadoId=@EmpleadoId, @TipoHardwareId=@TipoHardwareId, @TipoEquipo=@TipoEquipo, @Procesador=@Procesador, @Memoria=@Memoria, @Disco=@Disco, @MarcaPC=@MarcaPC, @OtrasConsideraciones=@OtrasConsideraciones, @Placa=@Placa",
-                pId, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
-            );
-            
-            return NoContent();
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_GestionarHardwareAsignado @Accion, @Id, @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa",
+                    pAccion, pId, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
+                );
+                
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al actualizar: {ex.Message}");
+            }
         }
 
         [HttpDelete("Asignado/{id}")]

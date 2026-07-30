@@ -98,15 +98,15 @@ import { forkJoin } from 'rxjs';
           </div>
           }
 
-          @if(isPC) {
+         
           <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
-            <label class="ucc-label">Marca de PC</label>
-<input formControlName="marcaPC" placeholder="Marca de PC" class="ucc-input">
+            <label class="ucc-label">Marca</label>
+<input formControlName="marcaPC" placeholder="Marca " class="ucc-input">
             @if(hwForm.get('marcaPC')?.invalid && hwForm.get('marcaPC')?.touched) {
               <span class="text-red-400 text-xs mt-1">La marca es requerida.</span>
             }
           </div>
-          }
+          
 
           <div class="flex flex-col flex-1 min-w-[250px] transition-all duration-300">
             <label class="ucc-label">Placa de Activo</label>
