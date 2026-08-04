@@ -35,9 +35,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
                 <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                     [hidden]="!showDropdownPuestos || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarPuesto(null)">
-                    Ninguno
-                  </li>
+                      (mousedown)="seleccionarPuesto(null)">Ninguno</li>
                   @for(puesto of puestosFiltrados; track puesto.id) {
                     <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
                         (mousedown)="seleccionarPuesto(puesto)">
@@ -218,8 +216,8 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
               <td class="p-3 text-center">
                 <div class="flex justify-center">
                   <div class="flex flex-col gap-1">
-                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Exportar</button>
-                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar</button>
+                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Generar Reporte</button>
+                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar Filtros</button>
                   </div>
                 </div>
               </td>
@@ -663,7 +661,7 @@ export class HardwareIdealComponent implements OnInit {
       return;
     }
 
-    if(confirm('¿Está seguro de que desea eliminar este equipo ideal?')) {
+    if(confirm('¿Está Seguro de que desea eliminar este equipo ideal?')) {
       this.api.deleteHardwareIdeal(id).subscribe({
         next: () => this.loadData(),
         error: (err) => alert('No se pudo eliminar el registro.')

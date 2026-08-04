@@ -68,9 +68,7 @@ import { Empleado, Puesto } from '../../models/models';
               <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                   [hidden]="!showDropdownPuestos || isReadOnly">
                 <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                    (click)="seleccionarPuesto(null)">
-                  Ninguno
-                </li>
+                    (click)="seleccionarPuesto(null)">Ninguno</li>
                 @for(puesto of puestosFiltrados; track puesto.id) {
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
                       (click)="seleccionarPuesto(puesto)">
@@ -202,11 +200,9 @@ import { Empleado, Puesto } from '../../models/models';
                 <div class="flex justify-center">
                   <div class="flex flex-col gap-1">
                     <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                      <span class="material-symbols-outlined text-[16px]">download</span> Exportar
-                    </button>
+                      <span class="material-symbols-outlined text-[16px]">download</span> Generar Reporte</button>
                     <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
-                    </button>
+                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar Filtros</button>
                   </div>
                 </div>
               </td>
@@ -561,7 +557,7 @@ export class ColaboradoresComponent implements OnInit {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;
     }
-    if(confirm('¿Está seguro de que desea eliminar este colaborador?')) {
+    if(confirm('¿Está Seguro de que desea eliminar este colaborador?')) {
       this.api.deleteEmpleado(id).subscribe({
         next: () => this.loadData(),
         error: (err) => alert('Error al eliminar empleado. Verifique si tiene hardware/software asignado.')

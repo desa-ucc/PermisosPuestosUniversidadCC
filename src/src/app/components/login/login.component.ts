@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
         <div class="w-16 h-16 bg-ucc-primary text-white rounded-full flex items-center justify-center mb-4">
           <span class="material-symbols-outlined text-3xl">admin_panel_settings</span>
         </div>
-        <h2 class="text-2xl font-bold mb-2 text-white">Login Administrativo</h2>
+        <h2 class="text-2xl font-bold mb-2 text-white">Acceso Administrativo</h2>
         <p class="text-sm text-slate-300 mb-6">Perfiles Tecnológicos</p>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full">
@@ -70,7 +70,7 @@ export class LoginComponent {
         },
         error: (err) => {
           this.isLoading = false;
-          alert('Login fallido: Credenciales incorrectas');
+          alert('Acceso fallido: Credenciales incorrectas');
         }
       });
     }

@@ -182,7 +182,7 @@ import {
                 class="ucc-btn-secondary"
               >
                 <span class="material-symbols-outlined text-[20px]"
-                  >cancel</span
+                  >Cancelar</span
                 >
                 Cancelar
               </button>
@@ -309,11 +309,9 @@ import {
                 <div class="flex justify-center">
                   <div class="flex flex-col gap-1">
                     <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                      <span class="material-symbols-outlined text-[16px]">download</span> Exportar
-                    </button>
+                      <span class="material-symbols-outlined text-[16px]">download</span> Generar Reporte</button>
                     <button (click)="limpiarFiltros()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors">
-                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar
-                    </button>
+                      <span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar Filtros</button>
                   </div>
                 </div>
               </td>
@@ -881,7 +879,7 @@ export class BaseDatosComponent implements OnInit {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;
     }
-    if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+    if (confirm('¿Está Seguro de que desea eliminar este registro?')) {
       this.api.deleteAccesoBD(id).subscribe({
         next: () => this.loadData(),
         error: (err: any) => alert('No se pudo eliminar el registro.'),
