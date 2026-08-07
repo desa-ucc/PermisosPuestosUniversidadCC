@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { PermissionService } from '../../services/permission.service';
 import { CommonModule } from '@angular/common';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-login',
@@ -74,7 +75,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private api: ApiService,
     private router: Router,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private msalService: MsalService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -84,27 +86,66 @@ export class LoginComponent {
 
 
   loginMicrosoft() {
-    alert('Redirigiendo a autenticación con Microsoft...');
-    // Lógica futura para SSO
+    this.msalService.loginPopup().subscribe({
+      next: (response: any) => {
+        if (response !== null && response.idToken) {
+          this.isLoading = true;
+          this.api.loginMicrosoft(response.idToken).subscribe({
+            next: (res: any) => {
+              localStorage.setItem('token', res.token);
+              if (res.permisos) {
+                this.permissionService.setPermisos(res.permisos);
+              }
+              this.router.navigate(['/dashboard']);
+            },
+            error: (err: any) => {
+              this.isLoading = false;
+              alert('Acceso fallido: No se pudo validar con Microsoft');
+            }
+          });
+        }
+      },
+      error: (error: any) => {
+        console.error(error);
+        alert('Error en inicio de sesión con Microsoft');
+      }
+    });
   }
 
   recoverPassword() {
-    alert('Redirigiendo a recuperación de contraseña...');
-    // Lógica futura para recuperación
+    const email = prompt('Ingrese su correo electrónico para recuperar la contraseña:');
+    if (email && email.trim() !== '') {
+      this.isLoading = true;
+      this.api.forgotPassword(email.trim()).subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          // In a real app we just say check email. Here we might get mockToken back to test.
+          alert('Si el correo existe, se ha enviado un enlace de recuperación.');
+          if (res.mockToken) {
+              console.log('TESTING ONLY - Reset Link: http://localhost:4200/reset-password?token=' + res.mockToken);
+          }
+        },
+        error: (err) => {
+          this.isLoading = false;
+          // Security practice: don't reveal if email exists or not
+          alert('Si el correo existe, se ha enviado un enlace de recuperación.');
+        }
+      });
+    }
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.api.login(this.loginForm.value).subscribe({
-        next: (res) => {
+        next: (res: any) => {
           localStorage.setItem('token', res.token);
           if (res.permisos) {
             this.permissionService.setPermisos(res.permisos);
           }
           this.router.navigate(['/dashboard']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isLoading = false;
           alert('Acceso fallido: Credenciales incorrectas');
         }

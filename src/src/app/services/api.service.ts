@@ -17,8 +17,21 @@ export class ApiService {
   }
 
   // --- Auth ---
+  // --- Auth ---
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/Auth/login`, credentials);
+  }
+
+  loginMicrosoft(idToken: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/msal-login`, { idToken });
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/reset-password`, { token, newPassword });
   }
 
   // --- Puestos ---

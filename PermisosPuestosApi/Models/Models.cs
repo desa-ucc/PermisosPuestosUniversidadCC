@@ -285,4 +285,20 @@ public class PermisosSitio
         public List<ReportePlataformaDto> Plataformas { get; set; } = new();
         public List<ReporteAccesoBDDto> BasesDatos { get; set; } = new();
         public List<ReporteSoftwareLocalDto> SoftwareLocal { get; set; } = new();
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; }
     }
+
+    public class ResetPasswordRequest
+    {
+        public string Token { get; set; }
+        public string NewPassword { get; set; }
+    }
+
+    public class MsalLoginRequest
+    {
+        public string IdToken { get; set; }
+    }
+}

@@ -1,60 +1,42 @@
-# Plan for Fixing Reportes Component
+# Plan for Login and Authentication Features
 
-## Issue
-The issue is that sections in the "Reporte Integral" are generated even when there is no data for a particular section for a given employee/position, causing empty rows (or rows with N/A) to appear in the UI and the Excel export.
-Also, based on the `ReportesController.cs` read earlier, the code currently uses raw inline SQL instead of Stored Procedures for the Integral report. The memory specifically dictates: **"Database Interaction Rule: NEVER use LINQ to Entities for direct SELECT, INSERT, UPDATE, or DELETE. 100% of database interactions must use Stored Procedures via EF Core's FromSqlRaw or ExecuteSqlRaw."**
+## Requirements
+1. Implement Microsoft SSO via `@azure/msal-angular` on the frontend.
+2. Validate the Microsoft JWT in the backend (`.NET 8`) against a Tenant and issue an internal system JWT to keep using the existing RBAC logic.
+3. Implement Password Recovery (Forgot Password & Reset Password) using secure tokens.
+4. Simulate email sending for recovery token.
+5. Add the `/reset-password` route in Angular.
 
-We need to apply the following golden rules:
-1. Always show the base information of Employee and Position (Sección Principal).
-2. If a section (hardware, bases de datos, sitios, software local, plataformas, etc.) has real data, show it.
-3. If a section has NO data, hide it completely in the UI and do not export it to the Excel sheet.
+## Proposed Steps
 
-## Proposed Plan
+1. **Database Updates (`patch_auth.sql`)**
+   - Add `ResetToken` (NVARCHAR(256)) and `ResetTokenExpires` (DATETIME) to `pt_Usuarios`.
+   - Create Stored Procedures: `sp_SetResetToken` and `sp_ResetPasswordWithToken`.
+   - Update C# models (`UsuarioDto`, `LoginRequest`) and add DTOs for `ForgotPasswordRequest`, `ResetPasswordRequest`, `MsalLoginRequest`.
 
-1.  **Modify Backend Models (`Models.cs`)**
-    *   Add a new DTO `ReporteBaseDto` to hold the core Employee/Position data (`CodigoPuesto`, `Puesto`, `Nombre`, `Correo`).
-    *   Update `ReporteIntegralResponse` to include a `List<ReporteBaseDto> InformacionBase` property.
-    *   *Verification:* Read `Models.cs` to confirm modifications.
+2. **Backend Auth Updates (`AuthController.cs` & `Program.cs`)**
+   - Add MSAL JWT validation configuration in `.NET 8`.
+   - Implement `POST /api/auth/msal-login` endpoint: Validates MSAL token, finds user by email, and issues our internal JWT.
+   - Implement `POST /api/auth/forgot-password` endpoint: Calls `sp_SetResetToken` and simulates email.
+   - Implement `POST /api/auth/reset-password` endpoint: Calls `sp_ResetPasswordWithToken` to hash new password and clear token.
 
-2.  **Modify DB Context (`AppDbContext.cs`)**
-    *   Add `DbSet<ReporteBaseDto> ReportesBaseDto` and configure it in `OnModelCreating` as `.HasNoKey()`.
-    *   *Verification:* Read `AppDbContext.cs` to confirm modifications.
+3. **Frontend MSAL Setup**
+   - Install `@azure/msal-browser` and `@azure/msal-angular`.
+   - Configure `MsalModule` in `app.config.ts`.
+   - Update `LoginComponent` to use `MsalService.loginPopup()`, then send the ID token to our new `/api/auth/msal-login` endpoint.
 
-3.  **Update Database (`update_reportes_sp.sql`)**
-    *   Create a `.sql` script that defines the following stored procedures (using `INNER JOIN` where appropriate to filter out nulls, except for the base information which uses `LEFT JOIN`):
-        *   `sp_GetReporteIntegral_Base` (Returns all matching employees/puestos, joining `pt_Empleados` and `pt_Puestos`)
-        *   `sp_GetReporteIntegral_Hardware` (INNER JOIN `pt_HardwareAsignado`)
-        *   `sp_GetReporteIntegral_Sitios` (INNER JOIN `pt_PermisosSitio`)
-        *   `sp_GetReporteIntegral_Plataformas` (INNER JOIN `pt_Plataformas`)
-        *   `sp_GetReporteIntegral_BasesDatos` (INNER JOIN `pt_AccesosBD`)
-        *   `sp_GetReporteIntegral_SoftwareLocal` (INNER JOIN `pt_SoftwareLocal`)
-        *   `sp_GetReporteIntegral_EquipoIdeal` (INNER JOIN `pt_HardwareIdeal`)
-    *   Execute this script in the backend via a temporary endpoint to ensure the SPs are deployed.
-    *   *Verification:* Confirm script executes successfully.
+4. **Frontend Reset Password Component**
+   - Generate `ResetPasswordComponent`.
+   - Add routing for `/reset-password`.
+   - Implement the token extraction from URL and form for new password.
+   - Update `LoginComponent` `recoverPassword()` to open a modal or prompt for the email to call `/api/auth/forgot-password`.
 
-4.  **Update SQL Queries in Controller (`ReportesController.cs`)**
-    *   Replace all inline SQL queries in `GetReporteIntegral` with calls to the newly created Stored Procedures via `FromSqlRaw`.
-    *   *Verification:* Build the backend (`dotnet build`) to ensure no compilation errors.
+5. **Build and Test Verification**
+   - Run backend build `dotnet build`.
+   - Run frontend build `npx ng build`.
+   - Run frontend tests.
 
-5.  **Update Frontend State and Pagination (`reportes.component.ts`)**
-    *   Initialize `informacionBase: []` in the `data` object.
-    *   Add pagination logic and getters for `informacionBase`.
+6. **Pre-commit Steps**
+   - Complete required verification and reflections.
 
-6.  **Update Frontend UI (`reportes.component.ts` Template)**
-    *   Add a new "Sección 0: Información General" section at the top of the results. This section will ALWAYS display if there are matches (based on the `informacionBase` array).
-    *   Wrap every other section in an Angular `@if (data.seccion && data.seccion.length > 0)` control flow block so they completely hide when empty.
-
-7.  **Update Excel Export (`reportes.component.ts`)**
-    *   Add logic to export `InformacionBase` as the first sheet.
-    *   Ensure all subsequent sheets are conditionally added ONLY if their respective array has `length > 0`.
-    *   *Verification:* Compile frontend to ensure no build errors.
-
-8.  **Run All Relevant Tests**
-    * Run backend tests (if any) and frontend tests (`ng test`) to ensure regressions were not introduced.
-
-9. **Playwright UI Verification**
-    * Run a Playwright script to verify the UI changes conditionally render sections and produce screenshot and video in verification directories.
-
-10. **Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.**
-
-11. **Submit**
+7. **Submit Changes**
