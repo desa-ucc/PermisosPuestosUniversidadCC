@@ -8,13 +8,14 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 
 import { MsalModule, MsalService, MSAL_INSTANCE } from '@azure/msal-angular';
 import { IPublicClientApplication, PublicClientApplication } from '@azure/msal-browser';
+import { environment } from '../environments/environment';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
-      clientId: 'TU_CLIENT_ID_AQUI', // Configurado genéricamente
-      authority: 'https://login.microsoftonline.com/common',
-      redirectUri: 'http://localhost:4200/'
+      clientId: environment.msalConfig.clientId,
+      authority: environment.msalConfig.authority,
+      redirectUri: environment.msalConfig.redirectUri
     }
   });
 }

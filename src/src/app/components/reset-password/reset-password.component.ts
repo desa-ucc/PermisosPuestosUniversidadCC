@@ -9,8 +9,9 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="min-h-screen flex items-center justify-center px-4 py-10 bg-cover bg-center" style="background-image: url('/assets/login-bg.svg')">
-      <div class="w-full max-w-md rounded-2xl border border-white/20 bg-slate-950/70 p-8 shadow-2xl backdrop-blur-md flex flex-col items-center">
+    <div class="min-h-screen relative flex items-center justify-center px-4 py-10 bg-cover bg-center bg-no-repeat" style="background-image: url('https://imagen.castrocarazo.ac.cr/images/2026/08/10/Fondo_login_2MB.jpg')">
+      <div class="absolute inset-0 bg-slate-900/60 z-0"></div>
+      <div class="w-full max-w-md rounded-2xl relative z-10 border border-white/20 bg-slate-950/70 p-8 shadow-2xl backdrop-blur-md flex flex-col items-center">
 
         <div class="w-16 h-16 bg-ucc-primary text-white rounded-full flex items-center justify-center mb-4">
           <span class="material-symbols-outlined text-3xl">lock_reset</span>
