@@ -38,6 +38,7 @@ namespace PermisosPuestosApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CatalogoBase>().HasNoKey();
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
             modelBuilder.Entity<PermisoDto>().HasNoKey();
             modelBuilder.Entity<EmpleadoDto>().HasNoKey();
