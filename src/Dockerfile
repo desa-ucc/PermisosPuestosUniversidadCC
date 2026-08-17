@@ -52,8 +52,13 @@ RUN apk update && \
 
 # Copiamos los archivos estáticos generados por Angular.
 COPY --from=build /app/dist/src/browser /usr/share/nginx/html
-# Copiamos la configuración de Nginx (sobreescribe la base).
-COPY --from=clonador /src/src/nginx.conf /etc/nginx/nginx.conf
+# Copiamos la configuración de Nginx al directorio conf.d (como recomienda Opción 1).
+COPY --from=clonador /src/src/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Reemplazamos el puerto 80 por 8080 en el archivo default.conf para permitir no-root.
+# Esto previene el error Permission Denied (puertos < 1024) y arregla el NGINX crash.
+# Nota: Ejecutamos este sed como root antes de cambiar al USER nginx.
+RUN sed -i 's/listen 80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
 
 # Exponemos el puerto 8080 en lugar de 80, permitido para no-root sin privilegios adicionales.
 EXPOSE 8080
