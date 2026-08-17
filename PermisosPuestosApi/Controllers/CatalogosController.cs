@@ -217,9 +217,81 @@ public async Task<IActionResult> GetAmbiente(int id)
         }
 
         [HttpGet("PlataformasNombres")]
-        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("select * from v_GestionarPlataformasNombres").ToListAsync());
+public async Task<IActionResult> GetPlataformasNombres() =>
+    Ok(await _context.Set<CatalogoBase>().FromSqlRaw("SELECT * FROM v_GestionarPlataformasNombres").ToListAsync());
+
+[HttpGet("PlataformasNombres/{id}")]
+public async Task<IActionResult> GetPlataformaNombre(int id)
+{
+    var res = await _context.Set<CatalogoBase>()
+        .FromSqlRaw("EXEC sp_GestionarPlataformasNombres @Accion='SELECT_ID', @Id={0}", id)
+        .ToListAsync();
+    var item = res.FirstOrDefault();
+    if (item == null) return NotFound();
+    return Ok(item);
+}
+
+[HttpPost("PlataformasNombres")]
+public async Task<IActionResult> CreatePlataformaNombre([FromBody] CatalogoBase cat)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarPlataformasNombres @Accion='INSERT', @Nombre={0}", cat.Nombre);
+    return Ok(new { message = "Registro creado exitosamente." });
+}
+
+[HttpPut("PlataformasNombres/{id}")]
+public async Task<IActionResult> UpdatePlataformaNombre(int id, [FromBody] CatalogoBase cat)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarPlataformasNombres @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
+    return Ok(new { message = "Registro actualizado exitosamente." });
+}
+
+[HttpDelete("PlataformasNombres/{id}")]
+public async Task<IActionResult> DeletePlataformaNombre(int id)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarPlataformasNombres @Accion='DELETE', @Id={0}", id);
+    return Ok(new { message = "Registro eliminado exitosamente." });
+}
 
         [HttpGet("TiposLicencia")]
-        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("select * from v_GestionarTiposLicencia").ToListAsync());
+public async Task<IActionResult> GetTiposLicencia() =>
+    Ok(await _context.Set<CatalogoBase>().FromSqlRaw("SELECT * FROM v_GestionarTiposLicencia").ToListAsync());
+
+[HttpGet("TiposLicencia/{id}")]
+public async Task<IActionResult> GetTipoLicencia(int id)
+{
+    var res = await _context.Set<CatalogoBase>()
+        .FromSqlRaw("EXEC sp_GestionarTiposLicencia @Accion='SELECT_ID', @Id={0}", id)
+        .ToListAsync();
+    var item = res.FirstOrDefault();
+    if (item == null) return NotFound();
+    return Ok(item);
+}
+
+[HttpPost("TiposLicencia")]
+public async Task<IActionResult> CreateTipoLicencia([FromBody] CatalogoBase cat)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarTiposLicencia @Accion='INSERT', @Nombre={0}", cat.Nombre);
+    return Ok(new { message = "Registro creado exitosamente." });
+}
+
+[HttpPut("TiposLicencia/{id}")]
+public async Task<IActionResult> UpdateTipoLicencia(int id, [FromBody] CatalogoBase cat)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarTiposLicencia @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
+    return Ok(new { message = "Registro actualizado exitosamente." });
+}
+
+[HttpDelete("TiposLicencia/{id}")]
+public async Task<IActionResult> DeleteTipoLicencia(int id)
+{
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_GestionarTiposLicencia @Accion='DELETE', @Id={0}", id);
+    return Ok(new { message = "Registro eliminado exitosamente." });
+}
     }
 }

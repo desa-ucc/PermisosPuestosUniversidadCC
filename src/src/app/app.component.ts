@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
       map(permisos => {
         const menuBase = [
           { link: '/catalogos', label: 'Catálogos Base', icon: 'folder_shared', pantallaId: 'CATALOGOS' },
-          { link: '/dashboard', label: 'Dashboard', icon: 'dashboard', pantallaId: 'DASHBOARD' },
+          { link: '/dashboard', label: 'Panel', icon: 'dashboard', pantallaId: 'DASHBOARD' },
           { link: '/puestos', label: 'Puestos', icon: 'badge', pantallaId: 'PUESTOS' },
           { link: '/colaboradores', label: 'Colaboradores', icon: 'group', pantallaId: 'COLABORADORES' },
           { link: '/hardware-ideal', label: 'Equipo Ideal', icon: 'verified_user', pantallaId: 'EQUIPO_IDEAL' },

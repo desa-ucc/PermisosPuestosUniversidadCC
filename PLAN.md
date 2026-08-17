@@ -1,60 +1,18 @@
-# Plan for Fixing Reportes Component
-
-## Issue
-The issue is that sections in the "Reporte Integral" are generated even when there is no data for a particular section for a given employee/position, causing empty rows (or rows with N/A) to appear in the UI and the Excel export.
-Also, based on the `ReportesController.cs` read earlier, the code currently uses raw inline SQL instead of Stored Procedures for the Integral report. The memory specifically dictates: **"Database Interaction Rule: NEVER use LINQ to Entities for direct SELECT, INSERT, UPDATE, or DELETE. 100% of database interactions must use Stored Procedures via EF Core's FromSqlRaw or ExecuteSqlRaw."**
-
-We need to apply the following golden rules:
-1. Always show the base information of Employee and Position (Sección Principal).
-2. If a section (hardware, bases de datos, sitios, software local, plataformas, etc.) has real data, show it.
-3. If a section has NO data, hide it completely in the UI and do not export it to the Excel sheet.
-
-## Proposed Plan
-
-1.  **Modify Backend Models (`Models.cs`)**
-    *   Add a new DTO `ReporteBaseDto` to hold the core Employee/Position data (`CodigoPuesto`, `Puesto`, `Nombre`, `Correo`).
-    *   Update `ReporteIntegralResponse` to include a `List<ReporteBaseDto> InformacionBase` property.
-    *   *Verification:* Read `Models.cs` to confirm modifications.
-
-2.  **Modify DB Context (`AppDbContext.cs`)**
-    *   Add `DbSet<ReporteBaseDto> ReportesBaseDto` and configure it in `OnModelCreating` as `.HasNoKey()`.
-    *   *Verification:* Read `AppDbContext.cs` to confirm modifications.
-
-3.  **Update Database (`update_reportes_sp.sql`)**
-    *   Create a `.sql` script that defines the following stored procedures (using `INNER JOIN` where appropriate to filter out nulls, except for the base information which uses `LEFT JOIN`):
-        *   `sp_GetReporteIntegral_Base` (Returns all matching employees/puestos, joining `pt_Empleados` and `pt_Puestos`)
-        *   `sp_GetReporteIntegral_Hardware` (INNER JOIN `pt_HardwareAsignado`)
-        *   `sp_GetReporteIntegral_Sitios` (INNER JOIN `pt_PermisosSitio`)
-        *   `sp_GetReporteIntegral_Plataformas` (INNER JOIN `pt_Plataformas`)
-        *   `sp_GetReporteIntegral_BasesDatos` (INNER JOIN `pt_AccesosBD`)
-        *   `sp_GetReporteIntegral_SoftwareLocal` (INNER JOIN `pt_SoftwareLocal`)
-        *   `sp_GetReporteIntegral_EquipoIdeal` (INNER JOIN `pt_HardwareIdeal`)
-    *   Execute this script in the backend via a temporary endpoint to ensure the SPs are deployed.
-    *   *Verification:* Confirm script executes successfully.
-
-4.  **Update SQL Queries in Controller (`ReportesController.cs`)**
-    *   Replace all inline SQL queries in `GetReporteIntegral` with calls to the newly created Stored Procedures via `FromSqlRaw`.
-    *   *Verification:* Build the backend (`dotnet build`) to ensure no compilation errors.
-
-5.  **Update Frontend State and Pagination (`reportes.component.ts`)**
-    *   Initialize `informacionBase: []` in the `data` object.
-    *   Add pagination logic and getters for `informacionBase`.
-
-6.  **Update Frontend UI (`reportes.component.ts` Template)**
-    *   Add a new "Sección 0: Información General" section at the top of the results. This section will ALWAYS display if there are matches (based on the `informacionBase` array).
-    *   Wrap every other section in an Angular `@if (data.seccion && data.seccion.length > 0)` control flow block so they completely hide when empty.
-
-7.  **Update Excel Export (`reportes.component.ts`)**
-    *   Add logic to export `InformacionBase` as the first sheet.
-    *   Ensure all subsequent sheets are conditionally added ONLY if their respective array has `length > 0`.
-    *   *Verification:* Compile frontend to ensure no build errors.
-
-8.  **Run All Relevant Tests**
-    * Run backend tests (if any) and frontend tests (`ng test`) to ensure regressions were not introduced.
-
-9. **Playwright UI Verification**
-    * Run a Playwright script to verify the UI changes conditionally render sections and produce screenshot and video in verification directories.
-
-10. **Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.**
-
-11. **Submit**
+1. **Refactor Backend Dockerfile (`PermisosPuestosApi/Dockerfile`)**:
+   - Rewrite the file using a 3-stage process (Clonador with `alpine/git`, Build with `.NET SDK`, Final Runtime with `.NET ASP.NET Alpine/Chiseled/Slim`).
+   - For the Cloner stage, use `ARG GIT_REPO`, `GIT_USER`, `GIT_TOKEN`, clone, and remove `.git`.
+   - For the Runtime stage, use `mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim`, install `tzdata`, configure `TZ=America/Costa_Rica`, and create a non-root user `appuser`. Use `bash` for healthchecks since `curl/wget/telnet/ping` must be removed via `apt-get purge` or `apk del`. Add extensive Spanish comments and separators.
+2. **Refactor Frontend Dockerfile (`src/Dockerfile`)**:
+   - Follow the same Multi-Stage standard (Clonador, Build with `node`, Runtime with `nginx:alpine`).
+   - Remove `curl/wget` from the final Alpine image, install `bash` and `tzdata`, configure `TZ`, create a non-root user (e.g. `appuser`) and configure nginx to run as non-root. Add extensive Spanish comments.
+3. **Refactor `docker-compose.yml`**:
+   - Remove hardcoded credentials and map them to `.env`.
+   - Add explicit internal bridge network.
+   - Add `container_name` to all services.
+   - Implement `bash -c '</dev/tcp/127.0.0.1/5000'` style healthchecks.
+   - Add `depends_on` with `condition: service_healthy` for frontend depending on backend.
+   - Add line-by-line Spanish comments.
+4. **Verify Configurations**: Run `docker-compose config` to validate the YAML structure.
+5. **Verify Builds**: Run `docker-compose build` to ensure the new Dockerfiles compile without errors.
+6. **Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.**
+7. **Submit the changes**.

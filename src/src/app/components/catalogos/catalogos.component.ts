@@ -42,6 +42,12 @@ import { PermissionService } from '../../services/permission.service';
                     <button (click)="setTab('plataformas')" [ngClass]="activeTab === 'plataformas' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">cloud_done</span> Plataformas
                     </button>
+                    <button (click)="setTab('tiposLicencia')" [ngClass]="activeTab === 'tiposLicencia' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">vpn_key</span> Tipos de Licencia
+                    </button>
+                    <button (click)="setTab('plataformasNombres')" [ngClass]="activeTab === 'plataformasNombres' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">dns</span> Nombres de Plataforma
+                    </button>
                 </div>
 
                 <div class="p-6">
@@ -211,13 +217,15 @@ import { PermissionService } from '../../services/permission.service';
   `
 })
 export class CatalogosComponent implements OnInit {
-  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' = 'ambientes';
+  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' | 'tiposLicencia' | 'plataformasNombres' = 'ambientes';
 
   ambientesList: Catalogo[] = [];
   tiposHardwareList: Catalogo[] = [];
   nivelesAccesoList: any[] = [];
   sitiosList: Catalogo[] = [];
   plataformasList: Catalogo[] = [];
+  tiposLicenciaList: Catalogo[] = [];
+  plataformasNombresList: Catalogo[] = [];
 
   catForm: FormGroup;
   isSaving = false;
@@ -246,7 +254,7 @@ export class CatalogosComponent implements OnInit {
     this.loadAllData();
   }
 
-  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso') {
+  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' | 'tiposLicencia' | 'plataformasNombres') {
     this.activeTab = tab;
     this.catForm.reset();
     this.editingId = null;
@@ -257,7 +265,10 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'sitios') return 'Sitio';
     if (this.activeTab === 'tiposHardware') return 'Tipo de Hardware';
     if (this.activeTab === 'nivelesAcceso') return 'Nivel de Acceso';
-    return 'Plataforma';
+    if (this.activeTab === 'plataformas') return 'Plataforma';
+    if (this.activeTab === 'tiposLicencia') return 'Tipo de Licencia';
+    if (this.activeTab === 'plataformasNombres') return 'Nombre de Plataforma';
+    return 'Registro';
   }
 
   getTabNamePlural(): string {
@@ -265,7 +276,10 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'sitios') return 'Sitios';
     if (this.activeTab === 'tiposHardware') return 'Tipos de Hardware';
     if (this.activeTab === 'nivelesAcceso') return 'Niveles de Acceso';
-    return 'Plataformas';
+    if (this.activeTab === 'plataformas') return 'Plataformas';
+    if (this.activeTab === 'tiposLicencia') return 'Tipos de Licencia';
+    if (this.activeTab === 'plataformasNombres') return 'Nombres de Plataforma';
+    return 'Registros';
   }
 
   getPlaceholder(): string {
@@ -282,6 +296,8 @@ export class CatalogosComponent implements OnInit {
     this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
     this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
+    this.api.getTiposLicencia().subscribe(res => this.tiposLicenciaList = res);
+    this.api.getPlataformasNombres().subscribe(res => this.plataformasNombresList = res);
   }
 
   loadActiveTabData() {
@@ -295,6 +311,10 @@ export class CatalogosComponent implements OnInit {
       this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     } else if (this.activeTab === 'tiposHardware') {
       this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
+    } else if (this.activeTab === 'tiposLicencia') {
+      this.api.getTiposLicencia().subscribe(res => this.tiposLicenciaList = res);
+    } else if (this.activeTab === 'plataformasNombres') {
+      this.api.getPlataformasNombres().subscribe(res => this.plataformasNombresList = res);
     }
   }
 

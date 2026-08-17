@@ -12,13 +12,11 @@ import * as XLSX from 'xlsx';
 <!-- Dashboard Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
   <div>
-    <h2 class="font-display-lg text-headline-lg text-secondary">Dashboard Operativo</h2>
+    <h2 class="font-display-lg text-headline-lg text-secondary">Panel Operativo</h2>
     <p class="text-body-lg font-body-lg text-on-surface-variant">Resumen ejecutivo del cumplimiento y asignaciones de activos.</p>
   </div>
   <button (click)="exportToExcel()" class="bg-primary-container text-on-primary-fixed-variant px-4 py-2 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all flex items-center gap-2">
-    <span class="material-symbols-outlined">download</span>
-    Descargar Reporte
-  </button>
+    <span class="material-symbols-outlined">download</span> Generar Reporte</button>
 </div>
 
 <!-- 4 Stat Cards -->

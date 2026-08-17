@@ -21,6 +21,18 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/Auth/login`, credentials);
   }
 
+  loginMicrosoft(idToken: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/msal-login`, { idToken });
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/reset-password`, { token, newPassword });
+  }
+
   // --- Puestos ---
   getPuestos(): Observable<Puesto[]> { return this.http.get<Puesto[]>(`${this.apiUrl}/Puestos`, { headers: this.getHeaders() }); }
   createPuesto(data: Partial<Puesto>): Observable<Puesto> { return this.http.post<Puesto>(`${this.apiUrl}/Puestos`, data, { headers: this.getHeaders() }); }

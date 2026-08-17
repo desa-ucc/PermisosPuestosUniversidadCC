@@ -35,9 +35,7 @@ import { PermissionService } from '../../services/permission.service';
                 <ul class="absolute z-50 w-full mt-1 bg-ucc-surface border border-ucc-neutral-outline/30 rounded-lg shadow-ucc-card max-h-60 overflow-y-auto"
                     [hidden]="!showDropdownEquipos || isReadOnly">
                   <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
-                      (mousedown)="seleccionarEquipo(null)">
-                    Ninguno
-                  </li>
+                      (mousedown)="seleccionarEquipo(null)">Ninguno</li>
                   @for(eq of equiposFiltrados; track eq.id) {
                     <li class="px-4 py-3 text-body-md text-ucc-neutral-text hover:bg-ucc-primary-container/10 cursor-pointer transition-colors"
                         (mousedown)="seleccionarEquipo(eq)">
@@ -216,8 +214,8 @@ import { PermissionService } from '../../services/permission.service';
               <td class="p-3 text-center">
                 <div class="flex justify-center">
                   <div class="flex flex-col gap-1">
-                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Exportar</button>
-                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar</button>
+                    <button (click)="exportarReporte()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> Generar Reporte</button>
+                    <button (click)="limpiarFiltrosTabla()" class="text-xs text-ucc-primary font-medium hover:bg-ucc-primary/10 px-3 py-1.5 rounded-md flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">refresh</span> Limpiar Filtros</button>
                   </div>
                 </div>
               </td>
@@ -611,7 +609,7 @@ export class SoftwareComponent implements OnInit {
   }
 
   delete(id: number) {
-    if(confirm('¿Está seguro de que desea eliminar este registro de software?')) {
+    if(confirm('¿Está Seguro de que desea eliminar este registro de software?')) {
       this.api.deleteSoftwareLocal(id).subscribe({
         next: () => this.loadData(),
         error: (err) => alert('No se pudo eliminar el registro.')
