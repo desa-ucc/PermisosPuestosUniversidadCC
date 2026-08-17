@@ -1,42 +1,18 @@
-# Plan for Login and Authentication Features
-
-## Requirements
-1. Implement Microsoft SSO via `@azure/msal-angular` on the frontend.
-2. Validate the Microsoft JWT in the backend (`.NET 8`) against a Tenant and issue an internal system JWT to keep using the existing RBAC logic.
-3. Implement Password Recovery (Forgot Password & Reset Password) using secure tokens.
-4. Simulate email sending for recovery token.
-5. Add the `/reset-password` route in Angular.
-
-## Proposed Steps
-
-1. **Database Updates (`patch_auth.sql`)**
-   - Add `ResetToken` (NVARCHAR(256)) and `ResetTokenExpires` (DATETIME) to `pt_Usuarios`.
-   - Create Stored Procedures: `sp_SetResetToken` and `sp_ResetPasswordWithToken`.
-   - Update C# models (`UsuarioDto`, `LoginRequest`) and add DTOs for `ForgotPasswordRequest`, `ResetPasswordRequest`, `MsalLoginRequest`.
-
-2. **Backend Auth Updates (`AuthController.cs` & `Program.cs`)**
-   - Add MSAL JWT validation configuration in `.NET 8`.
-   - Implement `POST /api/auth/msal-login` endpoint: Validates MSAL token, finds user by email, and issues our internal JWT.
-   - Implement `POST /api/auth/forgot-password` endpoint: Calls `sp_SetResetToken` and simulates email.
-   - Implement `POST /api/auth/reset-password` endpoint: Calls `sp_ResetPasswordWithToken` to hash new password and clear token.
-
-3. **Frontend MSAL Setup**
-   - Install `@azure/msal-browser` and `@azure/msal-angular`.
-   - Configure `MsalModule` in `app.config.ts`.
-   - Update `LoginComponent` to use `MsalService.loginPopup()`, then send the ID token to our new `/api/auth/msal-login` endpoint.
-
-4. **Frontend Reset Password Component**
-   - Generate `ResetPasswordComponent`.
-   - Add routing for `/reset-password`.
-   - Implement the token extraction from URL and form for new password.
-   - Update `LoginComponent` `recoverPassword()` to open a modal or prompt for the email to call `/api/auth/forgot-password`.
-
-5. **Build and Test Verification**
-   - Run backend build `dotnet build`.
-   - Run frontend build `npx ng build`.
-   - Run frontend tests.
-
-6. **Pre-commit Steps**
-   - Complete required verification and reflections.
-
-7. **Submit Changes**
+1. **Refactor Backend Dockerfile (`PermisosPuestosApi/Dockerfile`)**:
+   - Rewrite the file using a 3-stage process (Clonador with `alpine/git`, Build with `.NET SDK`, Final Runtime with `.NET ASP.NET Alpine/Chiseled/Slim`).
+   - For the Cloner stage, use `ARG GIT_REPO`, `GIT_USER`, `GIT_TOKEN`, clone, and remove `.git`.
+   - For the Runtime stage, use `mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim`, install `tzdata`, configure `TZ=America/Costa_Rica`, and create a non-root user `appuser`. Use `bash` for healthchecks since `curl/wget/telnet/ping` must be removed via `apt-get purge` or `apk del`. Add extensive Spanish comments and separators.
+2. **Refactor Frontend Dockerfile (`src/Dockerfile`)**:
+   - Follow the same Multi-Stage standard (Clonador, Build with `node`, Runtime with `nginx:alpine`).
+   - Remove `curl/wget` from the final Alpine image, install `bash` and `tzdata`, configure `TZ`, create a non-root user (e.g. `appuser`) and configure nginx to run as non-root. Add extensive Spanish comments.
+3. **Refactor `docker-compose.yml`**:
+   - Remove hardcoded credentials and map them to `.env`.
+   - Add explicit internal bridge network.
+   - Add `container_name` to all services.
+   - Implement `bash -c '</dev/tcp/127.0.0.1/5000'` style healthchecks.
+   - Add `depends_on` with `condition: service_healthy` for frontend depending on backend.
+   - Add line-by-line Spanish comments.
+4. **Verify Configurations**: Run `docker-compose config` to validate the YAML structure.
+5. **Verify Builds**: Run `docker-compose build` to ensure the new Dockerfiles compile without errors.
+6. **Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.**
+7. **Submit the changes**.

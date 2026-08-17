@@ -118,7 +118,7 @@ export class LoginComponent {
     if (email && email.trim() !== '') {
       this.isLoading = true;
       this.api.forgotPassword(email.trim()).subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.isLoading = false;
           // In a real app we just say check email. Here we might get mockToken back to test.
           alert('Si el correo existe, se ha enviado un enlace de recuperación.');
@@ -126,7 +126,7 @@ export class LoginComponent {
               console.log('TESTING ONLY - Reset Link: http://localhost:4200/reset-password?token=' + res.mockToken);
           }
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isLoading = false;
           // Security practice: don't reveal if email exists or not
           alert('Si el correo existe, se ha enviado un enlace de recuperación.');

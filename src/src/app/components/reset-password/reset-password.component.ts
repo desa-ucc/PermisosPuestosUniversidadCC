@@ -90,11 +90,11 @@ export class ResetPasswordComponent implements OnInit {
     if (this.resetForm.valid && this.token) {
       this.isLoading = true;
       this.api.resetPassword(this.token, this.resetForm.value.newPassword).subscribe({
-        next: (res) => {
+        next: (res: any) => {
           alert('Contraseña actualizada con éxito.');
           this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.isLoading = false;
           alert(err.error?.message || 'Error al actualizar contraseña. El token podría haber expirado.');
         }

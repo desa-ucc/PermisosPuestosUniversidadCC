@@ -17,7 +17,6 @@ export class ApiService {
   }
 
   // --- Auth ---
-  // --- Auth ---
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/Auth/login`, credentials);
   }

@@ -1,19 +1,81 @@
+# ==============================================================================
+# ARCHIVO DOCKER-COMPOSE: Arquitectura de Microservicios Perfiles Puestos
+# ==============================================================================
+# Define la versión de la especificación de Compose
 
 services:
+  # ==========================================================================
+  # SERVICIO: BACKEND (API .NET)
+  # ==========================================================================
   api:
+    # Construcción de la imagen basada en el Dockerfile local
     build:
       context: ./PermisosPuestosApi
       dockerfile: Dockerfile
+    # Nombre explícito del contenedor para facilitar la gestión
+    container_name: perfiles-backend
+    # Mapeo de puertos: Expone el 5000 al exterior
     ports:
       - "5000:5000"
+    # Variables de entorno inyectadas de forma segura (sin hardcodear en el yml)
+    # Se leen desde el archivo .env o del entorno del sistema host.
     environment:
+<<<<<<< HEAD
       - ConnectionStrings__DefaultConnection=Server=172.16.100.13;Database=PERFILES_BD;User Id=fsalazarmo;Password=FValeryleska28.*;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
+=======
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_SECRET_KEY}
+      - TZ=${TZ:-America/Costa_Rica}
+    # Asignación a la red interna explícita del stack
+    networks:
+      - perfiles-network
+    # Healthcheck estricto sin usar curl/wget (basado en conexión TCP por bash)
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/5000'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ==========================================================================
+  # SERVICIO: FRONTEND (NGINX + ANGULAR)
+  # ==========================================================================
+>>>>>>> 4fe03dc5df4809557a42d890fd95bf1a748669d3
   frontend:
+    # Construcción de la imagen del cliente web
     build:
       context: ./src
       dockerfile: Dockerfile
+    # Nombre explícito del contenedor
+    container_name: perfiles-frontend
+    # Mapeo de puertos: Expone el puerto 8080 (usado internamente por Nginx no-root)
     ports:
-      - "4200:80"
+      - "4200:8080"
+    # Variables de entorno aplicables (ej. timezone)
+    environment:
+      - TZ=${TZ:-America/Costa_Rica}
+    # Asignación a la red interna explícita del stack
+    networks:
+      - perfiles-network
+    # Dependencia estricta: El frontend solo arranca cuando la API esté reportando 'healthy'
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    # Healthcheck para Nginx basado en TCP a través de bash
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+# ==============================================================================
+# DECLARACIÓN DE REDES
+# ==============================================================================
+# Define una red tipo bridge exclusiva para el stack, permitiendo la
+# resolución de nombres DNS automática entre 'api' y 'frontend'.
+networks:
+  perfiles-network:
+    driver: bridge
+    name: red_perfiles_puestos
