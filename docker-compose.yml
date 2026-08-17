@@ -1,7 +1,6 @@
 # ==============================================================================
 # ARCHIVO DOCKER-COMPOSE: Arquitectura de Microservicios Perfiles Puestos
 # ==============================================================================
-# Define la versión de la especificación de Compose
 
 services:
   # ==========================================================================
@@ -20,13 +19,9 @@ services:
     # Variables de entorno inyectadas de forma segura (sin hardcodear en el yml)
     # Se leen desde el archivo .env o del entorno del sistema host.
     environment:
-<<<<<<< HEAD
-      - ConnectionStrings__DefaultConnection=Server=172.16.100.13;Database=PERFILES_BD;User Id=fsalazarmo;Password=FValeryleska28.*;TrustServerCertificate=True;MultipleActiveResultSets=true;
-      - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
-=======
-      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-      - Jwt__Key=${JWT_SECRET_KEY}
-      - TZ=${TZ:-America/Costa_Rica}
+      ConnectionStrings__DefaultConnection: "${DB_CONNECTION_STRING}"
+      Jwt__Key: "${JWT_SECRET_KEY}"
+      TZ: "${TZ:-America/Costa_Rica}"
     # Asignación a la red interna explícita del stack
     networks:
       - perfiles-network
@@ -41,7 +36,6 @@ services:
   # ==========================================================================
   # SERVICIO: FRONTEND (NGINX + ANGULAR)
   # ==========================================================================
->>>>>>> 4fe03dc5df4809557a42d890fd95bf1a748669d3
   frontend:
     # Construcción de la imagen del cliente web
     build:
@@ -54,7 +48,7 @@ services:
       - "4200:8080"
     # Variables de entorno aplicables (ej. timezone)
     environment:
-      - TZ=${TZ:-America/Costa_Rica}
+      TZ: "${TZ:-America/Costa_Rica}"
     # Asignación a la red interna explícita del stack
     networks:
       - perfiles-network
