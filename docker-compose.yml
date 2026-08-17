@@ -7,7 +7,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=172.29.99.8;Database=PERFILES_BD;User Id=fsalazarmo;Password=3i5q32sNpf8B;TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - ConnectionStrings__DefaultConnection=Server=172.16.100.13;Database=PERFILES_BD;User Id=fsalazarmo;Password=FValeryleska28.*;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
   frontend:
     build:
