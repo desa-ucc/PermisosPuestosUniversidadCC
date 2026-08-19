@@ -1,0 +1,4 @@
+chore(env): move sensitive data handling to backend
+
+- Verified `environment.ts` and `environment.development.ts`.
+- Removed MSAL confidential flow implementations to address the review, leaving only the explanations in the code to assist the user.
