@@ -1,9 +1,6 @@
-refactor(docker): implement zero trust architecture and optimizations
+feat(auth): implement Microsoft Entra ID SSO integration
 
-- Multi-stage builds using alpine/git for both frontend and backend.
-- Migrated frontend and backend to run as non-root `appuser`.
-- Removed networking tools (`curl`, `wget`, etc.) for zero trust compliance.
-- Grouped `RUN` instructions and implemented local caching cleanup for optimized image layers.
-- Rewrote healthchecks in `docker-compose.yml` to use pure bash socket communication.
-- Replaced hardcoded secrets with `.env` based configuration.
-- Added extensive line-by-line documentation.
+- Configured MSAL angular implementation on the frontend.
+- Created MSAL validation endpoint in AuthController.
+- Implemented backend verification against internal DB for RBAC mapping.
+- Added necessary Stored Procedures to link Entra emails to internal users.

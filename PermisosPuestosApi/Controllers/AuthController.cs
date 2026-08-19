@@ -61,6 +61,61 @@ namespace PermisosPuestosApi.Controllers
             });
         }
 
+
+        [HttpPost("msal-login")]
+        public async Task<IActionResult> MsalLogin([FromBody] MsalLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.IdToken))
+                return BadRequest("El token es requerido.");
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            if (!tokenHandler.CanReadToken(request.IdToken))
+                return BadRequest("Formato de token inválido.");
+
+            JwtSecurityToken jwtToken;
+            try
+            {
+                jwtToken = tokenHandler.ReadJwtToken(request.IdToken);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al procesar el token: {ex.Message}");
+            }
+
+            var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "preferred_username" || c.Type == "email");
+            if (emailClaim == null)
+                return Unauthorized(new { message = "No se pudo obtener el correo del usuario desde el token de Microsoft." });
+
+            string email = emailClaim.Value;
+
+            var emailParam = new SqlParameter("@Email", email);
+            var usuarios = await _context.UsuariosDto
+                .FromSqlRaw("EXEC sp_GetUsuarioPorEmail @Email", emailParam)
+                .ToListAsync();
+
+            var user = usuarios.FirstOrDefault();
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = $"El usuario {email} no existe en el sistema interno o está inactivo." });
+            }
+
+            var internalToken = GenerateJwtToken(user);
+
+            var roleIdParam = new SqlParameter("@RoleId", user.RolId);
+            var permisos = await _context.Set<PermisoDto>()
+                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                token = internalToken,
+                username = user.NombreUsuario,
+                role = user.NombreRol,
+                permisos = permisos
+            });
+        }
+
         private string ComputeSha256Hash(string rawData)
         {
             using (SHA256 sha256Hash = SHA256.Create())

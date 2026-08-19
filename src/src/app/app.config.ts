@@ -2,20 +2,31 @@ import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { MsalModule, MsalService, MSAL_INSTANCE } from '@azure/msal-angular';
+import { IPublicClientApplication, PublicClientApplication, LogLevel } from '@azure/msal-browser';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 
-import { MsalModule, MsalService, MSAL_INSTANCE } from '@azure/msal-angular';
-import { IPublicClientApplication, PublicClientApplication } from '@azure/msal-browser';
-import { environment } from '../environments/environment';
-
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
-      clientId: environment.msalConfig.clientId,
-      authority: environment.msalConfig.authority,
-      redirectUri: environment.msalConfig.redirectUri
+      clientId: 'TU_CLIENT_ID_DE_AZURE', // Reemplazar por el client ID
+      authority: 'https://login.microsoftonline.com/TU_TENANT_ID', // Reemplazar por el Tenant ID
+      redirectUri: '/'
+    },
+    cache: {
+      cacheLocation: 'localStorage',
+
+    },
+    system: {
+      loggerOptions: {
+        loggerCallback: (level, message, containsPii) => {
+          console.log(message);
+        },
+        piiLoggingEnabled: false,
+        logLevel: LogLevel.Error
+      }
     }
   });
 }
