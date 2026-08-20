@@ -1,6 +1,4 @@
-feat(auth): implement Microsoft Entra ID SSO integration
+fix(auth): fix EF Core keyless entity tracking for SSO
 
-- Configured MSAL angular implementation on the frontend.
-- Created MSAL validation endpoint in AuthController.
-- Implemented backend verification against internal DB for RBAC mapping.
-- Added necessary Stored Procedures to link Entra emails to internal users.
+- Resolved `IDX10703` by configuring `UsuarioSsoDto` as `HasNoKey` in the `AppDbContext`.
+- Fixed frontend entrypoint execution errors by enforcing Linux line endings (`sed -i 's/\r$//'`) and setting executable permissions before container runtime.

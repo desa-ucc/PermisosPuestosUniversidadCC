@@ -301,7 +301,7 @@ public class PermisosSitio
     {
         public string IdToken { get; set; }
     }
-}
+
     public class UsuarioSsoDto
     {
         public int UsuarioId { get; set; }
@@ -310,3 +310,4 @@ public class PermisosSitio
         public int RolId { get; set; }
         public string RolAcceso { get; set; } = string.Empty;
     }
+}
