@@ -8,6 +8,7 @@ namespace PermisosPuestosApi.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<UsuarioDto> UsuariosDto { get; set; }
+        public DbSet<UsuarioSsoDto> UsuariosSsoDto { get; set; }
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
@@ -39,6 +40,7 @@ namespace PermisosPuestosApi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UsuarioDto>().HasNoKey();
+            modelBuilder.Entity<UsuarioSsoDto>().HasNoKey();
             modelBuilder.Entity<PermisoDto>().HasNoKey();
             modelBuilder.Entity<EmpleadoDto>().HasNoKey();
             modelBuilder.Entity<PermisosSitio>().HasNoKey().ToView(null);

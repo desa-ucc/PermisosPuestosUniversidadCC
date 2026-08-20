@@ -1,0 +1,5 @@
+fix(auth): restore missing syntax dependencies and validate JWT signatures
+
+- Restored `GenerateJwtToken` for the standard login endpoint which was inadvertently removed during previous rebases.
+- Implemented fully functional MSAL ID Token cryptographic signature validation in `MsalLogin` using `TokenValidationParameters` to verify the issuer and audience against Azure AD public keys.
+- Removed duplicated and orphaned references in the model schemas.

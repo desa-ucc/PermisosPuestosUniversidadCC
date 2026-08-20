@@ -1,19 +1,84 @@
+# ==============================================================================
+# ARCHIVO DOCKER-COMPOSE (Infraestructura y Orquestación)
+# ==============================================================================
+version: '3.8'
 
 services:
+  # ============================================================================
+  # SERVICIO BACKEND (API)
+  # ============================================================================
   api:
+    # Construye usando el contexto de PermisosPuestosApi y su Dockerfile
     build:
       context: ./PermisosPuestosApi
       dockerfile: Dockerfile
+      args:
+        # Inyecta las variables de clonación desde el archivo .env
+        GIT_REPO: ${GIT_REPO:-}
+        GIT_USER: ${GIT_USER:-}
+        GIT_TOKEN: ${GIT_TOKEN:-}
+    # Asigna un nombre explícito al contenedor
+    container_name: permisos_puestos_api
+    # Mapeo de puertos, inyectados desde el .env
     ports:
-      - "5000:5000"
+      - "${API_PORT:-5000}:5000"
+    # Variables de entorno inyectadas dinámicamente, nunca hardcodeadas
     environment:
-      - ConnectionStrings__DefaultConnection=Server=172.29.99.8;Database=PERFILES_BD;User Id=fsalazarmo;Password=3i5q32sNpf8B;TrustServerCertificate=True;MultipleActiveResultSets=true;
-      - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_SECRET_KEY}
+    # Asignación a red interna explícita
+    networks:
+      - app_network
+    # Healthcheck utilizando bash puro y /dev/tcp para evitar herramientas como curl
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/5000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================================
+  # SERVICIO FRONTEND (UI Angular)
+  # ============================================================================
   frontend:
+    # Construye usando el contexto de src y su Dockerfile
     build:
       context: ./src
       dockerfile: Dockerfile
+      args:
+        # Inyecta las variables de clonación desde el archivo .env
+        GIT_REPO: ${GIT_REPO:-}
+        GIT_USER: ${GIT_USER:-}
+        GIT_TOKEN: ${GIT_TOKEN:-}
+    # Asigna un nombre explícito al contenedor
+    container_name: permisos_puestos_frontend
+    # Mapeo de puertos, Nginx interno escucha en el 8080 (rootless)
     ports:
-      - "4200:80"
+      - "${FRONTEND_PORT:-4200}:8080"
+    # El frontend depende de que la API esté 100% saludable antes de arrancar
+    environment:
+      - MSAL_CLIENT_ID=${MSAL_CLIENT_ID}
+      - MSAL_AUTHORITY=${MSAL_AUTHORITY}
+      - API_URL=${API_URL:-http://localhost:5000/api}
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    # Asignación a red interna explícita
+    networks:
+      - app_network
+    # Healthcheck utilizando bash puro para el puerto 8080 (donde está Nginx)
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+# ==============================================================================
+# DEFINICIÓN DE REDES
+# ==============================================================================
+networks:
+  # Definición de la red interna exclusiva (driver bridge)
+  app_network:
+    driver: bridge
+    name: permisos_puestos_network

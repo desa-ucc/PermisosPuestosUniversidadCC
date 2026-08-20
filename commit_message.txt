@@ -1,0 +1,4 @@
+fix(auth): fix EF Core keyless entity tracking for SSO
+
+- Resolved `IDX10703` by configuring `UsuarioSsoDto` as `HasNoKey` in the `AppDbContext`.
+- Fixed frontend entrypoint execution errors by enforcing Linux line endings (`sed -i 's/\r$//'`) and setting executable permissions before container runtime.
