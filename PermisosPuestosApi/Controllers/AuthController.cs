@@ -27,11 +27,9 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // Pasamos el usuario y la contraseña (en texto plano) al SP
             var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
             var passwordParam = new SqlParameter("@Password", request.Password);
 
-            // Llamamos al nuevo sp_Login que valida todo internamente
             var usuarios = await _context.UsuariosDto
                 .FromSqlRaw("EXEC sp_Login @NombreUsuario, @Password", usernameParam, passwordParam)
                 .ToListAsync();
@@ -40,11 +38,9 @@ namespace PermisosPuestosApi.Controllers
 
             if (user == null)
             {
-                // Si el usuario es null, es porque el usuario no existe, está inactivo O la contraseña es incorrecta
                 return Unauthorized(new { message = "Credenciales incorrectas" });
             }
 
-            // Si llegamos aquí, el usuario es válido
             var token = GenerateJwtToken(user);
 
             var roleIdParam = new SqlParameter("@RoleId", user.RolId);
@@ -61,12 +57,65 @@ namespace PermisosPuestosApi.Controllers
             });
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            // Prevención de enumeración de usuarios: SIEMPRE devolvemos OK
+            if (string.IsNullOrEmpty(request.Email)) return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+
+            var tokenBytes = RandomNumberGenerator.GetBytes(32);
+            var token = Convert.ToBase64String(tokenBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
+            var expiration = DateTime.UtcNow.AddMinutes(15);
+
+            var pEmail = new SqlParameter("@Email", request.Email);
+            var pToken = new SqlParameter("@Token", token);
+            var pExpiration = new SqlParameter("@Expiration", expiration);
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GenerarTokenRecuperacion @Email, @Token, @Expiration",
+                pEmail, pToken, pExpiration
+            );
+
+            // TODO: Integrar lógica de envío de correos aquí en el futuro usando SMTP/SendGrid/etc.
+            // Para propósitos de este request, la base de datos ya está almacenando el token y
+            // siempre se responde OK a nivel de seguridad.
+            // Ejemplo URL: {baseUrl}/reset-password?token={token}
+
+            return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones.", _tokenDebug = token });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var pToken = new SqlParameter("@Token", request.Token);
+            var pNewPasswordHash = new SqlParameter("@NewPasswordHash", request.NewPassword);
+
+            var resultParam = new SqlParameter
+            {
+                ParameterName = "@EsValido",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Direction = System.Data.ParameterDirection.Output
+            };
+
+            // Ejecutamos el SP
+            var spSql = "EXEC sp_RestablecerPassword @Token, @NewPasswordHash";
+            var resultQuery = await _context.Database.SqlQueryRaw<int>(spSql, pToken, pNewPasswordHash).ToListAsync();
+
+            var isValid = resultQuery.FirstOrDefault() == 1;
+
+            if (isValid)
+            {
+                return Ok(new { message = "Contraseña restablecida con éxito." });
+            }
+
+            return BadRequest(new { message = "El token es inválido o ha expirado." });
+        }
+
         private string ComputeSha256Hash(string rawData)
         {
             using (SHA256 sha256Hash = SHA256.Create())
             {
                 byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < bytes.Length; i++)
                 {
@@ -98,5 +147,16 @@ namespace PermisosPuestosApi.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+    }
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }

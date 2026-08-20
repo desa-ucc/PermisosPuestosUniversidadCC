@@ -22,3 +22,10 @@
 - Se añadieron las vistas (tabs) de TiposLicencia y PlataformasNombres al HTML de `catalogos.component.ts`.
 - Se corrigieron duplicidades en las implementaciones de endpoints en `api.service.ts` para evitar fallos de Angular AOT.
 - Se confirmó que `plataformas.component.ts` ya consume los catálogos correspondientes para reemplazar los valores estáticos.
+
+## Implementación de Recuperación de Contraseña Seguro
+
+- Se crearon los Stored Procedures `sp_GenerarTokenRecuperacion` y `sp_RestablecerPassword` para manejar lógicamente de forma atómica en DB el reseteo con Tokens URL-Safe y hasheo directo en SQLServer, alterando la tabla `pt_Usuarios` para incluir `PasswordResetToken` y `PasswordResetExpiration`.
+- En el `.NET API` (AuthController) se implementó el endpoint genérico `forgot-password` blindado contra enumeración de correos retornando siempre HTTP 200, y el endpoint `reset-password` encargado de la validación.
+- Se implementó la vista aislada `forgot-password.component.ts` en Angular para sustituir el viejo prompt() permitiendo capturar el correo electrónicamente con formulario reactivo validado.
+- Se actualizaron las reglas en el componente Frontend `reset-password.component.ts` inyectando patrones RegEx para complejidad de contraseña de mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos según los requerimientos solicitados.
