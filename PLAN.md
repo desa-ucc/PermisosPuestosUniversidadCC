@@ -1,42 +1,37 @@
-# Plan for Login and Authentication Features
+# Plan de Refactorización de Infraestructura Docker
 
-## Requirements
-1. Implement Microsoft SSO via `@azure/msal-angular` on the frontend.
-2. Validate the Microsoft JWT in the backend (`.NET 8`) against a Tenant and issue an internal system JWT to keep using the existing RBAC logic.
-3. Implement Password Recovery (Forgot Password & Reset Password) using secure tokens.
-4. Simulate email sending for recovery token.
-5. Add the `/reset-password` route in Angular.
+## Arquitectura y Objetivos
+El objetivo principal de este plan es reestructurar los archivos de Docker (`Dockerfile` de backend y frontend) y `docker-compose.yml` para cumplir con estándares estrictos de seguridad, optimización y documentación.
 
-## Proposed Steps
+## Pasos
 
-1. **Database Updates (`patch_auth.sql`)**
-   - Add `ResetToken` (NVARCHAR(256)) and `ResetTokenExpires` (DATETIME) to `pt_Usuarios`.
-   - Create Stored Procedures: `sp_SetResetToken` and `sp_ResetPasswordWithToken`.
-   - Update C# models (`UsuarioDto`, `LoginRequest`) and add DTOs for `ForgotPasswordRequest`, `ResetPasswordRequest`, `MsalLoginRequest`.
+1. **Refactorizar Backend Dockerfile (`PermisosPuestosApi/Dockerfile`)**
+   - Implementar Multi-stage builds (Preparación, Build, Runtime).
+   - Usar imagen base ligera en runtime (Alpine).
+   - Configurar zona horaria (`America/Costa_Rica`).
+   - Crear y usar usuario no-root (`appuser`).
+   - Remover herramientas de red (`curl`, `wget`, etc.).
+   - Agregar documentación exhaustiva en español.
 
-2. **Backend Auth Updates (`AuthController.cs` & `Program.cs`)**
-   - Add MSAL JWT validation configuration in `.NET 8`.
-   - Implement `POST /api/auth/msal-login` endpoint: Validates MSAL token, finds user by email, and issues our internal JWT.
-   - Implement `POST /api/auth/forgot-password` endpoint: Calls `sp_SetResetToken` and simulates email.
-   - Implement `POST /api/auth/reset-password` endpoint: Calls `sp_ResetPasswordWithToken` to hash new password and clear token.
+2. **Refactorizar Frontend Dockerfile (`src/Dockerfile`)**
+   - Implementar Multi-stage builds (Preparación, Build, Runtime).
+   - Usar Nginx Alpine en runtime.
+   - Configurar zona horaria (`America/Costa_Rica`).
+   - Crear y usar usuario no-root (`appuser`) ajustando los permisos de Nginx.
+   - Remover herramientas de red (`curl`, `wget`, etc.) e instalar dependencias necesarias (`tzdata`, `gettext` para `envsubst`, `bash`).
+   - Agregar documentación exhaustiva en español.
 
-3. **Frontend MSAL Setup**
-   - Install `@azure/msal-browser` and `@azure/msal-angular`.
-   - Configure `MsalModule` in `app.config.ts`.
-   - Update `LoginComponent` to use `MsalService.loginPopup()`, then send the ID token to our new `/api/auth/msal-login` endpoint.
+3. **Crear script de inyección de variables (`src/entrypoint.sh`)**
+   - Script Bash para tomar variables de entorno e inyectarlas en un archivo `env.js` dentro del build de Angular antes de iniciar Nginx.
 
-4. **Frontend Reset Password Component**
-   - Generate `ResetPasswordComponent`.
-   - Add routing for `/reset-password`.
-   - Implement the token extraction from URL and form for new password.
-   - Update `LoginComponent` `recoverPassword()` to open a modal or prompt for the email to call `/api/auth/forgot-password`.
+4. **Refactorizar `docker-compose.yml`**
+   - Mapear variables mediante archivo `.env`.
+   - Definir red interna explícita.
+   - Establecer `container_name`.
+   - Implementar healthchecks usando `bash -c '</dev/tcp/127.0.0.1/puerto'`.
+   - Configurar dependencias con `condition: service_healthy`.
+   - Agregar comentarios descriptivos línea por línea en español.
 
-5. **Build and Test Verification**
-   - Run backend build `dotnet build`.
-   - Run frontend build `npx ng build`.
-   - Run frontend tests.
-
-6. **Pre-commit Steps**
-   - Complete required verification and reflections.
-
-7. **Submit Changes**
+5. **Completar pasos pre-commit**
+   - Verificar que los archivos estén correctamente formados y documentados.
+   - Completar las revisiones y reflexiones del pre-commit.

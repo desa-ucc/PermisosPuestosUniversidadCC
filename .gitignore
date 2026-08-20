@@ -1,2 +1,5 @@
 PermisosPuestosApi/bin/
 PermisosPuestosApi/obj/
+
+# Variables de entorno
+.env

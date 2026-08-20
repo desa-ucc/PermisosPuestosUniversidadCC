@@ -1,19 +1,66 @@
+# ==============================================================================
+# INFRAESTRUCTURA DOCKER - PROYECTO PERMISOS PUESTOS
+# ==============================================================================
+
+# Definición explícita de red interna exclusiva
+networks:
+  app_network:
+    driver: bridge
+    name: permisos_puestos_network
 
 services:
+  # ============================================================================
+  # SERVICIO BACKEND (API .NET)
+  # ============================================================================
   api:
+    container_name: permisos_api
     build:
       context: ./PermisosPuestosApi
       dockerfile: Dockerfile
+    networks:
+      - app_network
     ports:
-      - "5000:5000"
+      # Expone el puerto 5000 para acceso desde el host (ej. local o proxy inverso)
+      - "${API_PORT:-5000}:5000"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=172.16.100.13;Database=PERFILES_BD;User Id=fsalazarmo;Password=FValeryleska28.*;TrustServerCertificate=True;MultipleActiveResultSets=true;
-      - Jwt__Key=SuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+
+      # Las credenciales nunca se harcodean; se inyectan del archivo .env
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_SECRET_KEY}
+    # Healthcheck sin herramientas de red (cero wget/curl) vía bash
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/5000'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================================
+  # SERVICIO FRONTEND (UI ANGULAR / NGINX)
+  # ============================================================================
   frontend:
+    container_name: permisos_frontend
     build:
       context: ./src
       dockerfile: Dockerfile
+    networks:
+      - app_network
     ports:
-      - "4200:80"
+      # Expone el puerto 4200 (o el definido) mapeado al puerto 80 interno de Nginx
+      - "${FRONTEND_PORT:-4200}:80"
+    environment:
+      # Se inyectan estas variables a Nginx; el entrypoint.sh las pasará a env.js
+      - API_URL=${API_URL}
+      - MSAL_CLIENT_ID=${MSAL_CLIENT_ID}
+      - MSAL_AUTHORITY=${MSAL_AUTHORITY}
+      - MSAL_REDIRECT_URI=${MSAL_REDIRECT_URI}
     depends_on:
-      - api
+      api:
+        # Dependencia estricta: espera que el backend esté saludable antes de arrancar
+        condition: service_healthy
+    # Healthcheck nativo para Nginx
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/80'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
