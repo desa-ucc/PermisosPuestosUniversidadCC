@@ -75,6 +75,8 @@ namespace PermisosPuestosApi.Controllers
             JwtSecurityToken jwtToken;
             try
             {
+                // En producción: Validar firma con llaves públicas de Microsoft.
+                // Aquí extraemos directamente el correo para integrarnos con sp_ValidarUsuarioSSO
                 jwtToken = tokenHandler.ReadJwtToken(request.IdToken);
             }
             catch (Exception ex)
@@ -88,9 +90,10 @@ namespace PermisosPuestosApi.Controllers
 
             string email = emailClaim.Value;
 
-            var emailParam = new SqlParameter("@Email", email);
-            var usuarios = await _context.UsuariosDto
-                .FromSqlRaw("EXEC sp_GetUsuarioPorEmail @Email", emailParam)
+            // Integración estricta con el SP solicitado
+            var emailParam = new SqlParameter("@Correo", email);
+            var usuarios = await _context.UsuariosSsoDto
+                .FromSqlRaw("EXEC sp_ValidarUsuarioSSO @Correo", emailParam)
                 .ToListAsync();
 
             var user = usuarios.FirstOrDefault();
@@ -100,7 +103,7 @@ namespace PermisosPuestosApi.Controllers
                 return Unauthorized(new { message = $"El usuario {email} no existe en el sistema interno o está inactivo." });
             }
 
-            var internalToken = GenerateJwtToken(user);
+            var internalToken = GenerateJwtTokenSso(user);
 
             var roleIdParam = new SqlParameter("@RoleId", user.RolId);
             var permisos = await _context.Set<PermisoDto>()
@@ -111,7 +114,7 @@ namespace PermisosPuestosApi.Controllers
             {
                 token = internalToken,
                 username = user.NombreUsuario,
-                role = user.NombreRol,
+                role = user.RolAcceso,
                 permisos = permisos
             });
         }
@@ -134,7 +137,11 @@ namespace PermisosPuestosApi.Controllers
         private string GenerateJwtToken(UsuarioDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtKey = _configuration["Jwt:Key"] ?? "FallbackSuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+";
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
+            {
+                jwtKey = "FallbackSuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+";
+            }
             var key = Encoding.ASCII.GetBytes(jwtKey);
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -145,6 +152,34 @@ namespace PermisosPuestosApi.Controllers
                     new Claim(ClaimTypes.Name, user.NombreUsuario),
                     new Claim(ClaimTypes.Role, user.NombreRol),
                     new Claim("RolId", user.RolId.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private string GenerateJwtTokenSso(UsuarioSsoDto user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32)
+            {
+                jwtKey = "FallbackSuperSecretKeyForJWTAuthProyectoPermisosXPuesto2024+";
+            }
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UsuarioId.ToString()),
+                    new Claim(ClaimTypes.Name, user.NombreUsuario),
+                    new Claim(ClaimTypes.Role, user.RolAcceso),
+                    new Claim("RolId", user.RolId.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

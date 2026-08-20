@@ -1,0 +1,5 @@
+fix(auth): align SSO integration with actual database schema
+
+- Addressed review concern by strictly using the newly provided `sp_ValidarUsuarioSSO` mapped against the `UsuarioSsoDto`.
+- Kept the JWT length fix intact.
+- Maintained the comment acknowledging the need for cryptographic validation via JWKS in an actual Azure connected production environment.

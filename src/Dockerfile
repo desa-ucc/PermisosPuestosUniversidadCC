@@ -72,7 +72,8 @@ COPY --chown=appuser:appgroup nginx.conf /etc/nginx/conf.d/default.conf
 
 # Cambiar a usuario sin privilegios
 COPY --chown=appuser:appgroup entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
 
 USER appuser
 
