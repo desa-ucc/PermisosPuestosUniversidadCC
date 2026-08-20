@@ -51,7 +51,7 @@ ENV TZ=America/Costa_Rica
 # 5. Modificar permisos de carpetas de Nginx para permitir ejecución rootless.
 # 6. Limpiar caché apk.
 RUN apk update && \
-    apk add --no-cache tzdata bash && \
+    apk add --no-cache tzdata bash gettext && \
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
     apk del wget curl ping telnet || true && \
@@ -71,10 +71,12 @@ COPY --chown=appuser:appgroup nginx.conf /etc/nginx/conf.d/default.conf
 # Aseguramos de que todo lo copiado pertenezca a appuser
 
 # Cambiar a usuario sin privilegios
+COPY --chown=appuser:appgroup entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 USER appuser
 
-# Exponer el puerto para Nginx rootless
 EXPOSE 8080
 
-# Comando para iniciar Nginx
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

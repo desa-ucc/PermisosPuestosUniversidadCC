@@ -56,6 +56,10 @@ services:
     ports:
       - "${FRONTEND_PORT:-4200}:8080"
     # El frontend depende de que la API esté 100% saludable antes de arrancar
+    environment:
+      - MSAL_CLIENT_ID=${MSAL_CLIENT_ID}
+      - MSAL_AUTHORITY=${MSAL_AUTHORITY}
+      - API_URL=${API_URL:-http://localhost:5000/api}
     depends_on:
       api:
         condition: service_healthy

@@ -302,3 +302,11 @@ public class PermisosSitio
         public string IdToken { get; set; }
     }
 }
+    public class UsuarioSsoDto
+    {
+        public int UsuarioId { get; set; }
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public int RolId { get; set; }
+        public string RolAcceso { get; set; } = string.Empty;
+    }
