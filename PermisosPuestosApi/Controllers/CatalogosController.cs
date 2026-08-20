@@ -217,9 +217,9 @@ public async Task<IActionResult> GetAmbiente(int id)
         }
 
         [HttpGet("PlataformasNombres")]
-        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("select * from v_GestionarPlataformasNombres").ToListAsync());
+        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("exec v_GestionarPlataformasNombres").ToListAsync());
 
         [HttpGet("TiposLicencia")]
-        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("select * from v_GestionarTiposLicencia").ToListAsync());
+        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("exec v_GestionarTiposLicencia").ToListAsync());
     }
 }
