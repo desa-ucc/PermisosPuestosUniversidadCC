@@ -285,6 +285,7 @@ public class PermisosSitio
         public List<ReportePlataformaDto> Plataformas { get; set; } = new();
         public List<ReporteAccesoBDDto> BasesDatos { get; set; } = new();
         public List<ReporteSoftwareLocalDto> SoftwareLocal { get; set; } = new();
+    }
 
     public class ForgotPasswordRequest
     {
@@ -310,4 +311,3 @@ public class PermisosSitio
         public int RolId { get; set; }
         public string RolAcceso { get; set; } = string.Empty;
     }
-}

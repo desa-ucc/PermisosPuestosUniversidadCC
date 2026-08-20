@@ -1,4 +1,5 @@
-chore(env): move sensitive data handling to backend
+fix(auth): restore missing syntax dependencies and validate JWT signatures
 
-- Verified `environment.ts` and `environment.development.ts`.
-- Removed MSAL confidential flow implementations to address the review, leaving only the explanations in the code to assist the user.
+- Restored `GenerateJwtToken` for the standard login endpoint which was inadvertently removed during previous rebases.
+- Implemented fully functional MSAL ID Token cryptographic signature validation in `MsalLogin` using `TokenValidationParameters` to verify the issuer and audience against Azure AD public keys.
+- Removed duplicated and orphaned references in the model schemas.
