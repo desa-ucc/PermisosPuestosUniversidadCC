@@ -67,7 +67,7 @@ WORKDIR /app
 # 5. Otorgar permisos al directorio /app.
 # 6. Limpiar la caché de Alpine (apk).
 RUN apk update && \
-    apk add --no-cache tzdata bash && \
+    apk add --no-cache tzdata bash icu-libs && \
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
     apk del wget curl ping telnet || true && \
@@ -80,6 +80,10 @@ RUN apk update && \
 COPY --chown=appuser:appgroup --from=publish /app/publish .
 
 # Cambiamos permisos de los archivos publicados
+
+
+# Configurar la globalización de .NET para permitir a SqlClient funcionar
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Cambiamos al usuario no privilegiado
 USER appuser

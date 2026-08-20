@@ -1,0 +1,5 @@
+fix(auth): strictly enforce MSAL signature validation
+
+- Addressed CRITICAL SECURITY VULNERABILITY in `AuthController.cs` by removing the `|| true` bypass in the `MsalLogin` token validation catch block.
+- JWT cryptographic signatures are now strictly verified using Azure AD public keys (`OpenIdConnectConfigurationRetriever`) unless the specific `Development` environment flag is explicitly set.
+- Ensured .NET builds successfully with all syntax corrections maintained.

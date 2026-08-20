@@ -103,7 +103,7 @@ namespace PermisosPuestosApi.Controllers
                 {
                     // Fallback para entornos de desarrollo local sin tenant real configurado
                     // En producción ESTO DEBE SER REMOVIDO para evitar bypass de firma
-                    if (_configuration["Environment"] == "Development" || true) // Forced for this exercise
+                    if (_configuration["Environment"] == "Development")
                     {
                         jwtToken = tokenHandler.ReadJwtToken(request.IdToken);
                     }
