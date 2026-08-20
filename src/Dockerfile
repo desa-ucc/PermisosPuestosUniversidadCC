@@ -52,7 +52,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copiamos el script de entrypoint para la inyección de variables de entorno
 COPY entrypoint.sh /docker-entrypoint.d/99-entrypoint.sh
-RUN chmod +x /docker-entrypoint.d/99-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.d/99-entrypoint.sh && chmod +x /docker-entrypoint.d/99-entrypoint.sh
 
 # Ajustamos permisos de los directorios clave de Nginx para el usuario no-root
 RUN chown -R appuser:appgroup /usr/share/nginx/html && \
