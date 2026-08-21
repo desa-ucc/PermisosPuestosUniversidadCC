@@ -37,3 +37,10 @@
 
 ## Análisis de Impacto - Unificación de Catálogos
 Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos base (Sitios, Plataformas, etc.) en una sola tabla de SQL. El dictamen rechazó la propuesta debido al alto riesgo de integridad referencial, el esfuerzo monumental en cascada en toda la solución y la ruptura de los principios SOLID/SRP para el futuro, entregando el análisis documentado `plan_eval.md`.
+
+## Implementación de Carga Masiva (Excel)
+
+- En el Backend (`.NET 8`), se integró la librería `ClosedXML` permitiendo procesar y generar archivos de tipo `.xlsx`. Se crearon los métodos `GET /importar-*/plantilla` que construyen al vuelo una hoja vacía de carga formateada.
+- Se implementaron los controladores POST `/importar-*` en `HardwareIdealController` y `EquiposController`, los cuales reciben `IFormFile`, iterando fila por fila, aplicando validaciones relacionales al instante por medio de EF Core (buscando Puestos por código y Catálogos de Hardware por nombre) para poder insertar los FK requeridos en los SP.
+- En el Frontend (`Angular 17`), se crearon llamadas duales hacia `api.service` manipulando Blobs nativos y el objeto `FormData`, vinculándolos a nuevos controles en la UI visualizados dinámicamente con las directivas de seguridad requeridas (`*appPermiso`).
+- Se introdujeron mecanismos de reporte devolviendo recuento de filas y alertas combinadas en el DOM ante eventualidades por mala integridad de archivos de Excel.

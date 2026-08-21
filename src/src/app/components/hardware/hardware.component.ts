@@ -142,7 +142,20 @@ import { forkJoin } from 'rxjs';
 </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">table_chart</span> Registros Actuales
+          </h3>
+          <div class="flex gap-2">
+             <button *appPermiso="{pantalla: 'HARDWARE', accion: 'crear'}" type="button" (click)="descargarPlantilla()" class="flex items-center gap-2 px-4 py-2 bg-ucc-surface-container text-ucc-neutral-text rounded-md text-sm hover:bg-ucc-surface-container-high transition-colors">
+               <span class="material-symbols-outlined text-[18px]">download</span> Plantilla Excel
+             </button>
+             <button *appPermiso="{pantalla: 'HARDWARE', accion: 'crear'}" type="button" (click)="fileInput.click()" class="flex items-center gap-2 px-4 py-2 bg-ucc-primary-container text-ucc-on-primary-container rounded-md text-sm hover:bg-ucc-primary/80 transition-colors">
+               <span class="material-symbols-outlined text-[18px]">upload</span> Subir Excel
+             </button>
+             <input type="file" #fileInput (change)="cargarExcel($event)" accept=".xlsx" style="display: none;" />
+          </div>
+        </div>
 <table class="ucc-table">
           <thead>
             <tr>
@@ -730,7 +743,46 @@ export class HardwareComponent implements OnInit {
     this.onEmpleadoChange(null);
   }
 
+
+  // MÉTODOS DE EXCEL
+  descargarPlantilla() {
+    this.api.descargarPlantillaHardwareAsignado().subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Plantilla_Hardware_Asignado.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  }
+
+  cargarExcel(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.api.importarHardwareAsignado(file).subscribe({
+        next: (res: any) => {
+           alert(res.message);
+           this.loadData();
+           event.target.value = '';
+        },
+        error: (err: any) => {
+           const errMsg = err.error?.message || 'Error al importar archivo.';
+           let detailedErrors = '';
+           if (err.error?.errores && err.error.errores.length > 0) {
+               detailedErrors = '\n\nErrores:\n' + err.error.errores.slice(0, 5).join('\n');
+               if (err.error.errores.length > 5) detailedErrors += '\n...y más.';
+           }
+           alert(errMsg + detailedErrors);
+           event.target.value = '';
+        }
+      });
+    }
+  }
+
   delete(id: number) {
+
     if (!this.permissionService.tienePermiso('HARDWARE', 'ELIMINAR')) {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;

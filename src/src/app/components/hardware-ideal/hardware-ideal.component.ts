@@ -133,6 +133,15 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
           <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <span class="material-symbols-outlined">table_chart</span> Registros Actuales
           </h3>
+          <div class="flex gap-2">
+             <button *appPermiso="{pantalla: 'EQUIPO_IDEAL', accion: 'crear'}" type="button" (click)="descargarPlantilla()" class="flex items-center gap-2 px-4 py-2 bg-ucc-surface-container text-ucc-neutral-text rounded-md text-sm hover:bg-ucc-surface-container-high transition-colors">
+               <span class="material-symbols-outlined text-[18px]">download</span> Plantilla Excel
+             </button>
+             <button *appPermiso="{pantalla: 'EQUIPO_IDEAL', accion: 'crear'}" type="button" (click)="fileInput.click()" class="flex items-center gap-2 px-4 py-2 bg-ucc-primary-container text-ucc-on-primary-container rounded-md text-sm hover:bg-ucc-primary/80 transition-colors">
+               <span class="material-symbols-outlined text-[18px]">upload</span> Subir Excel
+             </button>
+             <input type="file" #fileInput (change)="cargarExcel($event)" accept=".xlsx" style="display: none;" />
+          </div>
         </div>
 
         <table class="ucc-table">
@@ -665,6 +674,44 @@ export class HardwareIdealComponent implements OnInit {
       this.api.deleteHardwareIdeal(id).subscribe({
         next: () => this.loadData(),
         error: (err) => alert('No se pudo eliminar el registro.')
+      });
+    }
+  }
+
+
+  // MÉTODOS DE EXCEL
+  descargarPlantilla() {
+    this.api.descargarPlantillaHardwareIdeal().subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Plantilla_Hardware_Ideal.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  }
+
+  cargarExcel(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.api.importarHardwareIdeal(file).subscribe({
+        next: (res: any) => {
+           alert(res.message);
+           this.loadData();
+           event.target.value = '';
+        },
+        error: (err: any) => {
+           const errMsg = err.error?.message || 'Error al importar archivo.';
+           let detailedErrors = '';
+           if (err.error?.errores && err.error.errores.length > 0) {
+               detailedErrors = '\n\nErrores:\n' + err.error.errores.slice(0, 5).join('\n');
+               if (err.error.errores.length > 5) detailedErrors += '\n...y más.';
+           }
+           alert(errMsg + detailedErrors);
+           event.target.value = '';
+        }
       });
     }
   }

@@ -162,4 +162,25 @@ export class ApiService {
   deleteTipoLicencia(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/Catalogos/TiposLicencia/${id}`);
   }
+
+  // --- Importaciones Excel ---
+  descargarPlantillaHardwareIdeal(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/HardwareIdeal/importar-ideal/plantilla`, { responseType: 'blob' });
+  }
+
+  importarHardwareIdeal(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/HardwareIdeal/importar-ideal`, formData);
+  }
+
+  descargarPlantillaHardwareAsignado(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Equipos/importar-asignado/plantilla`, { responseType: 'blob' });
+  }
+
+  importarHardwareAsignado(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Equipos/importar-asignado`, formData);
+  }
 }
