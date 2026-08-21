@@ -34,3 +34,6 @@
 
 - Se configuró la vista `forgot-password.component.ts` para que se renderice aislada fuera del AuthGuard (es decir, en el listado de páginas públicas en Angular router) y en la vista `app.component.ts` se oculta el menú layout para dichas peticiones.
 - El backend (`AuthController.cs`) ahora incorpora el paquete NuGet `MailKit` para la lógica del servicio de envío de correos, leyendo las credenciales `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASS` desde `appsettings.json` o Variables de Entorno, enviando dinámicamente un enlace que incluye el token temporalmente generado mediante Base64 y enlazado al parámetro URL esperado por el frontend.
+
+## Análisis de Impacto - Unificación de Catálogos
+Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos base (Sitios, Plataformas, etc.) en una sola tabla de SQL. El dictamen rechazó la propuesta debido al alto riesgo de integridad referencial, el esfuerzo monumental en cascada en toda la solución y la ruptura de los principios SOLID/SRP para el futuro, entregando el análisis documentado `plan_eval.md`.
