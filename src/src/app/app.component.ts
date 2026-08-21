@@ -73,7 +73,7 @@ export class AppComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const wasLoggedIn = this.isLoggedIn;
-      this.isLoggedIn = !event.urlAfterRedirects.includes('/login');
+      this.isLoggedIn = !event.urlAfterRedirects.includes('/login') && !event.urlAfterRedirects.includes('/forgot-password') && !event.urlAfterRedirects.includes('/reset-password');
 
       if (this.isLoggedIn && !wasLoggedIn) {
           if (localStorage.getItem('token')) {

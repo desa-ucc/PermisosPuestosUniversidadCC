@@ -60,8 +60,16 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            // Prevención de enumeración de usuarios: SIEMPRE devolvemos OK
             if (string.IsNullOrEmpty(request.Email)) return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+
+            var pEmailValidar = new SqlParameter("@Email", request.Email);
+            var emailExistsQuery = await _context.Database.SqlQueryRaw<int>("SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email", pEmailValidar).ToListAsync();
+
+            if (emailExistsQuery.FirstOrDefault() == 0)
+            {
+                 // Si no existe, simulamos éxito para evitar enumeración.
+                 return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+            }
 
             var tokenBytes = RandomNumberGenerator.GetBytes(32);
             var token = Convert.ToBase64String(tokenBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
@@ -76,12 +84,55 @@ namespace PermisosPuestosApi.Controllers
                 pEmail, pToken, pExpiration
             );
 
-            // TODO: Integrar lógica de envío de correos aquí en el futuro usando SMTP/SendGrid/etc.
-            // Para propósitos de este request, la base de datos ya está almacenando el token y
-            // siempre se responde OK a nivel de seguridad.
-            // Ejemplo URL: {baseUrl}/reset-password?token={token}
+            try {
+                await EnviarCorreoRecuperacionAsync(request.Email, token);
+            } catch (Exception ex) {
+                // Registrar log del error en producción
+                Console.WriteLine(ex.Message);
+            }
 
-            return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones.", _tokenDebug = token });
+            return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+        }
+
+        private async Task EnviarCorreoRecuperacionAsync(string email, string token)
+        {
+            var host = _configuration["SMTP_HOST"];
+            var portStr = _configuration["SMTP_PORT"];
+            var user = _configuration["SMTP_USER"];
+            var pass = _configuration["SMTP_PASS"];
+
+            if(string.IsNullOrEmpty(host)) return; // Si no hay SMTP configurado, sale silente
+
+            int port = int.TryParse(portStr, out var p) ? p : 587;
+            var frontUrl = _configuration["FRONTEND_URL"] ?? "http://localhost:4200";
+
+            var resetLink = $"{frontUrl}/reset-password?token={token}";
+
+            var message = new MimeKit.MimeMessage();
+            message.From.Add(new MimeKit.MailboxAddress("Soporte Tecnológico UCC", user));
+            message.To.Add(new MimeKit.MailboxAddress("", email));
+            message.Subject = "Restablecimiento de Contraseña - Perfiles Tecnológicos";
+
+            var bodyBuilder = new MimeKit.BodyBuilder
+            {
+                HtmlBody = $@"
+                    <h2>Recuperación de Contraseña</h2>
+                    <p>Usted ha solicitado restablecer su contraseña.</p>
+                    <p>Por favor haga clic en el siguiente enlace para continuar:</p>
+                    <a href='{resetLink}'>Restablecer Contraseña</a>
+                    <br><br>
+                    <p>Este enlace es válido por 15 minutos.</p>
+                    <p>Si no ha solicitado esto, puede ignorar el mensaje de forma segura.</p>
+                "
+            };
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+            await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(user, pass);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
 
         [HttpPost("reset-password")]

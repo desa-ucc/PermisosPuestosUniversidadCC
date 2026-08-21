@@ -29,3 +29,8 @@
 - En el `.NET API` (AuthController) se implementó el endpoint genérico `forgot-password` blindado contra enumeración de correos retornando siempre HTTP 200, y el endpoint `reset-password` encargado de la validación.
 - Se implementó la vista aislada `forgot-password.component.ts` en Angular para sustituir el viejo prompt() permitiendo capturar el correo electrónicamente con formulario reactivo validado.
 - Se actualizaron las reglas en el componente Frontend `reset-password.component.ts` inyectando patrones RegEx para complejidad de contraseña de mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos según los requerimientos solicitados.
+
+## Correcciones al Flujo de Recuperación de Contraseña
+
+- Se configuró la vista `forgot-password.component.ts` para que se renderice aislada fuera del AuthGuard (es decir, en el listado de páginas públicas en Angular router) y en la vista `app.component.ts` se oculta el menú layout para dichas peticiones.
+- El backend (`AuthController.cs`) ahora incorpora el paquete NuGet `MailKit` para la lógica del servicio de envío de correos, leyendo las credenciales `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASS` desde `appsettings.json` o Variables de Entorno, enviando dinámicamente un enlace que incluye el token temporalmente generado mediante Base64 y enlazado al parámetro URL esperado por el frontend.
