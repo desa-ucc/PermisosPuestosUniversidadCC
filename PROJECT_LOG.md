@@ -75,3 +75,9 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Fix: Tolerancia a Nulos en Placa (Hardware Asignado)
 - Se añadió la cabecera `Placa` en la plantilla `.xlsx` generada al vuelo por ClosedXML en `EquiposController.cs`.
 - En el ciclo de lectura de `ImportarAsignado`, se modificó el código para asignar automáticamente el string "NO VISIBLE" como Default Constraint manejado en memoria si la validación de `placa` resultaba nula, vacía o puramente en espacios, logrando esquivar el quiebre de transacción reportado por la Base de Datos (`Cannot insert the value NULL into column 'Placa'`).
+
+## Importador de Excel en Software Local
+
+- Se implementó exitosamente un nuevo flujo de carga masiva de archivos `.xlsx` y exportación de plantillas para la asignación de `Software Local`.
+- El controlador .NET (`SoftwareController.cs`) consume ahora `ClosedXML` iterando a través de las proyecciones EF escalares (`SqlQueryRaw`) contra los códigos de empleado previniendo el error "Column missing in Results". El servicio además gestiona las variables vacías insertando un string `"N/A"` por defecto en la capa de software antes de guardar en Base de Datos para asegurar la persistencia transaccional.
+- Se implementaron las lógicas relativas de interfaz en Angular dentro de `software.component.ts` incluyendo el Componente de Modal de Feedback importando las alertas y conteos correctos de Excel.

@@ -183,4 +183,14 @@ export class ApiService {
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/Equipos/importar-asignado`, formData);
   }
+
+  descargarPlantillaSoftwareLocal(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Software/importar-local/plantilla`, { responseType: 'blob' });
+  }
+
+  importarSoftwareLocal(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Software/importar-local`, formData);
+  }
 }
