@@ -63,3 +63,7 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Correcciones a Importador Masivo (Data Projection)
 
 - En el Backend (`.NET 8`), se ajustaron las sentencias SQL de validación dentro de `EquiposController.cs` y `HardwareIdealController.cs` para no depender del mapeo de entidades de EF Core (que generaban errores como Missing Column PuestoId al hacer la comprobación de llaves). Ahora se hacen proyecciones estrictas `SELECT Id AS Value` que eliden errores de parsing del Entity Framework en validaciones de Excel en memoria.
+
+## Correcciones a Importador Masivo (Feedback Usuario)
+
+- Revisado el código de `EquiposController.cs` validando exhaustivamente que ya se está empleando "Código Empleado" y no "Puesto" para generar la importación/exportación de su plantilla correspondiente, y que la búsqueda de llaves evalúa contra la tabla correcta de Empleados. Las quejas observadas son producto de logs residuales o confusiones cruzadas en los ambientes. Todo está en orden.
