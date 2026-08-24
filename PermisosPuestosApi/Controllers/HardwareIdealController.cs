@@ -103,13 +103,12 @@ namespace PermisosPuestosApi.Controllers
             {
                 var worksheet = workbook.Worksheets.Add("Hardware Ideal");
                 worksheet.Cell(1, 1).Value = "Codigo de Puesto";
-                worksheet.Cell(1, 2).Value = "Hardware";
-                worksheet.Cell(1, 3).Value = "Tipo de Equipo";
-                worksheet.Cell(1, 4).Value = "Procesador";
-                worksheet.Cell(1, 5).Value = "Memoria";
-                worksheet.Cell(1, 6).Value = "Disco Duro";
-                worksheet.Cell(1, 7).Value = "Marca";
-                worksheet.Cell(1, 8).Value = "Otras Consideraciones";
+                worksheet.Cell(1, 2).Value = "Tipo de Equipo";
+                worksheet.Cell(1, 3).Value = "Procesador";
+                worksheet.Cell(1, 4).Value = "Memoria";
+                worksheet.Cell(1, 5).Value = "Disco Duro";
+                worksheet.Cell(1, 6).Value = "Marca";
+                worksheet.Cell(1, 7).Value = "Otras Consideraciones";
 
                 worksheet.Columns().AdjustToContents();
 
@@ -143,13 +142,13 @@ namespace PermisosPuestosApi.Controllers
                     foreach (var row in rows)
                     {
                         var codPuesto = row.Cell(1).GetValue<string>();
-                        var hardwareNombre = row.Cell(2).GetValue<string>();
-                        var tipoEq = row.Cell(3).GetValue<string>();
-                        var proc = row.Cell(4).GetValue<string>();
-                        var mem = row.Cell(5).GetValue<string>();
-                        var disco = row.Cell(6).GetValue<string>();
-                        var marca = row.Cell(7).GetValue<string>();
-                        var otras = row.Cell(8).GetValue<string>();
+                        var tipoEq = row.Cell(2).GetValue<string>();
+                        var hardwareNombre = tipoEq; // Alias the column
+                        var proc = row.Cell(3).GetValue<string>();
+                        var mem = row.Cell(4).GetValue<string>();
+                        var disco = row.Cell(5).GetValue<string>();
+                        var marca = row.Cell(6).GetValue<string>();
+                        var otras = row.Cell(7).GetValue<string>();
 
                         if (string.IsNullOrWhiteSpace(codPuesto))
                         {

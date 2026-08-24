@@ -55,3 +55,7 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 
 - En el Backend (`.NET 8`), se removió la cláusula de validación LINQ/SqlRaw que condicionaba `Estado = 1` al buscar la entidad `pt_TiposHardware` solventando el cierre por excepción (`SqlException`).
 - En el Frontend (`Angular 17`), se aplicaron defensas lógicas en las promesas/observables `error:` dentro de los componentes `hardware` e `ideal`, garantizando que un error 500 no dispare el check de validación "Importación Perfecta", creando arrays dummy con el `err.error.message` y forzando el renderizado de errores con estilo TailwindCSS rojo.
+
+## Correcciones a Importador Masivo (Limpieza)
+
+- En el Backend (`.NET 8`), se ajustaron las rutinas de ClosedXML en `EquiposController.cs` y `HardwareIdealController.cs` eliminando la columna duplicada de *Hardware*, estandarizando su uso exclusivamente a "Tipo de Equipo" en la columna B (índice 2). Se mapea esta variable internamente al contexto de `pt_TiposHardware`.
