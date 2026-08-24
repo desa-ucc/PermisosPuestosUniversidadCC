@@ -157,12 +157,10 @@ namespace PermisosPuestosApi.Controllers
                         }
 
                         // Buscar el ID del Puesto a partir de su Código
-                        var p1 = new SqlParameter("@Accion", "SELECT_CODIGO");
-                        var p2 = new SqlParameter("@CodigoPuesto", codPuesto);
-                        var puestoQuery = await _context.Set<Puesto>().FromSqlRaw("SELECT * FROM pt_Puestos WHERE CodigoPuesto = {0}", codPuesto).ToListAsync();
-                        var puesto = puestoQuery.FirstOrDefault();
+                        var puestoQuery = await _context.Database.SqlQueryRaw<int>("SELECT Id AS Value FROM pt_Puestos WHERE CodigoPuesto = {0}", codPuesto).ToListAsync();
+                        var puestoId = puestoQuery.FirstOrDefault();
 
-                        if (puesto == null)
+                        if (puestoId == 0)
                         {
                             errores.Add($"Fila {row.RowNumber()}: El puesto con código '{codPuesto}' no existe.");
                             continue;
@@ -174,22 +172,22 @@ namespace PermisosPuestosApi.Controllers
                         {
                             var pHw1 = new SqlParameter("@Accion", "SELECT_NOMBRE");
                             var pHw2 = new SqlParameter("@Nombre", hardwareNombre);
-                            var hwQuery = await _context.Cat_TiposHardware.FromSqlRaw("SELECT Id, Nombre FROM pt_TiposHardware WHERE Nombre = {0}", hardwareNombre).ToListAsync();
-                            var hw = hwQuery.FirstOrDefault();
+                            var hwQuery = await _context.Database.SqlQueryRaw<int>("SELECT Id AS Value FROM pt_TiposHardware WHERE Nombre = {0}", hardwareNombre).ToListAsync();
+                            var h = hwQuery.FirstOrDefault();
 
-                            if (hw == null)
+                            if (h == 0)
                             {
                                 errores.Add($"Fila {row.RowNumber()}: El tipo de hardware '{hardwareNombre}' no existe.");
                                 continue;
                             }
-                            hwId = hw.Id;
+                            hwId = h;
                         }
 
                         // Inserción en base de datos
                         try
                         {
                             var pAccion = new SqlParameter("@Accion", "INSERT");
-                            var pPuesto = new SqlParameter("@PuestoId", puesto.Id);
+                            var pPuesto = new SqlParameter("@PuestoId", puestoId);
                             var pTipoHw = new SqlParameter("@TipoHardwareId", hwId.HasValue ? (object)hwId.Value : DBNull.Value);
                             var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(tipoEq) ? (object)DBNull.Value : tipoEq);
                             var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(proc) ? (object)DBNull.Value : proc);

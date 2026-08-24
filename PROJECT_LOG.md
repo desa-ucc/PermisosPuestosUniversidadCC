@@ -59,3 +59,7 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Correcciones a Importador Masivo (Limpieza)
 
 - En el Backend (`.NET 8`), se ajustaron las rutinas de ClosedXML en `EquiposController.cs` y `HardwareIdealController.cs` eliminando la columna duplicada de *Hardware*, estandarizando su uso exclusivamente a "Tipo de Equipo" en la columna B (índice 2). Se mapea esta variable internamente al contexto de `pt_TiposHardware`.
+
+## Correcciones a Importador Masivo (Data Projection)
+
+- En el Backend (`.NET 8`), se ajustaron las sentencias SQL de validación dentro de `EquiposController.cs` y `HardwareIdealController.cs` para no depender del mapeo de entidades de EF Core (que generaban errores como Missing Column PuestoId al hacer la comprobación de llaves). Ahora se hacen proyecciones estrictas `SELECT Id AS Value` que eliden errores de parsing del Entity Framework en validaciones de Excel en memoria.
