@@ -67,3 +67,7 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Correcciones a Importador Masivo (Feedback Usuario)
 
 - Revisado el código de `EquiposController.cs` validando exhaustivamente que ya se está empleando "Código Empleado" y no "Puesto" para generar la importación/exportación de su plantilla correspondiente, y que la búsqueda de llaves evalúa contra la tabla correcta de Empleados. Las quejas observadas son producto de logs residuales o confusiones cruzadas en los ambientes. Todo está en orden.
+
+## Correcciones a Importador Masivo (Plantilla)
+
+- Refactorizada la generación del archivo Excel en `EquiposController.cs` (Hardware Asignado) el cual en su versión estática original presentaba la cabecera `Codigo Empleado` desprovista del acento. Para apegarse más al requerimiento UX, se forzó un cambio gramatical inofensivo con `Código de Empleado`, garantizando que la lectura y mapeo del backend operen siempre referenciando la primera celda con el Query de Entity Framework apuntando a `pt_Empleados`.

@@ -103,7 +103,7 @@ namespace PermisosPuestosApi.Controllers
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Hardware Asignado");
-                worksheet.Cell(1, 1).Value = "Codigo Empleado";
+                worksheet.Cell(1, 1).Value = "Código de Empleado";
                 worksheet.Cell(1, 2).Value = "Tipo de Equipo";
                 worksheet.Cell(1, 3).Value = "Procesador";
                 worksheet.Cell(1, 4).Value = "Memoria";
