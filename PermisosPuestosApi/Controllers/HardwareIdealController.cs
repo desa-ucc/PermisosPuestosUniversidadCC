@@ -175,7 +175,7 @@ namespace PermisosPuestosApi.Controllers
                         {
                             var pHw1 = new SqlParameter("@Accion", "SELECT_NOMBRE");
                             var pHw2 = new SqlParameter("@Nombre", hardwareNombre);
-                            var hwQuery = await _context.Cat_TiposHardware.FromSqlRaw("SELECT Id, Nombre, Estado FROM pt_TiposHardware WHERE Nombre = {0} AND Estado = 1", hardwareNombre).ToListAsync();
+                            var hwQuery = await _context.Cat_TiposHardware.FromSqlRaw("SELECT Id, Nombre FROM pt_TiposHardware WHERE Nombre = {0}", hardwareNombre).ToListAsync();
                             var hw = hwQuery.FirstOrDefault();
 
                             if (hw == null)

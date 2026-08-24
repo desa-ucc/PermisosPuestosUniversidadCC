@@ -328,7 +328,7 @@ import { HardwareIdeal, Puesto, Catalogo } from '../../models/models';
                     </div>
                 </div>
 
-                @if(importResult.errores && importResult.errores.length > 0) {
+                @if(importResult.totalFallidos > 0 || (importResult.errores && importResult.errores.length > 0)) {
                     <h4 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <span class="material-symbols-outlined text-red-500 text-lg">error</span>
                         Detalle de Errores:
@@ -773,7 +773,21 @@ export class HardwareIdealComponent implements OnInit {
            event.target.value = '';
         },
         error: (err: any) => {
-           this.importResult = err.error || { message: 'Error interno del servidor', totalExitosos: 0, totalFallidos: 0, errores: ['Error de conexión o validación.'] };
+           let fallidos = err.error?.TotalFallidos || 0;
+           let exitosos = err.error?.TotalExitosos || 0;
+           let msg = err.error?.message || 'Error interno del servidor.';
+
+           let listaErrores = err.error?.errores || err.error?.Errores;
+           if (!listaErrores || !Array.isArray(listaErrores)) {
+               listaErrores = [msg, 'Revise que la plantilla sea correcta y los códigos existan.'];
+               fallidos = fallidos || 1;
+           }
+
+           this.importResult = {
+               totalExitosos: exitosos,
+               totalFallidos: fallidos,
+               errores: listaErrores
+           };
            this.showImportModal = true;
            event.target.value = '';
         }

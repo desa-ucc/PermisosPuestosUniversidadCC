@@ -50,3 +50,8 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 - Modificada la exportación estática de Plantillas para coincidir semánticamente la columna con la palabra "Marca".
 - **Capa JSON:** Modificado el empaquetado del resultado re-entregando una sintaxis enriquecida como `{ TotalExitosos: int, TotalFallidos: int, Errores: string[] }`.
 - **Capa Vista (UI/Angular):** Reemplazados los simples `alert()` introduciendo un componente estructural Modal estético superpuesto a los componentes de Hardware, desglosando la información métrica iterando interactivamente (`@for`) los errores producidos.
+
+## Correcciones a Importador Masivo (Excel)
+
+- En el Backend (`.NET 8`), se removió la cláusula de validación LINQ/SqlRaw que condicionaba `Estado = 1` al buscar la entidad `pt_TiposHardware` solventando el cierre por excepción (`SqlException`).
+- En el Frontend (`Angular 17`), se aplicaron defensas lógicas en las promesas/observables `error:` dentro de los componentes `hardware` e `ideal`, garantizando que un error 500 no dispare el check de validación "Importación Perfecta", creando arrays dummy con el `err.error.message` y forzando el renderizado de errores con estilo TailwindCSS rojo.
