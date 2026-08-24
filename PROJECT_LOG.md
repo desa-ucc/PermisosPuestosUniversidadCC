@@ -44,3 +44,9 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 - Se implementaron los controladores POST `/importar-*` en `HardwareIdealController` y `EquiposController`, los cuales reciben `IFormFile`, iterando fila por fila, aplicando validaciones relacionales al instante por medio de EF Core (buscando Puestos por código y Catálogos de Hardware por nombre) para poder insertar los FK requeridos en los SP.
 - En el Frontend (`Angular 17`), se crearon llamadas duales hacia `api.service` manipulando Blobs nativos y el objeto `FormData`, vinculándolos a nuevos controles en la UI visualizados dinámicamente con las directivas de seguridad requeridas (`*appPermiso`).
 - Se introdujeron mecanismos de reporte devolviendo recuento de filas y alertas combinadas en el DOM ante eventualidades por mala integridad de archivos de Excel.
+
+## Fix: Mejoras al Motor de Importación Excel
+- **Capa SQL Backend:** Eliminadas aserciones problemáticas de `Estado = 1` en validaciones hacia la tabla `pt_Puestos` las cuales provocaban la interrupción `SqlException`.
+- Modificada la exportación estática de Plantillas para coincidir semánticamente la columna con la palabra "Marca".
+- **Capa JSON:** Modificado el empaquetado del resultado re-entregando una sintaxis enriquecida como `{ TotalExitosos: int, TotalFallidos: int, Errores: string[] }`.
+- **Capa Vista (UI/Angular):** Reemplazados los simples `alert()` introduciendo un componente estructural Modal estético superpuesto a los componentes de Hardware, desglosando la información métrica iterando interactivamente (`@for`) los errores producidos.

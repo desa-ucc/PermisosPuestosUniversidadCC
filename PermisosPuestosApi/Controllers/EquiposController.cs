@@ -109,7 +109,7 @@ namespace PermisosPuestosApi.Controllers
                 worksheet.Cell(1, 4).Value = "Procesador";
                 worksheet.Cell(1, 5).Value = "Memoria";
                 worksheet.Cell(1, 6).Value = "Disco Duro";
-                worksheet.Cell(1, 7).Value = "Marca PC";
+                worksheet.Cell(1, 7).Value = "Marca";
                 worksheet.Cell(1, 8).Value = "Otras Consideraciones";
 
                 worksheet.Columns().AdjustToContents();
@@ -161,7 +161,7 @@ namespace PermisosPuestosApi.Controllers
                         // Buscar el ID del Empleado a partir de su Código
                         var p1 = new SqlParameter("@Accion", "SELECT_CODIGO");
                         var p2 = new SqlParameter("@CodigoEmpleado", codEmpleado);
-                        var empQuery = await _context.Set<Empleado>().FromSqlRaw("SELECT * FROM pt_Empleados WHERE CodigoEmpleado = {0} AND Estado = 1", codEmpleado).ToListAsync();
+                        var empQuery = await _context.Set<Empleado>().FromSqlRaw("SELECT * FROM pt_Empleados WHERE CodigoEmpleado = {0}", codEmpleado).ToListAsync();
                         var empleado = empQuery.FirstOrDefault();
 
                         if (empleado == null)
@@ -214,9 +214,9 @@ namespace PermisosPuestosApi.Controllers
             }
 
             return Ok(new {
-                message = $"Importación completada. Se insertaron {insertados} registros.",
-                insertados = insertados,
-                errores = errores
+                TotalExitosos = insertados,
+                TotalFallidos = errores.Count,
+                Errores = errores
             });
         }
 
