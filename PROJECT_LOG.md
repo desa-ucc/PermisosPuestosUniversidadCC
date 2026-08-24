@@ -71,3 +71,7 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Correcciones a Importador Masivo (Plantilla)
 
 - Refactorizada la generación del archivo Excel en `EquiposController.cs` (Hardware Asignado) el cual en su versión estática original presentaba la cabecera `Codigo Empleado` desprovista del acento. Para apegarse más al requerimiento UX, se forzó un cambio gramatical inofensivo con `Código de Empleado`, garantizando que la lectura y mapeo del backend operen siempre referenciando la primera celda con el Query de Entity Framework apuntando a `pt_Empleados`.
+
+## Fix: Tolerancia a Nulos en Placa (Hardware Asignado)
+- Se añadió la cabecera `Placa` en la plantilla `.xlsx` generada al vuelo por ClosedXML en `EquiposController.cs`.
+- En el ciclo de lectura de `ImportarAsignado`, se modificó el código para asignar automáticamente el string "NO VISIBLE" como Default Constraint manejado en memoria si la validación de `placa` resultaba nula, vacía o puramente en espacios, logrando esquivar el quiebre de transacción reportado por la Base de Datos (`Cannot insert the value NULL into column 'Placa'`).

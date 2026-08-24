@@ -109,7 +109,8 @@ namespace PermisosPuestosApi.Controllers
                 worksheet.Cell(1, 4).Value = "Memoria";
                 worksheet.Cell(1, 5).Value = "Disco Duro";
                 worksheet.Cell(1, 6).Value = "Marca";
-                worksheet.Cell(1, 7).Value = "Otras Consideraciones";
+                worksheet.Cell(1, 7).Value = "Placa";
+                worksheet.Cell(1, 8).Value = "Otras Consideraciones";
 
                 worksheet.Columns().AdjustToContents();
 
@@ -149,7 +150,8 @@ namespace PermisosPuestosApi.Controllers
                         var mem = row.Cell(4).GetValue<string>();
                         var disco = row.Cell(5).GetValue<string>();
                         var marca = row.Cell(6).GetValue<string>();
-                        var otras = row.Cell(7).GetValue<string>();
+                        var placa = row.Cell(7).GetValue<string>();
+                        var otras = row.Cell(8).GetValue<string>();
 
                         if (string.IsNullOrWhiteSpace(codEmpleado))
                         {
@@ -195,9 +197,12 @@ namespace PermisosPuestosApi.Controllers
                             var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(marca) ? (object)DBNull.Value : marca);
                             var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(otras) ? (object)DBNull.Value : otras);
 
+                            var finalPlaca = string.IsNullOrWhiteSpace(placa) ? "NO VISIBLE" : placa.Trim();
+                            var pPlaca = new SqlParameter("@Placa", finalPlaca);
+
                             await _context.Database.ExecuteSqlRawAsync(
-                                "EXEC sp_GestionarHardwareAsignado @Accion, NULL, @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones",
-                                pAccion, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras
+                                "EXEC sp_GestionarHardwareAsignado @Accion, NULL, @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa",
+                                pAccion, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
                             );
 
                             insertados++;
