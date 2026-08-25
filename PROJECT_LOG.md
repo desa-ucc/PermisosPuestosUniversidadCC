@@ -101,3 +101,9 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 - En la iteración anterior, los errores sintácticos de Angular abortaron el proceso del compilador, perdiendo las inyecciones de código que enganchaban la nueva vista al Routing Module y a la Interfaz de Menú principal, dejando la ruta desprotegida/inexistente, siendo interceptada por el Guard de redirección base a `/login`.
 - Se reconstruyó y aseguró el archivo `app.routes.ts` con su respectivo `path` y componente importado.
 - Se reconstruyó `app.component.ts` inyectando el enlace directo a la nueva vista dentro de los claims de la constante `menuBase` para renderizarse exitosamente.
+
+## Fix Final: SQL y Mapeos DTO en Gap Analysis
+
+- Reescrito archivo `VISTA_COMPARATIVA.sql` integrando `CTEs` con uso de `STRING_AGG()` a fin de colapsar la multiplicidad del registro, logrando devolver una única fila que concentra todo el Hardware iterado evitando productos cartesianos destructivos.
+- En la capa C# `.NET 8`, alterado el DTO `ComparativaEquipos` declarando de forma explícita el operador nullable (`?`) previniendo crasheos de cast desde EntityFramework a memoria ante *Left Joins* incompletos de la BDD.
+- En Angular, reestructurado el motor de filtros iterativos sobre la tabla comparativa (`aplicarFiltros()`) usando inyecciones de *Null Conditional Ternaries* robusteciendo la experiencia de usuario y validando los fallbacks para evitar caídas en el ciclo de Render DOM.

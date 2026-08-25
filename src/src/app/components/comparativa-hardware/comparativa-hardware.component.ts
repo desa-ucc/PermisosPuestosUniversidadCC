@@ -166,14 +166,16 @@ export class ComparativaHardwareComponent implements OnInit {
 
   aplicarFiltros() {
       this.listaFiltrada = this.listaComparativas.filter(item => {
-          const matchBusqueda = !this.filtros.busqueda ||
-             (item.empleado?.toLowerCase().includes(this.filtros.busqueda.toLowerCase()) ||
-              item.puesto?.toLowerCase().includes(this.filtros.busqueda.toLowerCase()) ||
-              item.asignadoProcesador?.toLowerCase().includes(this.filtros.busqueda.toLowerCase()));
+          const busquedaL = this.filtros.busqueda ? this.filtros.busqueda.toLowerCase() : '';
+          const matchBusqueda = !busquedaL ||
+             ((item.empleado ? item.empleado.toLowerCase() : '').includes(busquedaL) ||
+              (item.puesto ? item.puesto.toLowerCase() : '').includes(busquedaL) ||
+              (item.asignadoProcesador ? item.asignadoProcesador.toLowerCase() : '').includes(busquedaL));
 
           const matchPuesto = !this.filtros.puesto || item.puesto === this.filtros.puesto;
 
-          const matchRam = !this.filtros.ram || (item.asignadoMemoria && item.asignadoMemoria.toLowerCase().includes(this.filtros.ram.toLowerCase()));
+          const ramL = this.filtros.ram ? this.filtros.ram.toLowerCase() : '';
+          const matchRam = !ramL || (item.asignadoMemoria ? item.asignadoMemoria.toLowerCase() : '').includes(ramL);
 
           return matchBusqueda && matchPuesto && matchRam;
       });
@@ -181,8 +183,9 @@ export class ComparativaHardwareComponent implements OnInit {
 
   // Lógica difusa simple para no penalizar mayúsculas/minúsculas o pequeños errores tipográficos
   compararBrecha(ideal: string, actual: string): boolean {
-      if(!ideal && actual) return true; // Si no piden nada y tiene, cumple.
+      if(!ideal && actual) return true;
       if(!actual) return false;
+      if(!ideal) return true; // Si ideal es nulo y actual tambien es nulo, esta OK
       return ideal.toLowerCase().trim() === actual.toLowerCase().trim();
   }
 
