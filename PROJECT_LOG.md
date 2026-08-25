@@ -87,3 +87,9 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 - Desplegada la estandarización de las vistas de Importación masiva usando ClosedXML en el Backend para `PermisosSitiosController` y `PlataformasController`.
 - Las plantillas de Excel generadas respetan los headers formales de la UX, traduciéndose en el backend utilizando `SqlQueryRaw<int>` para evadir falsos negativos del ORM y garantizando mapeo exacto. Para los campos opcionales sin validación se establecen fallbacks de `'N/A'`.
 - En Angular, integrados ambos endpoints a `sitios.component` y `plataformas.component` mediante los modals reutilizables.
+
+## Módulo: Comparativa de Hardware (Gap Analysis)
+- Diseñado un nuevo esquema visual para evaluar las brechas tecnológicas (`Gap Analysis`) contra el Equipo Ideal versus el Hardware Asignado por cada empleado.
+- **SQL Server:** Se generó exitosamente la vista en SQL (`v_ComparativaEquipos`) resolviendo las relaciones cruzadas transaccionales.
+- **.NET Backend:** Configurado `ComparativaEquipos` como modelo DTO sin llave y expuesto mediante el nuevo `ComparativasController` consumiendo la vista a través de EF Core con `SqlQueryRaw`.
+- **Angular Frontend:** Creado `ComparativaHardwareComponent` e insertado en la UI (enrutador `app.routes.ts` y listado dinámico de `app.component.ts`). Cuenta con motor visual DataTables, un sistema de lógicas de filtro para cruzar por Búsqueda Directa, Combo de Puestos y Filtrado estricto por RAM asignada; implementando finalmente celdas reactivas con Tailwind y Material Symbols validando los gaps con alertas dinámicas.
