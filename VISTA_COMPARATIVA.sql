@@ -6,7 +6,7 @@
 CREATE OR ALTER VIEW v_ComparativaEquipos AS
 SELECT
     e.NombreCompleto AS Empleado,
-    e.CodigoPuesto,
+    p.CodigoPuesto,
     p.NombrePuesto AS Puesto,
 
     -- Equipo Ideal (Basado en el Puesto de trabajo)
@@ -20,8 +20,8 @@ SELECT
     ha.Memoria AS AsignadoMemoria
 
 FROM pt_Empleados e
-LEFT JOIN pt_Puestos p ON e.CodigoPuesto = p.CodigoPuesto AND p.Estado = 1
+LEFT JOIN pt_Puestos_X_Empleado pxe ON e.Id = pxe.EmpleadoId
+LEFT JOIN pt_Puestos p ON pxe.PuestoId = p.Id
 LEFT JOIN pt_HardwareIdeal hi ON p.Id = hi.PuestoId
-LEFT JOIN pt_HardwareAsignado ha ON e.Id = ha.EmpleadoId
-WHERE e.Estado = 1;
+LEFT JOIN pt_HardwareAsignado ha ON e.Id = ha.EmpleadoId;
 GO

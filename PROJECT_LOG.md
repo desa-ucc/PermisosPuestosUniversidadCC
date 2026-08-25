@@ -91,3 +91,8 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 ## Fix: Script Faltante de Comparativas
 
 - Generado y expuesto en la raíz del repositorio el script físico `VISTA_COMPARATIVA.sql` requerido para inicializar la vista de Base de Datos para el Gap Analysis que el Backend está asumiendo que existe.
+
+## Fix: Script T-SQL Gap Analysis
+
+- Reestructurado el archivo `VISTA_COMPARATIVA.sql` eliminando validaciones asertivas a columnas `Estado` que no existen en los perfiles transaccionales de Empleados y Puestos.
+- Re-diseñados los inner joins acoplando transitoriamente la relación de Hardware Ideal por medio de la tabla asociativa `pt_Puestos_X_Empleado` dado que las entidades del API (y BDD) carecían de relación 1:1 directa.
