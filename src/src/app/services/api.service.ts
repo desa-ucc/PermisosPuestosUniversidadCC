@@ -193,4 +193,25 @@ export class ApiService {
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/Software/importar-local`, formData);
   }
+
+  // --- Importaciones Permisos Sitios y Plataformas ---
+  descargarPlantillaPermisosSitios(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/PermisosSitios/importar-sitios/plantilla`, { responseType: 'blob' });
+  }
+
+  importarPermisosSitios(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/PermisosSitios/importar-sitios`, formData);
+  }
+
+  descargarPlantillaPlataformas(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Plataformas/importar-plataformas/plantilla`, { responseType: 'blob' });
+  }
+
+  importarPlataformas(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Plataformas/importar-plataformas`, formData);
+  }
 }
