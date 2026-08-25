@@ -35,7 +35,6 @@ namespace PermisosPuestosApi.Data
                 public DbSet<ReporteAccesoBDDto> ReportesBasesDatosDto { get; set; }
         public DbSet<ReporteSoftwareLocalDto> ReportesSoftwareLocalDto { get; set; }
         public DbSet<ReporteBaseDto> ReportesBaseDto { get; set; }
-        public DbSet<PermisosPuestosApi.Models.ComparativaEquipos> ComparativaEquipos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,7 +61,6 @@ namespace PermisosPuestosApi.Data
                     modelBuilder.Entity<ReporteAccesoBDDto>().HasNoKey();
             modelBuilder.Entity<ReporteSoftwareLocalDto>().HasNoKey();
             modelBuilder.Entity<ReporteBaseDto>().HasNoKey();
-            modelBuilder.Entity<ComparativaEquipos>().HasNoKey();
         }
     }
 }

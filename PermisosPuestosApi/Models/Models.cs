@@ -302,19 +302,3 @@ public class PermisosSitio
         public string IdToken { get; set; }
     }
 }
-
-namespace PermisosPuestosApi.Models
-{
-    public class ComparativaEquipos
-    {
-        public string Empleado { get; set; } = string.Empty;
-        public string CodigoPuesto { get; set; } = string.Empty;
-        public string Puesto { get; set; } = string.Empty;
-        public string? IdealTipo { get; set; }
-        public string? IdealProcesador { get; set; }
-        public string? IdealMemoria { get; set; }
-        public string? AsignadoTipo { get; set; }
-        public string? AsignadoProcesador { get; set; }
-        public string? AsignadoMemoria { get; set; }
-    }
-}

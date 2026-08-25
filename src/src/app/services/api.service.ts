@@ -214,9 +214,4 @@ export class ApiService {
     formData.append('file', file);
     return this.http.post(`${this.apiUrl}/Plataformas/importar-plataformas`, formData);
   }
-
-  // --- Comparativas ---
-  getComparativasHardware(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/Comparativas/hardware`, { headers: this.getHeaders() });
-  }
 }
