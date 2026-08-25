@@ -96,3 +96,8 @@ Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos 
 
 - Reestructurado el archivo `VISTA_COMPARATIVA.sql` eliminando validaciones asertivas a columnas `Estado` que no existen en los perfiles transaccionales de Empleados y Puestos.
 - Re-diseñados los inner joins acoplando transitoriamente la relación de Hardware Ideal por medio de la tabla asociativa `pt_Puestos_X_Empleado` dado que las entidades del API (y BDD) carecían de relación 1:1 directa.
+
+## Fix: Redirección Errónea a Login (Comparativa de Hardware)
+- En la iteración anterior, los errores sintácticos de Angular abortaron el proceso del compilador, perdiendo las inyecciones de código que enganchaban la nueva vista al Routing Module y a la Interfaz de Menú principal, dejando la ruta desprotegida/inexistente, siendo interceptada por el Guard de redirección base a `/login`.
+- Se reconstruyó y aseguró el archivo `app.routes.ts` con su respectivo `path` y componente importado.
+- Se reconstruyó `app.component.ts` inyectando el enlace directo a la nueva vista dentro de los claims de la constante `menuBase` para renderizarse exitosamente.
