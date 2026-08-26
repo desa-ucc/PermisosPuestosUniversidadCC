@@ -27,12 +27,15 @@ import { PermissionService } from '../../services/permission.service';
                 <!-- Combobox de Puesto -->
                 <div>
                     <label class="ucc-label">Filtrar por Puesto</label>
-                    <select [(ngModel)]="filtros.puesto" (change)="aplicarFiltros()" class="ucc-input w-full">
-                        <option value="">-- Todos los Puestos --</option>
-                        @for(p of listaPuestos; track p) {
-                            <option [value]="p">{{ p }}</option>
-                        }
-                    </select>
+                    <div class="relative">
+                        <select [(ngModel)]="filtros.puesto" (change)="aplicarFiltros()" class="ucc-input w-full appearance-none pr-8">
+                            <option value="">-- Todos los Puestos --</option>
+                            @for(p of listaPuestos; track p) {
+                                <option [value]="p">{{ p }}</option>
+                            }
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                    </div>
                 </div>
 
                 <!-- Input de RAM -->
@@ -151,16 +154,18 @@ export class ComparativaHardwareComponent implements OnInit {
   }
 
   loadData() {
+      // Cargar lista de puestos oficiales desde el API
+      this.api.getPuestos().subscribe((res: any[]) => {
+          this.listaPuestos = res
+              .filter(item => item.nombrePuesto != null && item.nombrePuesto !== 'undefined' && item.nombrePuesto.trim() !== '')
+              .map(item => item.nombrePuesto)
+              .sort();
+      });
+
+      // Cargar la tabla
       this.api.getComparativasHardware().subscribe(data => {
           this.listaComparativas = data;
           this.listaFiltrada = [...data];
-
-          // Extraer puestos únicos
-          const puestosSet = new Set<string>();
-          data.forEach((d: any) => {
-              if(d.puesto) puestosSet.add(d.puesto);
-          });
-          this.listaPuestos = Array.from(puestosSet).sort();
       });
   }
 
