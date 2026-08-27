@@ -43,10 +43,9 @@ import { PermissionService } from '../../services/permission.service';
                                 -- Todos los Puestos --
                             </li>
                             @for(p of listaPuestosFiltradaDropdown; track p.nombrePuesto) {
-                                <li (mousedown)="seleccionarPuesto(p.nombrePuesto)"
+                                <li (mousedown)="seleccionarPuesto(p.codigoPuesto + ' - ' + p.nombrePuesto)"
                                     class="px-4 py-2 hover:bg-slate-100 cursor-pointer text-sm flex gap-2">
-                                    <span class="font-bold text-slate-700">[{{ p.codigoPuesto }}]</span>
-                                    <span>{{ p.nombrePuesto }}</span>
+                                    <span class="font-bold text-slate-700">[{{ p.codigoPuesto }}]</span> - <span>{{ p.nombrePuesto }}</span>
                                 </li>
                             }
                             @if(listaPuestosFiltradaDropdown.length === 0) {
@@ -220,9 +219,14 @@ export class ComparativaHardwareComponent implements OnInit {
       }
   }
 
-  seleccionarPuesto(nombrePuesto: string) {
-      this.searchPuestoTerm = nombrePuesto;
-      this.filtros.puesto = nombrePuesto;
+  seleccionarPuesto(displayValue: string) {
+      this.searchPuestoTerm = displayValue;
+      // Extract just the name if the value has the format "[Código] - Nombre"
+      let valorFiltro = displayValue;
+      if (displayValue && displayValue.includes(' - ')) {
+          valorFiltro = displayValue.split(' - ')[1].trim();
+      }
+      this.filtros.puesto = valorFiltro;
       this.showPuestoDropdown = false;
       this.aplicarFiltros();
   }
@@ -236,7 +240,9 @@ export class ComparativaHardwareComponent implements OnInit {
               (item.puesto ? item.puesto.toLowerCase() : '').includes(busquedaL) ||
               (item.asignadoProcesador ? item.asignadoProcesador.toLowerCase() : '').includes(busquedaL));
 
-          const matchPuesto = !this.filtros.puesto || item.puesto === this.filtros.puesto;
+          const puestoFilterL = this.filtros.puesto ? this.filtros.puesto.toLowerCase() : '';
+          const itemPuestoL = item.puesto ? item.puesto.toLowerCase() : '';
+          const matchPuesto = !puestoFilterL || itemPuestoL.includes(puestoFilterL) || puestoFilterL.includes(itemPuestoL);
 
           const ramL = this.filtros.ram ? this.filtros.ram.toLowerCase() : '';
           const matchRam = !ramL || (item.asignadoMemoria ? item.asignadoMemoria.toLowerCase() : '').includes(ramL);
