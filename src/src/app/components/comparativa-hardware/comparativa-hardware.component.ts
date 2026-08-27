@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -24,18 +24,36 @@ import { PermissionService } from '../../services/permission.service';
                     <input type="text" [(ngModel)]="filtros.busqueda" (input)="aplicarFiltros()" placeholder="Buscar empleado, procesador, etc..." class="ucc-input w-full">
                 </div>
 
-                <!-- Combobox de Puesto -->
-                <div>
+                <!-- Combobox de Puesto Searchable -->
+                <div class="relative" #dropdownContainer>
                     <label class="ucc-label">Filtrar por Puesto</label>
-                    <div class="relative">
-                        <select [(ngModel)]="filtros.puesto" (change)="aplicarFiltros()" class="ucc-input w-full appearance-none pr-8">
-                            <option value="">-- Todos los Puestos --</option>
-                            @for(p of listaPuestos; track p) {
-                                <option [value]="p">{{ p }}</option>
+                    <input
+                        type="text"
+                        [(ngModel)]="searchPuestoTerm"
+                        (input)="onSearchPuestoInput()"
+                        (focus)="showPuestoDropdown = true"
+                        placeholder="Buscar o seleccionar puesto..."
+                        class="ucc-input w-full pr-8">
+                    <span class="material-symbols-outlined absolute right-2 top-[34px] text-slate-400 pointer-events-none">expand_more</span>
+
+                    @if(showPuestoDropdown) {
+                        <ul class="absolute z-10 w-full mt-1 bg-white border border-slate-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <li (mousedown)="seleccionarPuesto('')"
+                                class="px-4 py-2 hover:bg-slate-100 cursor-pointer text-sm text-slate-500 italic">
+                                -- Todos los Puestos --
+                            </li>
+                            @for(p of listaPuestosFiltradaDropdown; track p.nombrePuesto) {
+                                <li (mousedown)="seleccionarPuesto(p.nombrePuesto)"
+                                    class="px-4 py-2 hover:bg-slate-100 cursor-pointer text-sm flex gap-2">
+                                    <span class="font-bold text-slate-700">[{{ p.codigoPuesto }}]</span>
+                                    <span>{{ p.nombrePuesto }}</span>
+                                </li>
                             }
-                        </select>
-                        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
-                    </div>
+                            @if(listaPuestosFiltradaDropdown.length === 0) {
+                                <li class="px-4 py-2 text-sm text-slate-500">No se encontraron puestos.</li>
+                            }
+                        </ul>
+                    }
                 </div>
 
                 <!-- Input de RAM -->
@@ -129,7 +147,12 @@ export class ComparativaHardwareComponent implements OnInit {
 
   listaComparativas: any[] = [];
   listaFiltrada: any[] = [];
-  listaPuestos: string[] = [];
+
+  // Variables para el Dropdown Searchable de Puestos
+  listaPuestosOriginal: { codigoPuesto: string, nombrePuesto: string }[] = [];
+  listaPuestosFiltradaDropdown: { codigoPuesto: string, nombrePuesto: string }[] = [];
+  searchPuestoTerm: string = '';
+  showPuestoDropdown: boolean = false;
 
   filtros = {
       busqueda: '',
@@ -139,8 +162,16 @@ export class ComparativaHardwareComponent implements OnInit {
 
   constructor(
     private api: ApiService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private eRef: ElementRef
   ) {}
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: any) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.showPuestoDropdown = false;
+    }
+  }
 
   ngOnInit() {
     this.evaluarPermisos();
@@ -154,12 +185,17 @@ export class ComparativaHardwareComponent implements OnInit {
   }
 
   loadData() {
-      // Cargar lista de puestos oficiales desde el API
+      // Cargar lista de puestos oficiales desde el API (formateado según memoria)
       this.api.getPuestos().subscribe((res: any[]) => {
-          this.listaPuestos = res
+          this.listaPuestosOriginal = res
               .filter(item => item.nombrePuesto != null && item.nombrePuesto !== 'undefined' && item.nombrePuesto.trim() !== '')
-              .map(item => item.nombrePuesto)
-              .sort();
+              .map(item => ({
+                  codigoPuesto: item.codigoPuesto || 'S/C',
+                  nombrePuesto: item.nombrePuesto
+              }))
+              .sort((a, b) => a.nombrePuesto.localeCompare(b.nombrePuesto));
+
+          this.listaPuestosFiltradaDropdown = [...this.listaPuestosOriginal];
       });
 
       // Cargar la tabla
@@ -169,6 +205,29 @@ export class ComparativaHardwareComponent implements OnInit {
       });
   }
 
+  // Lógica para Dropdown
+  onSearchPuestoInput() {
+      this.showPuestoDropdown = true;
+      const term = this.searchPuestoTerm.toLowerCase();
+      this.listaPuestosFiltradaDropdown = this.listaPuestosOriginal.filter(p =>
+          p.nombrePuesto.toLowerCase().includes(term) ||
+          p.codigoPuesto.toLowerCase().includes(term)
+      );
+      // Si el input se vacía y no selecciona del dropdown, borramos el filtro y mostramos todos
+      if (!this.searchPuestoTerm) {
+          this.filtros.puesto = '';
+          this.aplicarFiltros();
+      }
+  }
+
+  seleccionarPuesto(nombrePuesto: string) {
+      this.searchPuestoTerm = nombrePuesto;
+      this.filtros.puesto = nombrePuesto;
+      this.showPuestoDropdown = false;
+      this.aplicarFiltros();
+  }
+
+  // Lógica de Filtros Generales
   aplicarFiltros() {
       this.listaFiltrada = this.listaComparativas.filter(item => {
           const busquedaL = this.filtros.busqueda ? this.filtros.busqueda.toLowerCase() : '';

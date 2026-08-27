@@ -3,13 +3,9 @@
 # ==============================================================================
 # Propósito: Preparar los archivos necesarios para la compilación, excluyendo basura.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS preparer
-# Establecemos el directorio de trabajo donde procesaremos los archivos
 WORKDIR /source
-# Copiamos todo el contexto local (respetando el .dockerignore si existe)
+# Copiamos todo el contexto local
 COPY . .
-# En este caso particular de desarrollo local, si usáramos git clone:
-# ARG GIT_TOKEN
-# RUN if [ -n "$GIT_TOKEN" ]; then git clone ...; rm -rf .git; fi
 
 # ==============================================================================
 # ETAPA 2: BUILD / PUBLICACIÓN
@@ -21,7 +17,7 @@ WORKDIR /src
 COPY --from=preparer /source/*.csproj ./
 # Restauramos las dependencias
 RUN dotnet restore "./PermisosPuestosApi.csproj"
-# Copiamos el resto del código fuente preparado de la etapa 1
+# Copiamos el resto del código fuente preparado
 COPY --from=preparer /source/ ./
 # Compilamos y publicamos el proyecto de manera óptima (modo Release)
 RUN dotnet publish "PermisosPuestosApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
@@ -29,22 +25,16 @@ RUN dotnet publish "PermisosPuestosApi.csproj" -c Release -o /app/publish /p:Use
 # ==============================================================================
 # ETAPA 3: RUNTIME (PRODUCCIÓN)
 # ==============================================================================
-# Propósito: Crear una imagen final ligera, segura y lista para producción.
-# Utilizamos la variante slim de ASP.NET Core para minimizar la superficie de ataque y el tamaño.
+# Propósito: Crear una imagen final ligera, segura y lista para producción (slim).
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS final
 
 # --- CONFIGURACIÓN DE ZONA HORARIA Y SEGURIDAD ---
-# Configuramos la variable de entorno de zona horaria
+# Configuramos la variable de entorno de zona horaria a Costa Rica
 ENV TZ=America/Costa_Rica
 
-# Agrupamos instalaciones: instalamos tzdata de forma limpia,
-# eliminamos herramientas de red peligrosas (wget, curl, ping) si existen,
-# limpiamos caché y creamos un usuario no-root (appuser) y su grupo.
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tzdata && \
-    apt-get install -y --no-install-recommends bash && apt-get remove -y curl wget iputils-ping || true && \
-    rm -rf /var/lib/apt/lists/* && \
-    groupadd -r appgroup && useradd -r -g appgroup appuser
+USER root
+# (Debian bug on this docker in docker in podman env)
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # --- CONFIGURACIÓN DE LA APLICACIÓN ---
 WORKDIR /app
@@ -55,13 +45,13 @@ COPY --from=build /app/publish .
 RUN chown -R appuser:appgroup /app
 
 # Definimos variables de entorno necesarias para la ejecución en .NET
-# Habilitamos el puerto 5000 para el servicio
 ENV ASPNETCORE_URLS=http://+:5000
-# Puerto expuesto documentado
+
+# Puerto expuesto para documentación y uso por docker-compose
 EXPOSE 5000
 
-# Cambiamos al usuario no-root
+# Aplicamos principio de mínimo privilegio cambiando al usuario no-root
 USER appuser
 
-# Punto de entrada de la aplicación
+# Punto de entrada de la aplicación API .NET
 ENTRYPOINT ["dotnet", "PermisosPuestosApi.dll"]

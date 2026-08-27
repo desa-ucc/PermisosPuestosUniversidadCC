@@ -2,7 +2,7 @@
 # INFRAESTRUCTURA DOCKER - PROYECTO PERMISOS PUESTOS
 # ==============================================================================
 
-# Definición explícita de red interna exclusiva
+# Definición explícita de red interna exclusiva para la aplicación
 networks:
   app_network:
     driver: bridge
@@ -17,16 +17,17 @@ services:
     build:
       context: ./PermisosPuestosApi
       dockerfile: Dockerfile
+    # Asignamos el contenedor a nuestra red interna
     networks:
       - app_network
     ports:
-      # Expone el puerto 5000 para acceso desde el host (ej. local o proxy inverso)
+      # Exponemos el puerto definido en .env, hacia el 5000 interno del contenedor
       - "${API_PORT:-5000}:5000"
     environment:
-      # Las credenciales nunca se harcodean; se inyectan del archivo .env
+      # Inyección de secretos desde archivo .env, sin hardcodear nada
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
       - Jwt__Key=${JWT_SECRET_KEY}
-    # Healthcheck sin herramientas de red (cero wget/curl) vía bash
+    # Healthcheck nativo vía bash (sin usar curl ni wget por Zero Trust)
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/5000'"]
       interval: 10s
@@ -42,22 +43,23 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
+    # Asignamos a la misma red para que resuelva 'api' por nombre de contenedor
     networks:
       - app_network
     ports:
-      # Expone el puerto 4200 (o el definido) mapeado al puerto 80 interno de Nginx
+      # Exponemos el puerto definido en .env mapeado al puerto 80 interno de Nginx
       - "${FRONTEND_PORT:-4200}:80"
     environment:
-      # Se inyectan estas variables a Nginx; el entrypoint.sh las pasará a env.js
+      # Estas variables son inyectadas en Nginx y pasadas a env.js por entrypoint.sh en tiempo de ejecución
       - API_URL=${API_URL}
       - MSAL_CLIENT_ID=${MSAL_CLIENT_ID}
       - MSAL_AUTHORITY=${MSAL_AUTHORITY}
       - MSAL_REDIRECT_URI=${MSAL_REDIRECT_URI}
     depends_on:
       api:
-        # Dependencia estricta: espera que el backend esté saludable antes de arrancar
+        # Dependencia estricta: Nginx solo levanta si la API reporta estar 'healthy'
         condition: service_healthy
-    # Healthcheck nativo para Nginx
+    # Healthcheck nativo para Nginx vía bash (sin curl ni wget)
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/80'"]
       interval: 10s
