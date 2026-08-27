@@ -15,117 +15,118 @@ namespace PermisosPuestosApi.Controllers
         private readonly AppDbContext _context;
         public CatalogosController(AppDbContext context) { _context = context; }
 
-[HttpGet("Ambientes")]
-public async Task<IActionResult> GetAmbientes() => 
-    Ok(await _context.Cat_Ambientes.FromSqlRaw("SELECT * FROM v_GestionarAmbientes").ToListAsync());
+        [HttpGet("Ambientes")]
+        public async Task<IActionResult> GetAmbientes() =>
+            Ok(await _context.Cat_Ambientes.FromSqlRaw("SELECT * FROM v_GestionarAmbientes").ToListAsync());
 
-[HttpGet("Ambientes/{id}")]
-public async Task<IActionResult> GetAmbiente(int id)
-{
-    var res = await _context.Cat_Ambientes
-        .FromSqlRaw("EXEC sp_GestionarAmbientes @Accion='SELECT_ID', @Id={0}", id)
-        .ToListAsync();
-    var item = res.FirstOrDefault();
-    if (item == null) return NotFound();
-    return Ok(item);
-}
+        [HttpGet("Ambientes/{id}")]
+        public async Task<IActionResult> GetAmbiente(int id)
+        {
+            var res = await _context.Cat_Ambientes
+                .FromSqlRaw("EXEC sp_GestionarAmbientes @Accion='SELECT_ID', @Id={0}", id)
+                .ToListAsync();
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
 
-    [HttpPost("Ambientes")]
-    public async Task<IActionResult> CreateAmbiente([FromBody] Cat_Ambiente cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='INSERT', @Nombre={0}", cat.Nombre);
-        return Ok();
-    }
+        [HttpPost("Ambientes")]
+        public async Task<IActionResult> CreateAmbiente([FromBody] Cat_Ambiente cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='INSERT', @Nombre={0}", cat.Nombre);
+            return Ok();
+        }
 
-    [HttpPut("Ambientes/{id}")]
-    public async Task<IActionResult> UpdateAmbiente(int id, [FromBody] Cat_Ambiente cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
-        return Ok();
-    }
+        [HttpPut("Ambientes/{id}")]
+        public async Task<IActionResult> UpdateAmbiente(int id, [FromBody] Cat_Ambiente cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
+            return Ok();
+        }
 
-    [HttpDelete("Ambientes/{id}")]
-    public async Task<IActionResult> DeleteAmbiente(int id)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='DELETE', @Id={0}", id);
-        return NoContent();
-    }
-    // --- Sitios ---
-    [HttpGet("Sitios")]
-    public async Task<IActionResult> GetSitios() => 
-        Ok(await _context.Set<Cat_Sitio>().FromSqlRaw("select * from v_GestionarSitios").ToListAsync());
+        [HttpDelete("Ambientes/{id}")]
+        public async Task<IActionResult> DeleteAmbiente(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarAmbientes @Accion='DELETE', @Id={0}", id);
+            return NoContent();
+        }
 
-    [HttpGet("Sitios/{id}")]
-    public async Task<IActionResult> GetSitio(int id)
-    {
-        var res = await _context.Set<Cat_Sitio>()
-            .FromSqlRaw("EXEC sp_GestionarSitios @Accion='SELECT_ID', @Id={0}", id)
-            .ToListAsync();
-            
-        var item = res.FirstOrDefault();
-        if (item == null) return NotFound();
-        return Ok(item);
-    }
+        // --- Sitios ---
+        [HttpGet("Sitios")]
+        public async Task<IActionResult> GetSitios() =>
+            Ok(await _context.Set<Cat_Sitio>().FromSqlRaw("select * from v_GestionarSitios").ToListAsync());
 
-    [HttpPost("Sitios")]
-    public async Task<IActionResult> CreateSitio([FromBody] Cat_Sitio cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='INSERT', @Nombre={0}", cat.Nombre);
-        return Ok();
-    }
+        [HttpGet("Sitios/{id}")]
+        public async Task<IActionResult> GetSitio(int id)
+        {
+            var res = await _context.Set<Cat_Sitio>()
+                .FromSqlRaw("EXEC sp_GestionarSitios @Accion='SELECT_ID', @Id={0}", id)
+                .ToListAsync();
 
-    [HttpPut("Sitios/{id}")]
-    public async Task<IActionResult> UpdateSitio(int id, [FromBody] Cat_Sitio cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
-        return Ok();
-    }
+            var item = res.FirstOrDefault();
+            if (item == null) return NotFound();
+            return Ok(item);
+        }
 
-    [HttpDelete("Sitios/{id}")]
-    public async Task<IActionResult> DeleteSitio(int id)
-    {
-        await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='DELETE', @Id={0}", id);
-        return NoContent();
-    }
-     // --- Tipos de Plataformas ---
+        [HttpPost("Sitios")]
+        public async Task<IActionResult> CreateSitio([FromBody] Cat_Sitio cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='INSERT', @Nombre={0}", cat.Nombre);
+            return Ok();
+        }
 
-    [HttpGet("Plataformas")]
-    public async Task<IActionResult> GetPlataformas() => 
-        Ok(await _context.Set<Cat_Plataforma>().FromSqlRaw("select * from v_GestionarTiposPlataformas").ToListAsync());
+        [HttpPut("Sitios/{id}")]
+        public async Task<IActionResult> UpdateSitio(int id, [FromBody] Cat_Sitio cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='UPDATE', @Id={0}, @Nombre={1}", id, cat.Nombre);
+            return Ok();
+        }
 
-    [HttpGet("Plataformas/{id}")]
-    public async Task<IActionResult> GetPlataforma(int id)
-    {
-        var res = await _context.Set<Cat_Plataforma>().FromSqlRaw(
-            "EXEC sp_GestionarTiposPlataformas @Accion = 'GET', @Id = {0}", id).ToListAsync();
-        
-        var item = res.FirstOrDefault();
-        return item != null ? Ok(item) : NotFound();
-    }
+        [HttpDelete("Sitios/{id}")]
+        public async Task<IActionResult> DeleteSitio(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarSitios @Accion='DELETE', @Id={0}", id);
+            return NoContent();
+        }
 
-    [HttpPost("Plataformas")]
-    public async Task<IActionResult> CreatePlataforma([FromBody] Cat_Plataforma cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_GestionarTiposPlataformas @Accion = 'INSERT', @Nombre = {0}", cat.Nombre);
-        return Ok();
-    }
+        // --- Tipos de Plataformas ---
+        [HttpGet("Plataformas")]
+        public async Task<IActionResult> GetPlataformas() =>
+            Ok(await _context.Set<Cat_Plataforma>().FromSqlRaw("select * from v_GestionarTiposPlataformas").ToListAsync());
 
-    [HttpPut("Plataformas/{id}")]
-    public async Task<IActionResult> UpdatePlataforma(int id, [FromBody] Cat_Plataforma cat)
-    {
-        await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_GestionarTiposPlataformas @Accion = 'UPDATE', @Id = {0}, @Nombre = {1}", id, cat.Nombre);
-        return Ok();
-    }
+        [HttpGet("Plataformas/{id}")]
+        public async Task<IActionResult> GetPlataforma(int id)
+        {
+            var res = await _context.Set<Cat_Plataforma>().FromSqlRaw(
+                "EXEC sp_GestionarTiposPlataformas @Accion = 'GET', @Id = {0}", id).ToListAsync();
 
-    [HttpDelete("Plataformas/{id}")]
-    public async Task<IActionResult> DeletePlataforma(int id)
-    {
-        await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_GestionarTiposPlataformas @Accion = 'DELETE', @Id = {0}", id);
-        return NoContent();
-    }
+            var item = res.FirstOrDefault();
+            return item != null ? Ok(item) : NotFound();
+        }
+
+        [HttpPost("Plataformas")]
+        public async Task<IActionResult> CreatePlataforma([FromBody] Cat_Plataforma cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarTiposPlataformas @Accion = 'INSERT', @Nombre = {0}", cat.Nombre);
+            return Ok();
+        }
+
+        [HttpPut("Plataformas/{id}")]
+        public async Task<IActionResult> UpdatePlataforma(int id, [FromBody] Cat_Plataforma cat)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarTiposPlataformas @Accion = 'UPDATE', @Id = {0}, @Nombre = {1}", id, cat.Nombre);
+            return Ok();
+        }
+
+        [HttpDelete("Plataformas/{id}")]
+        public async Task<IActionResult> DeletePlataforma(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_GestionarTiposPlataformas @Accion = 'DELETE', @Id = {0}", id);
+            return NoContent();
+        }
 
         // --- Tipos de Hardware ---
         [HttpGet("TiposHardware")]
@@ -174,7 +175,7 @@ public async Task<IActionResult> GetAmbiente(int id)
             return NoContent();
         }
 
-        // --- Nuevos Catálogos (Read-Only) ---
+        // --- Nuevos Catálogos ---
         [HttpGet("NivelesAcceso")]
         public async Task<IActionResult> GetNivelesAcceso()
         {
@@ -182,12 +183,11 @@ public async Task<IActionResult> GetAmbiente(int id)
             return Ok(result);
         }
 
-       [HttpPost("NivelesAcceso")]
+        [HttpPost("NivelesAcceso")]
         public async Task<IActionResult> CreateNivelAcceso([FromBody] Cat_NivelesAcceso n)
         {
             var pAccion = new SqlParameter("@Accion", "INSERT");
             var pNombre = new SqlParameter("@Nombre", n.Nombre);
-            // Eliminamos los parámetros PuedeVer, PuedeCrear, etc.
 
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarNivelesAcceso @Accion, NULL, @Nombre",
                 pAccion, pNombre);
@@ -216,10 +216,90 @@ public async Task<IActionResult> GetAmbiente(int id)
             return NoContent();
         }
 
+        // --- Plataformas Nombres ---
         [HttpGet("PlataformasNombres")]
-        public async Task<IActionResult> GetPlataformasNombres() => Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("select * from v_GestionarPlataformasNombres").ToListAsync());
+        public async Task<IActionResult> GetPlataformasNombres() =>
+            Ok(await _context.Cat_PlataformasNombres.FromSqlRaw("SELECT * FROM v_GestionarPlataformasNombres").ToListAsync());
 
+        [HttpGet("PlataformasNombres/{id}")]
+        public async Task<IActionResult> GetPlataformaNombre(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "SELECT_ID");
+            var p2 = new SqlParameter("@Id", id);
+            var res = await _context.Cat_PlataformasNombres.FromSqlRaw("EXEC sp_GestionarPlataformasNombres @Accion, @Id", p1, p2).ToListAsync();
+            var item = res.FirstOrDefault();
+            return item != null ? Ok(item) : NotFound();
+        }
+
+        [HttpPost("PlataformasNombres")]
+        public async Task<IActionResult> CreatePlataformaNombre([FromBody] Cat_PlataformasNombres cat)
+        {
+            var p1 = new SqlParameter("@Accion", "INSERT");
+            var p2 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarPlataformasNombres @Accion, NULL, @Nombre", p1, p2);
+            return Ok();
+        }
+
+        [HttpPut("PlataformasNombres/{id}")]
+        public async Task<IActionResult> UpdatePlataformaNombre(int id, [FromBody] Cat_PlataformasNombres cat)
+        {
+            var p1 = new SqlParameter("@Accion", "UPDATE");
+            var p2 = new SqlParameter("@Id", id);
+            var p3 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarPlataformasNombres @Accion, @Id, @Nombre", p1, p2, p3);
+            return Ok();
+        }
+
+        [HttpDelete("PlataformasNombres/{id}")]
+        public async Task<IActionResult> DeletePlataformaNombre(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "DELETE");
+            var p2 = new SqlParameter("@Id", id);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarPlataformasNombres @Accion, @Id", p1, p2);
+            return NoContent();
+        }
+
+        // --- Tipos Licencia ---
         [HttpGet("TiposLicencia")]
-        public async Task<IActionResult> GetTiposLicencia() => Ok(await _context.Cat_TiposLicencias.FromSqlRaw("select * from v_GestionarTiposLicencia").ToListAsync());
+        public async Task<IActionResult> GetTiposLicencia() =>
+            Ok(await _context.Cat_TiposLicencias.FromSqlRaw("SELECT * FROM v_GestionarTiposLicencia").ToListAsync());
+
+        [HttpGet("TiposLicencia/{id}")]
+        public async Task<IActionResult> GetTipoLicencia(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "SELECT_ID");
+            var p2 = new SqlParameter("@Id", id);
+            var res = await _context.Cat_TiposLicencias.FromSqlRaw("EXEC sp_GestionarTiposLicencia @Accion, @Id", p1, p2).ToListAsync();
+            var item = res.FirstOrDefault();
+            return item != null ? Ok(item) : NotFound();
+        }
+
+        [HttpPost("TiposLicencia")]
+        public async Task<IActionResult> CreateTipoLicencia([FromBody] Cat_TiposLicencia cat)
+        {
+            var p1 = new SqlParameter("@Accion", "INSERT");
+            var p2 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, NULL, @Nombre", p1, p2);
+            return Ok();
+        }
+
+        [HttpPut("TiposLicencia/{id}")]
+        public async Task<IActionResult> UpdateTipoLicencia(int id, [FromBody] Cat_TiposLicencia cat)
+        {
+            var p1 = new SqlParameter("@Accion", "UPDATE");
+            var p2 = new SqlParameter("@Id", id);
+            var p3 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, @Id, @Nombre", p1, p2, p3);
+            return Ok();
+        }
+
+        [HttpDelete("TiposLicencia/{id}")]
+        public async Task<IActionResult> DeleteTipoLicencia(int id)
+        {
+            var p1 = new SqlParameter("@Accion", "DELETE");
+            var p2 = new SqlParameter("@Id", id);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, @Id", p1, p2);
+            return NoContent();
+        }
     }
 }

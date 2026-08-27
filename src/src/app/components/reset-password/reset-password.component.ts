@@ -31,7 +31,7 @@ import { ApiService } from '../../services/api.service';
               <label class="ucc-label !text-white">Nueva Contraseña</label>
               <input type="password" formControlName="newPassword" class="ucc-input bg-white/90">
               @if(resetForm.get('newPassword')?.touched && resetForm.get('newPassword')?.invalid) {
-                <span class="text-red-400 text-xs mt-1 block">La contraseña es requerida (mínimo 6 caracteres).</span>
+                <span class="text-red-400 text-xs mt-1 block">La contraseña debe tener mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos especiales.</span>
               }
             </div>
 
@@ -69,7 +69,7 @@ export class ResetPasswordComponent implements OnInit {
     private api: ApiService
   ) {
     this.resetForm = this.fb.group({
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }

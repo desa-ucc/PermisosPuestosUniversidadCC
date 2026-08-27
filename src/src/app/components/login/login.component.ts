@@ -114,25 +114,7 @@ export class LoginComponent {
   }
 
   recoverPassword() {
-    const email = prompt('Ingrese su correo electrónico para recuperar la contraseña:');
-    if (email && email.trim() !== '') {
-      this.isLoading = true;
-      this.api.forgotPassword(email.trim()).subscribe({
-        next: (res) => {
-          this.isLoading = false;
-          // In a real app we just say check email. Here we might get mockToken back to test.
-          alert('Si el correo existe, se ha enviado un enlace de recuperación.');
-          if (res.mockToken) {
-              console.log('TESTING ONLY - Reset Link: http://localhost:4200/reset-password?token=' + res.mockToken);
-          }
-        },
-        error: (err) => {
-          this.isLoading = false;
-          // Security practice: don't reveal if email exists or not
-          alert('Si el correo existe, se ha enviado un enlace de recuperación.');
-        }
-      });
-    }
+    this.router.navigate(['/forgot-password']);
   }
 
   onSubmit() {

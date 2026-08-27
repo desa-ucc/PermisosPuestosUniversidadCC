@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using ClosedXML.Excel;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PermisosPuestosApi.Data;
@@ -94,5 +96,131 @@ namespace PermisosPuestosApi.Controllers
             await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarHardwareAsignado @Accion='DELETE', @Id=@Id", pId);
             return NoContent();
         }
+
+        [HttpGet("importar-asignado/plantilla")]
+        public IActionResult DescargarPlantillaAsignado()
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Hardware Asignado");
+                worksheet.Cell(1, 1).Value = "Código de Empleado";
+                worksheet.Cell(1, 2).Value = "Tipo de Equipo";
+                worksheet.Cell(1, 3).Value = "Procesador";
+                worksheet.Cell(1, 4).Value = "Memoria";
+                worksheet.Cell(1, 5).Value = "Disco Duro";
+                worksheet.Cell(1, 6).Value = "Marca";
+                worksheet.Cell(1, 7).Value = "Placa";
+                worksheet.Cell(1, 8).Value = "Otras Consideraciones";
+
+                worksheet.Columns().AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Plantilla_Hardware_Asignado.xlsx");
+                }
+            }
+        }
+
+        [HttpPost("importar-asignado")]
+        public async Task<IActionResult> ImportarAsignado(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return BadRequest(new { message = "El archivo está vacío." });
+
+            int insertados = 0;
+            var errores = new List<string>();
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                using (var workbook = new XLWorkbook(stream))
+                {
+                    var worksheet = workbook.Worksheet(1);
+                    var rows = worksheet.RangeUsed()?.RowsUsed()?.Skip(1);
+
+                    if (rows == null) return BadRequest(new { message = "El archivo no tiene datos válidos." });
+
+                    foreach (var row in rows)
+                    {
+                        var codEmpleado = row.Cell(1).GetValue<string>();
+                        var tipoEq = row.Cell(2).GetValue<string>();
+                        var hardwareNombre = tipoEq; // Alias the column
+                        var proc = row.Cell(3).GetValue<string>();
+                        var mem = row.Cell(4).GetValue<string>();
+                        var disco = row.Cell(5).GetValue<string>();
+                        var marca = row.Cell(6).GetValue<string>();
+                        var placa = row.Cell(7).GetValue<string>();
+                        var otras = row.Cell(8).GetValue<string>();
+
+                        if (string.IsNullOrWhiteSpace(codEmpleado))
+                        {
+                            errores.Add($"Fila {row.RowNumber()}: Código de Empleado vacío.");
+                            continue;
+                        }
+
+                        // Buscar el ID del Empleado a partir de su Código
+                        var empQuery = await _context.Database.SqlQueryRaw<int>("SELECT Id AS Value FROM pt_Empleados WHERE CodigoEmpleado = {0}", codEmpleado).ToListAsync();
+                        var empleadoId = empQuery.FirstOrDefault();
+
+                        if (empleadoId == 0)
+                        {
+                            errores.Add($"Fila {row.RowNumber()}: El empleado con código '{codEmpleado}' no existe.");
+                            continue;
+                        }
+
+                        // Buscar el ID del Hardware
+                        int? hwId = null;
+                        if (!string.IsNullOrWhiteSpace(hardwareNombre))
+                        {
+                            var hwQuery = await _context.Database.SqlQueryRaw<int>("SELECT Id AS Value FROM pt_TiposHardware WHERE Nombre = {0}", hardwareNombre).ToListAsync();
+                            var h = hwQuery.FirstOrDefault();
+
+                            if (h == 0)
+                            {
+                                errores.Add($"Fila {row.RowNumber()}: El tipo de hardware '{hardwareNombre}' no existe.");
+                                continue;
+                            }
+                            hwId = h;
+                        }
+
+                        // Inserción en base de datos
+                        try
+                        {
+                            var pAccion = new SqlParameter("@Accion", "INSERT");
+                            var pEmpleado = new SqlParameter("@EmpleadoId", empleadoId);
+                            var pTipoHw = new SqlParameter("@TipoHardwareId", hwId.HasValue ? (object)hwId.Value : DBNull.Value);
+                            var pTipoEq = new SqlParameter("@TipoEquipo", string.IsNullOrEmpty(tipoEq) ? (object)DBNull.Value : tipoEq);
+                            var pProc = new SqlParameter("@Procesador", string.IsNullOrEmpty(proc) ? (object)DBNull.Value : proc);
+                            var pMem = new SqlParameter("@Memoria", string.IsNullOrEmpty(mem) ? (object)DBNull.Value : mem);
+                            var pDisco = new SqlParameter("@Disco", string.IsNullOrEmpty(disco) ? (object)DBNull.Value : disco);
+                            var pMarca = new SqlParameter("@MarcaPC", string.IsNullOrEmpty(marca) ? (object)DBNull.Value : marca);
+                            var pOtras = new SqlParameter("@OtrasConsideraciones", string.IsNullOrEmpty(otras) ? (object)DBNull.Value : otras);
+
+                            var finalPlaca = string.IsNullOrWhiteSpace(placa) ? "NO VISIBLE" : placa.Trim();
+                            var pPlaca = new SqlParameter("@Placa", finalPlaca);
+
+                            await _context.Database.ExecuteSqlRawAsync(
+                                "EXEC sp_GestionarHardwareAsignado @Accion, NULL, @EmpleadoId, @TipoHardwareId, @TipoEquipo, @Procesador, @Memoria, @Disco, @MarcaPC, @OtrasConsideraciones, @Placa",
+                                pAccion, pEmpleado, pTipoHw, pTipoEq, pProc, pMem, pDisco, pMarca, pOtras, pPlaca
+                            );
+
+                            insertados++;
+                        }
+                        catch (Exception ex)
+                        {
+                            errores.Add($"Fila {row.RowNumber()}: Error de base de datos ({ex.Message}).");
+                        }
+                    }
+                }
+            }
+
+            return Ok(new {
+                TotalExitosos = insertados,
+                TotalFallidos = errores.Count,
+                Errores = errores
+            });
+        }
+
     }
 }

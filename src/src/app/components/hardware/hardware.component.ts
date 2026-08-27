@@ -142,7 +142,20 @@ import { forkJoin } from 'rxjs';
 </section>
 
       <section class="ucc-table-container">
-<div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;"><h3 class="text-lg font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined">table_chart</span> Registros Actuales</h3></div>
+<div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-ucc-neutral-outline/20 bg-ucc-secondary" style="background-color: #356575;">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined">table_chart</span> Registros Actuales
+          </h3>
+          <div class="flex gap-2">
+             <button *appPermiso="{pantalla: 'HARDWARE', accion: 'crear'}" type="button" (click)="descargarPlantilla()" class="flex items-center gap-2 px-4 py-2 bg-ucc-surface-container text-ucc-neutral-text rounded-md text-sm hover:bg-ucc-surface-container-high transition-colors">
+               <span class="material-symbols-outlined text-[18px]">download</span> Plantilla Excel
+             </button>
+             <button *appPermiso="{pantalla: 'HARDWARE', accion: 'crear'}" type="button" (click)="fileInput.click()" class="flex items-center gap-2 px-4 py-2 bg-ucc-primary-container text-ucc-on-primary-container rounded-md text-sm hover:bg-ucc-primary/80 transition-colors">
+               <span class="material-symbols-outlined text-[18px]">upload</span> Subir Excel
+             </button>
+             <input type="file" #fileInput (change)="cargarExcel($event)" accept=".xlsx" style="display: none;" />
+          </div>
+        </div>
 <table class="ucc-table">
           <thead>
             <tr>
@@ -309,9 +322,78 @@ import { forkJoin } from 'rxjs';
 
 </section>
     </div>
+
+    <!-- Modal de Resultados de Importación -->
+    @if(showImportModal && importResult) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" (click)="cerrarImportModal()"></div>
+
+        <!-- Modal Content -->
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col overflow-hidden animate-fade-in-up border border-slate-200">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-ucc-primary">assignment_turned_in</span>
+                    Resultados de Importación
+                </h3>
+                <button (click)="cerrarImportModal()" class="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto max-h-[60vh]">
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 flex flex-col items-center justify-center">
+                        <span class="text-3xl font-bold text-green-600">{{ importResult.totalExitosos || 0 }}</span>
+                        <span class="text-sm font-medium text-green-800 mt-1">Registros Exitosos</span>
+                    </div>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 flex flex-col items-center justify-center">
+                        <span class="text-3xl font-bold text-red-600">{{ importResult.totalFallidos || 0 }}</span>
+                        <span class="text-sm font-medium text-red-800 mt-1">Registros Fallidos</span>
+                    </div>
+                </div>
+
+                @if(importResult.totalFallidos > 0 || (importResult.errores && importResult.errores.length > 0)) {
+                    <h4 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-red-500 text-lg">error</span>
+                        Detalle de Errores:
+                    </h4>
+                    <ul class="space-y-2">
+                        @for(err of importResult.errores; track err) {
+                            <li class="bg-red-50/50 text-red-700 p-3 rounded-lg text-sm border border-red-100 flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base mt-0.5 opacity-70">info</span>
+                                <span>{{ err }}</span>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-symbols-outlined text-3xl">check</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-800">¡Importación Perfecta!</h4>
+                        <p class="text-slate-500 mt-1">Todos los registros fueron procesados e insertados exitosamente.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button (click)="cerrarImportModal()" class="ucc-btn-primary">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+    }
   `
 })
 export class HardwareComponent implements OnInit {
+  showImportModal = false;
+  importResult: any = null;
+
   listaFiltradaTabla: any[] = [];
 
   showFiltroCodP = false;
@@ -730,7 +812,61 @@ export class HardwareComponent implements OnInit {
     this.onEmpleadoChange(null);
   }
 
+
+  // MÉTODOS DE EXCEL
+  descargarPlantilla() {
+    this.api.descargarPlantillaHardwareAsignado().subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Plantilla_Hardware_Asignado.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  }
+
+    cargarExcel(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.api.importarHardwareAsignado(file).subscribe({
+        next: (res: any) => {
+           this.importResult = res;
+           this.showImportModal = true;
+           this.loadData();
+           event.target.value = '';
+        },
+        error: (err: any) => {
+           let fallidos = err.error?.TotalFallidos || 0;
+           let exitosos = err.error?.TotalExitosos || 0;
+           let msg = err.error?.message || 'Error interno del servidor.';
+
+           let listaErrores = err.error?.errores || err.error?.Errores;
+           if (!listaErrores || !Array.isArray(listaErrores)) {
+               listaErrores = [msg, 'Revise que la plantilla sea correcta y los códigos existan.'];
+               fallidos = fallidos || 1;
+           }
+
+           this.importResult = {
+               totalExitosos: exitosos,
+               totalFallidos: fallidos,
+               errores: listaErrores
+           };
+           this.showImportModal = true;
+           event.target.value = '';
+        }
+      });
+    }
+  }
+
+  cerrarImportModal() {
+      this.showImportModal = false;
+      this.importResult = null;
+  }
+
   delete(id: number) {
+
     if (!this.permissionService.tienePermiso('HARDWARE', 'ELIMINAR')) {
       alert('Acceso denegado: No tienes permiso para eliminar.');
       return;

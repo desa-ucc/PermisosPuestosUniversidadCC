@@ -1,9 +1,10 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5000/api',
+  // Para desarrollo local se puede mantener hardcodeado o simular el window.__env
+  apiUrl: (window as any).__env?.apiUrl || 'http://localhost:5000/api',
   msalConfig: {
-    clientId: 'TU_CLIENT_ID_AQUI',
-    authority: 'https://login.microsoftonline.com/TU_TENANT_ID_AQUI',
-    redirectUri: 'http://localhost:4200/'
+    clientId: (window as any).__env?.msalClientId || 'TU_CLIENT_ID_AQUI',
+    authority: (window as any).__env?.msalAuthority || 'https://login.microsoftonline.com/TU_TENANT_ID_AQUI',
+    redirectUri: (window as any).__env?.msalRedirectUri || 'http://localhost:4200/'
   }
 };

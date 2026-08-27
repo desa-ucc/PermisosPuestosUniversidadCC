@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
           { link: '/colaboradores', label: 'Colaboradores', icon: 'group', pantallaId: 'COLABORADORES' },
           { link: '/hardware-ideal', label: 'Equipo Ideal', icon: 'verified_user', pantallaId: 'EQUIPO_IDEAL' },
           { link: '/hardware', label: 'Hardware Asignado', icon: 'computer', pantallaId: 'HARDWARE' },
+          { link: '/comparativa-hardware', label: 'Comparativa de Hardware', icon: 'compare_arrows', pantallaId: 'COMPARATIVA' },
           { link: '/software', label: 'Software Local', icon: 'terminal', pantallaId: 'SOFTWARE_LOCAL' },
           { link: '/sitios', label: 'Permisos Sitios', icon: 'location_on', pantallaId: 'PERMISOS_SITIOS' },
           { link: '/plataformas', label: 'Plataformas', icon: 'cloud_done', pantallaId: 'PLATAFORMAS' },
@@ -73,7 +74,7 @@ export class AppComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const wasLoggedIn = this.isLoggedIn;
-      this.isLoggedIn = !event.urlAfterRedirects.includes('/login');
+      this.isLoggedIn = !event.urlAfterRedirects.includes('/login') && !event.urlAfterRedirects.includes('/forgot-password') && !event.urlAfterRedirects.includes('/reset-password');
 
       if (this.isLoggedIn && !wasLoggedIn) {
           if (localStorage.getItem('token')) {

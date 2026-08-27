@@ -112,8 +112,6 @@ export class ApiService {
   createNivelAcceso(data: Partial<CatalogoNivelAcceso>): Observable<any> { return this.http.post(`${this.apiUrl}/Catalogos/NivelesAcceso`, data, { headers: this.getHeaders() }); }
   updateNivelAcceso(id: number, data: Partial<CatalogoNivelAcceso>): Observable<any> { return this.http.put(`${this.apiUrl}/Catalogos/NivelesAcceso/${id}`, data, { headers: this.getHeaders() }); }
   deleteNivelAcceso(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/NivelesAcceso/${id}`, { headers: this.getHeaders() }); }
-  getPlataformasNombres(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/PlataformasNombres`, { headers: this.getHeaders() }); }
-  getTiposLicencia(): Observable<Catalogo[]> { return this.http.get<Catalogo[]>(`${this.apiUrl}/Catalogos/TiposLicencia`, { headers: this.getHeaders() }); }
 
   // --- Reportes ---
   getReportePerfil(codigo: string): Observable<ReportePerfil[]> {
@@ -121,5 +119,104 @@ export class ApiService {
   }
   getReporteIntegral(termino: string): Observable<ReporteIntegralResponse> {
     return this.http.get<ReporteIntegralResponse>(`${this.apiUrl}/Reportes/integral/${termino}`, { headers: this.getHeaders() });
+  }
+
+  // --- Plataformas Nombres ---
+  getPlataformasNombres(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Catalogos/PlataformasNombres`);
+  }
+
+  getPlataformaNombre(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Catalogos/PlataformasNombres/${id}`);
+  }
+
+  createPlataformaNombre(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Catalogos/PlataformasNombres`, data);
+  }
+
+  updatePlataformaNombre(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/Catalogos/PlataformasNombres/${id}`, data);
+  }
+
+  deletePlataformaNombre(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/Catalogos/PlataformasNombres/${id}`);
+  }
+
+  // --- Tipos Licencia ---
+  getTiposLicencia(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Catalogos/TiposLicencia`);
+  }
+
+  getTipoLicencia(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Catalogos/TiposLicencia/${id}`);
+  }
+
+  createTipoLicencia(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Catalogos/TiposLicencia`, data);
+  }
+
+  updateTipoLicencia(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/Catalogos/TiposLicencia/${id}`, data);
+  }
+
+  deleteTipoLicencia(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/Catalogos/TiposLicencia/${id}`);
+  }
+
+  // --- Importaciones Excel ---
+  descargarPlantillaHardwareIdeal(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/HardwareIdeal/importar-ideal/plantilla`, { responseType: 'blob' });
+  }
+
+  importarHardwareIdeal(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/HardwareIdeal/importar-ideal`, formData);
+  }
+
+  descargarPlantillaHardwareAsignado(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Equipos/importar-asignado/plantilla`, { responseType: 'blob' });
+  }
+
+  importarHardwareAsignado(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Equipos/importar-asignado`, formData);
+  }
+
+  descargarPlantillaSoftwareLocal(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Software/importar-local/plantilla`, { responseType: 'blob' });
+  }
+
+  importarSoftwareLocal(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Software/importar-local`, formData);
+  }
+
+  // --- Importaciones Permisos Sitios y Plataformas ---
+  descargarPlantillaPermisosSitios(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/PermisosSitios/importar-sitios/plantilla`, { responseType: 'blob' });
+  }
+
+  importarPermisosSitios(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/PermisosSitios/importar-sitios`, formData);
+  }
+
+  descargarPlantillaPlataformas(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/Plataformas/importar-plataformas/plantilla`, { responseType: 'blob' });
+  }
+
+  importarPlataformas(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.apiUrl}/Plataformas/importar-plataformas`, formData);
+  }
+
+  // --- Comparativas ---
+  getComparativasHardware(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Comparativas/hardware`, { headers: this.getHeaders() });
   }
 }

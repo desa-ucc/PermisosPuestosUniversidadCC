@@ -6,3 +6,108 @@
 - **Componente:** Generación de Reportes Avanzados
 - **Estado:** Se ajustaron los modelos de EF Core (ReporteBaseDto) y los Stored Procedures para incluir una "Sección 0" base, y filtrar resultados null/vacíos con INNER JOIN.
 - **UI:** La tabla HTML y exportación en Angular ahora son estrictamente condicionales utilizando lógica `@if (data.seccion.length > 0)`.
+
+## Docker Infrastructure Refactoring
+
+- Refactored `PermisosPuestosApi/Dockerfile` using multi-stage builds, Alpine slim, zero-trust (removed curl/wget/ping), specific TZ `America/Costa_Rica`, and non-root `appuser`.
+- Refactored `src/Dockerfile` using multi-stage builds, Alpine Nginx, non-root `appuser`, and configured it for runtime environment variable injection using `entrypoint.sh` with `envsubst`.
+- Implemented runtime environment variable injection for Angular via `window.__env` replacing hardcoded variables in `environment.ts` and `index.html`.
+- Updated `docker-compose.yml` to rely entirely on `.env` file, explicit isolated network `app_network`, custom container names, internal service resolution, explicit `depends_on: condition: service_healthy`, and Bash native healthchecks.
+
+## Integración Catálogos Tipos de Licencia y Nombres de Plataformas
+
+- Se refactorizó `CatalogosController.cs` reconstruyéndolo por completo, asegurando cierres de llaves válidos y sin errores CS1513 ni CS0106.
+- Se implementaron los endpoints GET, POST, PUT y DELETE para `TiposLicencia` (usando `sp_GestionarTiposLicencia` y `v_GestionarTiposLicencia`) y `PlataformasNombres` (usando `sp_GestionarPlataformasNombres` y `v_GestionarPlataformasNombres`).
+- Se validaron que todos los parámetros al SP utilicen instancias C# de `SqlParameter` con inyección segura de DBNull.Value.
+- Se añadieron las vistas (tabs) de TiposLicencia y PlataformasNombres al HTML de `catalogos.component.ts`.
+- Se corrigieron duplicidades en las implementaciones de endpoints en `api.service.ts` para evitar fallos de Angular AOT.
+- Se confirmó que `plataformas.component.ts` ya consume los catálogos correspondientes para reemplazar los valores estáticos.
+
+## Implementación de Recuperación de Contraseña Seguro
+
+- Se crearon los Stored Procedures `sp_GenerarTokenRecuperacion` y `sp_RestablecerPassword` para manejar lógicamente de forma atómica en DB el reseteo con Tokens URL-Safe y hasheo directo en SQLServer, alterando la tabla `pt_Usuarios` para incluir `PasswordResetToken` y `PasswordResetExpiration`.
+- En el `.NET API` (AuthController) se implementó el endpoint genérico `forgot-password` blindado contra enumeración de correos retornando siempre HTTP 200, y el endpoint `reset-password` encargado de la validación.
+- Se implementó la vista aislada `forgot-password.component.ts` en Angular para sustituir el viejo prompt() permitiendo capturar el correo electrónicamente con formulario reactivo validado.
+- Se actualizaron las reglas en el componente Frontend `reset-password.component.ts` inyectando patrones RegEx para complejidad de contraseña de mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos según los requerimientos solicitados.
+
+## Correcciones al Flujo de Recuperación de Contraseña
+
+- Se configuró la vista `forgot-password.component.ts` para que se renderice aislada fuera del AuthGuard (es decir, en el listado de páginas públicas en Angular router) y en la vista `app.component.ts` se oculta el menú layout para dichas peticiones.
+- El backend (`AuthController.cs`) ahora incorpora el paquete NuGet `MailKit` para la lógica del servicio de envío de correos, leyendo las credenciales `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASS` desde `appsettings.json` o Variables de Entorno, enviando dinámicamente un enlace que incluye el token temporalmente generado mediante Base64 y enlazado al parámetro URL esperado por el frontend.
+
+## Análisis de Impacto - Unificación de Catálogos
+Se elaboró un reporte técnico evaluando la posibilidad de fusionar catálogos base (Sitios, Plataformas, etc.) en una sola tabla de SQL. El dictamen rechazó la propuesta debido al alto riesgo de integridad referencial, el esfuerzo monumental en cascada en toda la solución y la ruptura de los principios SOLID/SRP para el futuro, entregando el análisis documentado `plan_eval.md`.
+
+## Implementación de Carga Masiva (Excel)
+
+- En el Backend (`.NET 8`), se integró la librería `ClosedXML` permitiendo procesar y generar archivos de tipo `.xlsx`. Se crearon los métodos `GET /importar-*/plantilla` que construyen al vuelo una hoja vacía de carga formateada.
+- Se implementaron los controladores POST `/importar-*` en `HardwareIdealController` y `EquiposController`, los cuales reciben `IFormFile`, iterando fila por fila, aplicando validaciones relacionales al instante por medio de EF Core (buscando Puestos por código y Catálogos de Hardware por nombre) para poder insertar los FK requeridos en los SP.
+- En el Frontend (`Angular 17`), se crearon llamadas duales hacia `api.service` manipulando Blobs nativos y el objeto `FormData`, vinculándolos a nuevos controles en la UI visualizados dinámicamente con las directivas de seguridad requeridas (`*appPermiso`).
+- Se introdujeron mecanismos de reporte devolviendo recuento de filas y alertas combinadas en el DOM ante eventualidades por mala integridad de archivos de Excel.
+
+## Fix: Mejoras al Motor de Importación Excel
+- **Capa SQL Backend:** Eliminadas aserciones problemáticas de `Estado = 1` en validaciones hacia la tabla `pt_Puestos` las cuales provocaban la interrupción `SqlException`.
+- Modificada la exportación estática de Plantillas para coincidir semánticamente la columna con la palabra "Marca".
+- **Capa JSON:** Modificado el empaquetado del resultado re-entregando una sintaxis enriquecida como `{ TotalExitosos: int, TotalFallidos: int, Errores: string[] }`.
+- **Capa Vista (UI/Angular):** Reemplazados los simples `alert()` introduciendo un componente estructural Modal estético superpuesto a los componentes de Hardware, desglosando la información métrica iterando interactivamente (`@for`) los errores producidos.
+
+## Correcciones a Importador Masivo (Excel)
+
+- En el Backend (`.NET 8`), se removió la cláusula de validación LINQ/SqlRaw que condicionaba `Estado = 1` al buscar la entidad `pt_TiposHardware` solventando el cierre por excepción (`SqlException`).
+- En el Frontend (`Angular 17`), se aplicaron defensas lógicas en las promesas/observables `error:` dentro de los componentes `hardware` e `ideal`, garantizando que un error 500 no dispare el check de validación "Importación Perfecta", creando arrays dummy con el `err.error.message` y forzando el renderizado de errores con estilo TailwindCSS rojo.
+
+## Correcciones a Importador Masivo (Limpieza)
+
+- En el Backend (`.NET 8`), se ajustaron las rutinas de ClosedXML en `EquiposController.cs` y `HardwareIdealController.cs` eliminando la columna duplicada de *Hardware*, estandarizando su uso exclusivamente a "Tipo de Equipo" en la columna B (índice 2). Se mapea esta variable internamente al contexto de `pt_TiposHardware`.
+
+## Correcciones a Importador Masivo (Data Projection)
+
+- En el Backend (`.NET 8`), se ajustaron las sentencias SQL de validación dentro de `EquiposController.cs` y `HardwareIdealController.cs` para no depender del mapeo de entidades de EF Core (que generaban errores como Missing Column PuestoId al hacer la comprobación de llaves). Ahora se hacen proyecciones estrictas `SELECT Id AS Value` que eliden errores de parsing del Entity Framework en validaciones de Excel en memoria.
+
+## Correcciones a Importador Masivo (Feedback Usuario)
+
+- Revisado el código de `EquiposController.cs` validando exhaustivamente que ya se está empleando "Código Empleado" y no "Puesto" para generar la importación/exportación de su plantilla correspondiente, y que la búsqueda de llaves evalúa contra la tabla correcta de Empleados. Las quejas observadas son producto de logs residuales o confusiones cruzadas en los ambientes. Todo está en orden.
+
+## Correcciones a Importador Masivo (Plantilla)
+
+- Refactorizada la generación del archivo Excel en `EquiposController.cs` (Hardware Asignado) el cual en su versión estática original presentaba la cabecera `Codigo Empleado` desprovista del acento. Para apegarse más al requerimiento UX, se forzó un cambio gramatical inofensivo con `Código de Empleado`, garantizando que la lectura y mapeo del backend operen siempre referenciando la primera celda con el Query de Entity Framework apuntando a `pt_Empleados`.
+
+## Fix: Tolerancia a Nulos en Placa (Hardware Asignado)
+- Se añadió la cabecera `Placa` en la plantilla `.xlsx` generada al vuelo por ClosedXML en `EquiposController.cs`.
+- En el ciclo de lectura de `ImportarAsignado`, se modificó el código para asignar automáticamente el string "NO VISIBLE" como Default Constraint manejado en memoria si la validación de `placa` resultaba nula, vacía o puramente en espacios, logrando esquivar el quiebre de transacción reportado por la Base de Datos (`Cannot insert the value NULL into column 'Placa'`).
+
+## Importador de Excel en Software Local
+
+- Se implementó exitosamente un nuevo flujo de carga masiva de archivos `.xlsx` y exportación de plantillas para la asignación de `Software Local`.
+- El controlador .NET (`SoftwareController.cs`) consume ahora `ClosedXML` iterando a través de las proyecciones EF escalares (`SqlQueryRaw`) contra los códigos de empleado previniendo el error "Column missing in Results". El servicio además gestiona las variables vacías insertando un string `"N/A"` por defecto en la capa de software antes de guardar en Base de Datos para asegurar la persistencia transaccional.
+- Se implementaron las lógicas relativas de interfaz en Angular dentro de `software.component.ts` incluyendo el Componente de Modal de Feedback importando las alertas y conteos correctos de Excel.
+
+## Importador de Excel en Permisos de Sitios y Plataformas
+
+- Desplegada la estandarización de las vistas de Importación masiva usando ClosedXML en el Backend para `PermisosSitiosController` y `PlataformasController`.
+- Las plantillas de Excel generadas respetan los headers formales de la UX, traduciéndose en el backend utilizando `SqlQueryRaw<int>` para evadir falsos negativos del ORM y garantizando mapeo exacto. Para los campos opcionales sin validación se establecen fallbacks de `'N/A'`.
+- En Angular, integrados ambos endpoints a `sitios.component` y `plataformas.component` mediante los modals reutilizables.
+
+## Fix: Script Faltante de Comparativas
+
+- Generado y expuesto en la raíz del repositorio el script físico `VISTA_COMPARATIVA.sql` requerido para inicializar la vista de Base de Datos para el Gap Analysis que el Backend está asumiendo que existe.
+
+## Fix: Script T-SQL Gap Analysis
+
+- Reestructurado el archivo `VISTA_COMPARATIVA.sql` eliminando validaciones asertivas a columnas `Estado` que no existen en los perfiles transaccionales de Empleados y Puestos.
+- Re-diseñados los inner joins acoplando transitoriamente la relación de Hardware Ideal por medio de la tabla asociativa `pt_Puestos_X_Empleado` dado que las entidades del API (y BDD) carecían de relación 1:1 directa.
+
+## Fix: Redirección Errónea a Login (Comparativa de Hardware)
+- En la iteración anterior, los errores sintácticos de Angular abortaron el proceso del compilador, perdiendo las inyecciones de código que enganchaban la nueva vista al Routing Module y a la Interfaz de Menú principal, dejando la ruta desprotegida/inexistente, siendo interceptada por el Guard de redirección base a `/login`.
+- Se reconstruyó y aseguró el archivo `app.routes.ts` con su respectivo `path` y componente importado.
+- Se reconstruyó `app.component.ts` inyectando el enlace directo a la nueva vista dentro de los claims de la constante `menuBase` para renderizarse exitosamente.
+
+## Fix Final: SQL y Mapeos DTO en Gap Analysis
+
+- Reescrito archivo `VISTA_COMPARATIVA.sql` integrando `CTEs` con uso de `STRING_AGG()` a fin de colapsar la multiplicidad del registro, logrando devolver una única fila que concentra todo el Hardware iterado evitando productos cartesianos destructivos.
+- En la capa C# `.NET 8`, alterado el DTO `ComparativaEquipos` declarando de forma explícita el operador nullable (`?`) previniendo crasheos de cast desde EntityFramework a memoria ante *Left Joins* incompletos de la BDD.
+- En Angular, reestructurado el motor de filtros iterativos sobre la tabla comparativa (`aplicarFiltros()`) usando inyecciones de *Null Conditional Ternaries* robusteciendo la experiencia de usuario y validando los fallbacks para evitar caídas en el ciclo de Render DOM.
+
+## Fix: Gap Analysis SQL Server CTE Compatibility y Comboboxes
+- Re-escrito el archivo `VISTA_COMPARATIVA.sql` remplazando la función nueva `STRING_AGG()` no soportada nativamente por el SQL Server del cliente, empleando en su lugar el polifill lógico nativo y retro-compatible con T-SQL: `STUFF((... FOR XML PATH('')), 1, 2, '')` anidado dentro de los CTEs de hardware y puestos cruzados, resolviendo el `Invalid object name` y los syntax errors.
+- En Angular, se re-orquestó el hook del `ngOnInit` para consumir paralelamente la inyección de `getPuestos()` poblando activamente el Combobox de Filtros evitando que la matriz reactiva estuviese inútil o vacía. Se refactorizó la sintaxis HTML limpiando la renderización duplicada de "Todos los Puestos" y adaptándola al UI nativo de TailwindCSS.

@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PuestosComponent } from './components/puestos/puestos.component';
 import { ColaboradoresComponent } from './components/colaboradores/colaboradores.component';
 import { HardwareComponent } from './components/hardware/hardware.component';
+import { ComparativaHardwareComponent } from './components/comparativa-hardware/comparativa-hardware.component';
 import { HardwareIdealComponent } from './components/hardware-ideal/hardware-ideal.component';
 import { SoftwareComponent } from './components/software/software.component';
 import { SitiosComponent } from './components/sitios/sitios.component';
@@ -20,12 +22,14 @@ import { PermissionGuard } from './guards/permission.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'catalogos', component: CatalogosComponent, canActivate: [AuthGuard] },
   { path: 'puestos', component: PuestosComponent, canActivate: [AuthGuard] },
   { path: 'colaboradores', component: ColaboradoresComponent, canActivate: [AuthGuard] },
   { path: 'hardware', component: HardwareComponent, canActivate: [AuthGuard] },
+  { path: 'comparativa-hardware', component: ComparativaHardwareComponent, canActivate: [AuthGuard] },
   { path: 'hardware-ideal', component: HardwareIdealComponent, canActivate: [AuthGuard] },
   { path: 'software', component: SoftwareComponent, canActivate: [AuthGuard] },
   { path: 'sitios', component: SitiosComponent, canActivate: [AuthGuard] },
