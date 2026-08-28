@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { PermissionService } from '../../services/permission.service';
+import { Puesto } from '../../models/models';
 
 @Component({
   selector: 'app-comparativa-hardware',
@@ -155,7 +156,7 @@ export class ComparativaHardwareComponent implements OnInit {
 
   loadData() {
       // Cargar lista de puestos oficiales desde el API
-      this.api.getPuestos().subscribe((res: any[]) => {
+      this.api.getPuestos().subscribe((res: Puesto[]) => {
           this.listaPuestos = res
               .filter(item => item.nombrePuesto != null && item.nombrePuesto !== 'undefined' && item.nombrePuesto.trim() !== '')
               .map(item => item.nombrePuesto)
