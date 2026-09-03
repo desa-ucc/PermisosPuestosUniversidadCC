@@ -18,13 +18,15 @@ namespace PermisosPuestosApi.Controllers
             _context = context;
         }
 
+
+
         [HttpGet("hardware")]
         public async Task<IActionResult> GetHardware()
         {
             try
             {
                 var data = await _context.Database.SqlQueryRaw<ComparativaHardwareDto>(
-                    "SELECT Empleado, CodigoPuesto, Puesto, IdealTipo, IdealProcesador, IdealMemoria, AsignadoTipo, AsignadoProcesador, AsignadoMemoria FROM v_ComparativaEquipos"
+                    "SELECT Empleado, CodigoPuesto, Puesto, IdealTipo, IdealProcesador, IdealMemoria, IdealDiscoDuro, IdealMarca, AsignadoTipo, AsignadoProcesador, AsignadoMemoria, ActualDiscoDuro AS AsignadoDiscoDuro, ActualMarca AS AsignadoMarca FROM v_ComparativaEquipos"
                 ).ToListAsync();
 
                 return Ok(data);
@@ -47,5 +49,9 @@ namespace PermisosPuestosApi.Controllers
         public string? AsignadoTipo { get; set; }
         public string? AsignadoProcesador { get; set; }
         public string? AsignadoMemoria { get; set; }
+        public string? IdealDiscoDuro { get; set; }
+        public string? IdealMarca { get; set; }
+        public string? AsignadoDiscoDuro { get; set; }
+        public string? AsignadoMarca { get; set; }
     }
 }
