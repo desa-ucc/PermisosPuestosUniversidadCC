@@ -20,6 +20,8 @@ namespace PermisosPuestosApi.Controllers
 
 
 
+
+
         [HttpGet("hardware")]
         public async Task<IActionResult> GetHardware()
         {
