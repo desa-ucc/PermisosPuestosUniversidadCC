@@ -112,6 +112,11 @@ import { PermissionService } from '../../services/permission.service';
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre del {{ getTabName() }}</th>
+                                @if(activeTab === 'tiposLicencia') {
+                                    <th class="text-center">CANT. CONTRATADA</th>
+                                    <th class="text-center">DISPONIBLES</th>
+                                    <th class="text-center">VENCIMIENTO</th>
+                                }
                                 <th class="text-center">Estado</th>
                                 <th class="text-right">Acciones</th>
                             </tr>
@@ -122,6 +127,19 @@ import { PermissionService } from '../../services/permission.service';
                                     <tr>
                                         <td class="font-bold text-ucc-neutral-variant">{{item.id}}</td>
                                         <td class="font-semibold">{{item.nombre}}</td>
+                                        @if(activeTab === 'tiposLicencia') {
+                                            <td class="text-center font-medium">{{ item.cantidadContratada || 0 }}</td>
+                                            <td class="text-center">
+                                                <span [ngClass]="(item.disponibles || 0) <= 0 ? 'text-red-600 font-bold' : 'text-green-600 font-bold'">{{ item.disponibles || 0 }}</span>
+                                            </td>
+                                            <td class="text-center font-medium">
+                                                @if(item.fechaVencimiento) {
+                                                    <span [ngClass]="isExpired(item.fechaVencimiento) ? 'text-red-600 font-bold' : ''">{{ item.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+                                                } @else {
+                                                    <span class="text-ucc-neutral-variant italic">Perpetua</span>
+                                                }
+                                            </td>
+                                        }
                                         <td class="text-center">
                                             <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary-container text-[11px] font-bold uppercase">Activo</span>
                                         </td>
