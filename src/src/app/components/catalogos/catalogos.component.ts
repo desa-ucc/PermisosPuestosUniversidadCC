@@ -383,10 +383,17 @@ export class CatalogosComponent implements OnInit {
 
     request$.subscribe({
       next: (data) => {
+        let formattedDate = null;
+        if (data.fechaVencimiento) {
+          const dateObj = new Date(data.fechaVencimiento);
+          if (!isNaN(dateObj.getTime())) {
+            formattedDate = dateObj.toISOString().substring(0, 10);
+          }
+        }
         this.catForm.patchValue({
           nombre: data.nombre,
           cantidadContratada: data.cantidadContratada || 0,
-          fechaVencimiento: data.fechaVencimiento ? data.fechaVencimiento.split('T')[0] : null
+          fechaVencimiento: formattedDate
         });
       },
       error: () => {
