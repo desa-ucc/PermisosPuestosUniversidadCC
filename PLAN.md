@@ -1,12 +1,13 @@
-# PLAN: Comparativa Hardware Update
+# PLAN: Inventario de Licencias Update
 
 ## 1. Architecure
-- **Database**: Add columns to SQL Server view (`v_ComparativaEquipos`).
-- **Backend API**: Add fields to `ComparativaHardwareDto` and update the entity model.
-- **Frontend App**: Use flexible JS string comparison rules for validation logic and update HTML table for presentation.
+- **Database**: Add `CantidadContratada` and `FechaVencimiento` to `pt_TiposLicencia`.
+- **Backend API**: Add fields to DTOs in `Models.cs` and pass params to SPs in `CatalogosController`. Validated business logic in `PlataformasController` for availability.
+- **Frontend App**: Added inputs for Cantidad/Fecha in the catalogs module. Implemented dropdown UI styling and disabling logic for invalid licenses.
 
 ## 2. Steps Execution
-- [x] Generated `VISTA_COMPARATIVA.sql` with new joins and projection rules.
-- [x] Refactored `ComparativasController.cs` in PermisosPuestosApi.
-- [x] Added `calcularEstadoGlobal` pattern matching algorithm and updated `comparativa-hardware.component.ts`.
-- [x] Verified full build and tested the application's angular UI using playwright verification scripts.
+- [x] Generated `README_DB.md` with required script for Database Admin (external server).
+- [x] Refactored `CatalogosController.cs` and `PlataformasController.cs`.
+- [x] Patched `catalogos.component.ts` and `plataformas.component.ts` UI cleanly with Angular markup.
+- [x] Verified build.
+- [x] Successfully verified UI updates with Playwright.

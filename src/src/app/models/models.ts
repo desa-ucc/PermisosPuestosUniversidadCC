@@ -91,6 +91,9 @@ export interface Plataforma {
 export interface Catalogo {
   id: number;
   nombre: string;
+  cantidadContratada?: number;
+  fechaVencimiento?: string;
+  disponibles?: number;
 }
 
 export interface CatalogoNivelAcceso extends Catalogo {
