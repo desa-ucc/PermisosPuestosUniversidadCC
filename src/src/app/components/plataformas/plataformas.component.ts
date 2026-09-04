@@ -115,10 +115,14 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
                     </li>
                     @for (lic of licenciasFiltrados; track lic.id) {
                       <li
-                        (mousedown)="seleccionarLicencia(lic)"
-                        class="px-4 py-2 hover:bg-ucc-surface-container-low cursor-pointer text-ucc-neutral"
+                        (mousedown)="licenciaInvalida(lic) ? null : seleccionarLicencia(lic)"
+                        class="px-4 py-2 hover:bg-ucc-surface-container-low flex justify-between items-center"
+                        [ngClass]="licenciaInvalida(lic) ? 'opacity-50 cursor-not-allowed bg-red-50' : 'cursor-pointer text-ucc-neutral'"
                       >
-                        {{ lic.nombre }}
+                        <span class="font-medium">{{ lic.nombre }} <span class="text-xs text-ucc-neutral-variant font-normal">(Disp: {{ lic.disponibles }} / Contratadas: {{ lic.cantidadContratada }})</span></span>
+                        @if (licenciaInvalida(lic)) {
+                            <span class="text-[10px] uppercase font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded ml-2">{{ (lic.disponibles || 0) <= 0 ? 'Sin disponibilidad' : 'Vencida' }}</span>
+                        }
                       </li>
                     }
                   </ul>
@@ -602,6 +606,14 @@ import { Plataforma, Empleado, Puesto, Catalogo } from '../../models/models';
   `,
 })
 export class PlataformasComponent implements OnInit {
+
+  licenciaInvalida(lic: any): boolean {
+      if (!lic) return false;
+      if (lic.disponibles <= 0) return true;
+      if (lic.fechaVencimiento && new Date(lic.fechaVencimiento).getTime() < new Date().setHours(0,0,0,0)) return true;
+      return false;
+  }
+
   showImportModal = false;
   importResult: any = null;
 
