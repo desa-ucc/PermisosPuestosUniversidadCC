@@ -67,6 +67,13 @@ import { PermissionService } from '../../services/permission.service';
                             <label class="block text-label-md text-ucc-neutral-variant mb-2 ml-1 uppercase">F. VENCIMIENTO</label>
                             <input type="date" formControlName="fechaVencimiento" class="ucc-input w-full h-12 px-4" style="border: 1px solid #ccc; border-radius: 4px;">
                         </div>
+                        <div class="w-full md:w-48">
+                            <label class="block text-label-md text-ucc-neutral-variant mb-2 ml-1 uppercase">ESTADO</label>
+                            <select formControlName="activo" class="ucc-input w-full h-12 px-4" style="border: 1px solid #ccc; border-radius: 4px; appearance: menulist;">
+                                <option [ngValue]="true">Activo</option>
+                                <option [ngValue]="false">Inactivo</option>
+                            </select>
+                        </div>
                         }
                         @if(editingId) {
                             <button type="submit" *appPermiso="{pantalla: 'CATALOGOS', accion: 'editar'}" [disabled]="catForm.invalid || isSaving" class="ucc-btn-primary w-full md:w-auto h-12">
@@ -141,7 +148,11 @@ import { PermissionService } from '../../services/permission.service';
                                             </td>
                                         }
                                         <td class="text-center">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary-container text-[11px] font-bold uppercase">Activo</span>
+                                            @if(activeTab === 'tiposLicencia' && item.activo === false) {
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-600 text-[11px] font-bold uppercase">Inactivo</span>
+                                            } @else {
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-ucc-primary-container/10 text-ucc-primary-container text-[11px] font-bold uppercase">Activo</span>
+                                            }
                                         </td>
                                         <td class="text-right">
                                             <div class="flex justify-end gap-2">
@@ -280,6 +291,7 @@ export class CatalogosComponent implements OnInit {
       nombre: ['', Validators.required],
       cantidadContratada: [0],
       fechaVencimiento: [null],
+      activo: [true],
       puedeVer: [true],
       puedeCrear: [false],
       puedeEditar: [false],
@@ -391,7 +403,8 @@ export class CatalogosComponent implements OnInit {
         this.catForm.patchValue({
           nombre: data.nombre || data.Nombre,
           cantidadContratada: data.cantidadContratada || data.CantidadContratada || 0,
-          fechaVencimiento: formattedDate
+          fechaVencimiento: formattedDate,
+          activo: data.activo !== undefined ? data.activo : (data.Activo !== undefined ? data.Activo : true)
         });
       },
       error: () => {

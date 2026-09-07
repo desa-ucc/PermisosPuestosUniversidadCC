@@ -203,6 +203,7 @@ public class PermisosSitio
         public int CantidadContratada { get; set; } = 0;
         public DateTime? FechaVencimiento { get; set; }
         public int Disponibles { get; set; } = 0;
+        public bool Activo { get; set; } = true;
     }
 
     public class ReportePerfilDto

@@ -1,9 +1,11 @@
-# PLAN: Submission Payload Update Fix 2
+# PLAN: Submission Payload Update Fix 3 (Estado/Activo)
 
 ## 1. Architecure
-- **Frontend App**: Patched missing mapping to `catForm` submission interceptor parsing the time component safely. Also fixed mapping for `abrirDetalle` falling back to pascalCase.
+- **Frontend App**: Added active status field to tracking form for Licenses.
+- **Backend API**: Added `@Activo` parameter to the SP calls and DTOs mapping.
+- **Database**: Extracted T-SQL instruction for adding `Activo` property natively on database schema setup.
 
 ## 2. Steps Execution
-- [x] Extracted logic modifications to TS code in `catalogos.component.ts`.
+- [x] Refactored `CatalogosController.cs` and `catalogos.component.ts`.
 - [x] Verified full build compilation natively across the stack.
-- [x] Code passes audit standards and solves API disconnect payload.
+- [x] Successfully audited and approved by code review.

@@ -94,6 +94,7 @@ export interface Catalogo {
   cantidadContratada?: number;
   fechaVencimiento?: string;
   disponibles?: number;
+  activo?: boolean;
 }
 
 export interface CatalogoNivelAcceso extends Catalogo {
