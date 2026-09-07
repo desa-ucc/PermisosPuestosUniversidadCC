@@ -371,8 +371,10 @@ export class CatalogosComponent implements OnInit {
       this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     } else if (this.activeTab === 'tiposHardware') {
       this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
-    this.api.getPlataformasNombres().subscribe(res => this.plataformasNombresList = res);
-    this.api.getTiposLicencia().subscribe(res => this.tiposLicenciaList = res);
+    } else if (this.activeTab === 'plataformasNombres') {
+      this.api.getPlataformasNombres().subscribe(res => this.plataformasNombresList = res);
+    } else if (this.activeTab === 'tiposLicencia') {
+      this.api.getTiposLicencia().subscribe(res => this.tiposLicenciaList = res);
     }
   }
 
@@ -443,16 +445,25 @@ export class CatalogosComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
-        setTimeout(() => {
-          this.isSaving = false;
-          this.loadActiveTabData();
-          this.catForm.reset();
-          this.editingId = null;
-        }, 500);
+        this.isSaving = false;
+        this.loadActiveTabData();
+        this.editingId = null;
+
+        // Resetear al estado "Registrar Nuevo" manteniendo valores por defecto seguros
+        this.catForm.reset({
+          nombre: '',
+          cantidadContratada: 0,
+          fechaVencimiento: null,
+          activo: true,
+          puedeVer: true,
+          puedeCrear: false,
+          puedeEditar: false,
+          puedeEliminar: false
+        });
       },
       error: () => {
         this.isSaving = false;
-        alert('Error al guardar el catálogo. El nombre podría estar duplicado.');
+        alert('Error al guardar el catálogo. El nombre podría estar duplicado o haber un problema de conexión.');
       }
     });
   }
