@@ -384,15 +384,13 @@ export class CatalogosComponent implements OnInit {
     request$.subscribe({
       next: (data) => {
         let formattedDate = null;
-        if (data.fechaVencimiento) {
-          const dateObj = new Date(data.fechaVencimiento);
-          if (!isNaN(dateObj.getTime())) {
-            formattedDate = dateObj.toISOString().substring(0, 10);
-          }
+        const rawDate = data.fechaVencimiento || data.FechaVencimiento;
+        if (rawDate) {
+          formattedDate = rawDate.split('T')[0];
         }
         this.catForm.patchValue({
-          nombre: data.nombre,
-          cantidadContratada: data.cantidadContratada || 0,
+          nombre: data.nombre || data.Nombre,
+          cantidadContratada: data.cantidadContratada || data.CantidadContratada || 0,
           fechaVencimiento: formattedDate
         });
       },
@@ -411,12 +409,7 @@ export class CatalogosComponent implements OnInit {
 
     // Formateo estricto de la fecha al guardar
     if (this.activeTab === 'tiposLicencia' && data.fechaVencimiento) {
-        const dateObj = new Date(data.fechaVencimiento);
-        if (!isNaN(dateObj.getTime())) {
-             data.fechaVencimiento = dateObj.toISOString().substring(0, 10);
-        } else {
-             data.fechaVencimiento = null;
-        }
+         data.fechaVencimiento = data.fechaVencimiento.split('T')[0];
     }
 
     const request$ = this.editingId
