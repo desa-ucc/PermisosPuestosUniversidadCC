@@ -196,7 +196,14 @@ public class PermisosSitio
     public class Cat_NivelesAcceso : CatalogoBase {
     }
     public class Cat_PlataformasNombres : CatalogoBase { }
-    public class Cat_TiposLicencia : CatalogoBase { }
+    public class Cat_TiposLicencia
+    {
+        [Key] public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public int CantidadContratada { get; set; } = 0;
+        public DateTime? FechaVencimiento { get; set; }
+        public int Disponibles { get; set; } = 0;
+    }
 
     public class ReportePerfilDto
     {

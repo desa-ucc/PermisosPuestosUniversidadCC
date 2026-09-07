@@ -407,7 +407,17 @@ export class CatalogosComponent implements OnInit {
     if (this.catForm.invalid) return;
 
     this.isSaving = true;
-    const data = this.catForm.value;
+    const data = { ...this.catForm.value };
+
+    // Formateo estricto de la fecha al guardar
+    if (this.activeTab === 'tiposLicencia' && data.fechaVencimiento) {
+        const dateObj = new Date(data.fechaVencimiento);
+        if (!isNaN(dateObj.getTime())) {
+             data.fechaVencimiento = dateObj.toISOString().substring(0, 10);
+        } else {
+             data.fechaVencimiento = null;
+        }
+    }
 
     const request$ = this.editingId
       ? (this.activeTab === 'ambientes' ? this.api.updateAmbiente(this.editingId, data) :

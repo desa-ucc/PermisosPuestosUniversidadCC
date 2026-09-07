@@ -279,7 +279,9 @@ namespace PermisosPuestosApi.Controllers
         {
             var p1 = new SqlParameter("@Accion", "INSERT");
             var p2 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, NULL, @Nombre", p1, p2);
+            var p3 = new SqlParameter("@CantidadContratada", cat.CantidadContratada);
+            var p4 = new SqlParameter("@FechaVencimiento", cat.FechaVencimiento.HasValue ? (object)cat.FechaVencimiento.Value.Date : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, NULL, @Nombre, @CantidadContratada, @FechaVencimiento", p1, p2, p3, p4);
             return Ok();
         }
 
@@ -289,7 +291,9 @@ namespace PermisosPuestosApi.Controllers
             var p1 = new SqlParameter("@Accion", "UPDATE");
             var p2 = new SqlParameter("@Id", id);
             var p3 = new SqlParameter("@Nombre", cat.Nombre != null ? (object)cat.Nombre : DBNull.Value);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, @Id, @Nombre", p1, p2, p3);
+            var p4 = new SqlParameter("@CantidadContratada", cat.CantidadContratada);
+            var p5 = new SqlParameter("@FechaVencimiento", cat.FechaVencimiento.HasValue ? (object)cat.FechaVencimiento.Value.Date : DBNull.Value);
+            await _context.Database.ExecuteSqlRawAsync("EXEC sp_GestionarTiposLicencia @Accion, @Id, @Nombre, @CantidadContratada, @FechaVencimiento", p1, p2, p3, p4, p5);
             return Ok();
         }
 
