@@ -18,6 +18,31 @@ export class DashboardComponent implements OnInit {
   licenciasActivas: any[] = [];
   licenciasAlertas: any[] = [];
 
+  // Paginación para tabla de licencias activas
+  licenciasCurrentPage: number = 1;
+  licenciasPageSize: number = 5;
+
+  get paginatedLicenciasActivas(): any[] {
+    const start = (this.licenciasCurrentPage - 1) * this.licenciasPageSize;
+    return this.licenciasActivas.slice(start, start + this.licenciasPageSize);
+  }
+
+  get totalLicenciasPages(): number {
+    return Math.ceil(this.licenciasActivas.length / this.licenciasPageSize) || 1;
+  }
+
+  nextLicenciasPage() {
+    if (this.licenciasCurrentPage < this.totalLicenciasPages) {
+      this.licenciasCurrentPage++;
+    }
+  }
+
+  prevLicenciasPage() {
+    if (this.licenciasCurrentPage > 1) {
+      this.licenciasCurrentPage--;
+    }
+  }
+
   operativosCount: number = 0;
   gerencialesCount: number = 0;
   directivosCount: number = 0;
@@ -142,6 +167,32 @@ export class DashboardComponent implements OnInit {
 
     const wsDistribution: XLSX.WorkSheet = XLSX.utils.json_to_sheet(distributionData);
     XLSX.utils.book_append_sheet(wb, wsDistribution, 'Distribución de Equipos');
+
+    // Módulo Licencias Data
+    const formatLicDate = (dateStr: string) => {
+        if (!dateStr) return 'Perpetua/NA';
+        const d = new Date(dateStr);
+        return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString();
+    };
+
+    const allLicencias = [...this.licenciasActivas, ...this.licenciasAlertas];
+    const uniqueLicencias = Array.from(new Map(allLicencias.map(l => [l.id, l])).values()); // Evita duplicados si existen en ambos
+
+    const licenciasData = uniqueLicencias.map(l => {
+        const activo = l.activo ?? l.Activo ?? true;
+        const statusStr = activo ? 'Activa' : 'Inactiva';
+        return {
+            'Licencia': l.nombre || l.Nombre,
+            'Estado': statusStr,
+            'Contratadas': this.getContratadas(l),
+            'Asignadas': this.getAsignadas(l),
+            'Disponibles': this.getDisponibles(l),
+            'Fecha Vencimiento': formatLicDate(l.fechaVencimiento || l.FechaVencimiento)
+        };
+    });
+
+    const wsLicencias: XLSX.WorkSheet = XLSX.utils.json_to_sheet(licenciasData);
+    XLSX.utils.book_append_sheet(wb, wsLicencias, 'Inventario de Licencias');
 
     XLSX.writeFile(wb, `Reporte_Dashboard_Operativo.xlsx`);
   }
