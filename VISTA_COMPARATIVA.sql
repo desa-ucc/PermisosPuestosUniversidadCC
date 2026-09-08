@@ -12,10 +12,14 @@ SELECT
     hi.TipoEquipo AS IdealTipo,
     hi.Procesador AS IdealProcesador,
     hi.Memoria AS IdealMemoria,
+    hi.Disco AS IdealDiscoDuro,
+    hi.MarcaPC AS IdealMarca,
 
     ha.TipoEquipo AS AsignadoTipo,
     ha.Procesador AS AsignadoProcesador,
-    ha.Memoria AS AsignadoMemoria
+    ha.Memoria AS AsignadoMemoria,
+    ha.Disco AS ActualDiscoDuro,
+    ha.MarcaPC AS ActualMarca
 
 FROM pt_Empleados e
 INNER JOIN pt_Puestos_X_Empleado pxe ON e.Id = pxe.EmpleadoId

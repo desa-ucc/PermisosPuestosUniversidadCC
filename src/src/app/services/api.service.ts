@@ -114,6 +114,9 @@ export class ApiService {
   deleteNivelAcceso(id: number): Observable<any> { return this.http.delete(`${this.apiUrl}/Catalogos/NivelesAcceso/${id}`, { headers: this.getHeaders() }); }
 
   // --- Reportes ---
+  getDashboardLicencias(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Reportes/dashboard-licencias`, { headers: this.getHeaders() });
+  }
   getReportePerfil(codigo: string): Observable<ReportePerfil[]> {
     return this.http.get<ReportePerfil[]>(`${this.apiUrl}/Reportes/perfil/${codigo}`, { headers: this.getHeaders() });
   }

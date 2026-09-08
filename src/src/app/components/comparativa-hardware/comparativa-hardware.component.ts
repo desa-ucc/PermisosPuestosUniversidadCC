@@ -63,6 +63,8 @@ import { Puesto } from '../../models/models';
                             <th class="py-4 px-6">Tipo Equipo (Ideal vs Actual)</th>
                             <th class="py-4 px-6">Procesador (Ideal vs Actual)</th>
                             <th class="py-4 px-6">RAM (Ideal vs Actual)</th>
+                            <th class="py-4 px-6">DISCO DURO (IDEAL VS ACTUAL)</th>
+                            <th class="py-4 px-6">MARCA (IDEAL VS ACTUAL)</th>
                             <th class="py-4 px-6">Estado Global</th>
                         </tr>
                     </thead>
@@ -96,7 +98,21 @@ import { Puesto } from '../../models/models';
                                 </td>
 
                                 <td class="py-4 px-6">
-                                    @if(esGlobalCumple(item)) {
+                                    <div class="text-xs text-ucc-neutral-variant uppercase tracking-wider mb-1">Ideal: <span class="font-bold text-ucc-neutral-text">{{ item.idealDiscoDuro || 'N/A' }}</span></div>
+                                    <div class="text-xs text-ucc-neutral-variant uppercase tracking-wider">Actual:
+                                        <span class="font-bold" [ngClass]="compararBrecha(item.idealDiscoDuro, item.asignadoDiscoDuro) ? 'text-green-600' : 'text-red-600'">{{ item.asignadoDiscoDuro || 'N/A' }}</span>
+                                    </div>
+                                </td>
+
+                                <td class="py-4 px-6">
+                                    <div class="text-xs text-ucc-neutral-variant uppercase tracking-wider mb-1">Ideal: <span class="font-bold text-ucc-neutral-text">{{ item.idealMarca || 'N/A' }}</span></div>
+                                    <div class="text-xs text-ucc-neutral-variant uppercase tracking-wider">Actual:
+                                        <span class="font-bold" [ngClass]="compararBrecha(item.idealMarca, item.asignadoMarca) ? 'text-green-600' : 'text-red-600'">{{ item.asignadoMarca || 'N/A' }}</span>
+                                    </div>
+                                </td>
+
+                                <td class="py-4 px-6">
+                                    @if(calcularEstadoGlobal(item)) {
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
                                             <span class="material-symbols-outlined text-[16px]">check_circle</span> Cumple
                                         </span>
@@ -108,7 +124,7 @@ import { Puesto } from '../../models/models';
                                 </td>
                             </tr>
                         } @empty {
-                            <tr><td colspan="6" class="p-8 text-center text-ucc-neutral-variant italic">No se encontraron comparativas.</td></tr>
+                            <tr><td colspan="8" class="p-8 text-center text-ucc-neutral-variant italic">No se encontraron comparativas.</td></tr>
                         }
                     </tbody>
                 </table>
@@ -190,14 +206,16 @@ export class ComparativaHardwareComponent implements OnInit {
   // Lógica difusa simple para no penalizar mayúsculas/minúsculas o pequeños errores tipográficos
   compararBrecha(ideal: string, actual: string): boolean {
       if(!ideal && actual) return true;
+      if(!ideal && !actual) return true;
       if(!actual) return false;
-      if(!ideal) return true; // Si ideal es nulo y actual tambien es nulo, esta OK
-      return ideal.toLowerCase().trim() === actual.toLowerCase().trim();
+      return actual.toLowerCase().includes(ideal.toLowerCase().trim());
   }
 
-  esGlobalCumple(item: any): boolean {
+  calcularEstadoGlobal(item: any): boolean {
       return this.compararBrecha(item.idealTipo, item.asignadoTipo) &&
              this.compararBrecha(item.idealProcesador, item.asignadoProcesador) &&
-             this.compararBrecha(item.idealMemoria, item.asignadoMemoria);
+             this.compararBrecha(item.idealMemoria, item.asignadoMemoria) &&
+             this.compararBrecha(item.idealDiscoDuro, item.asignadoDiscoDuro) &&
+             this.compararBrecha(item.idealMarca, item.asignadoMarca);
   }
 }
