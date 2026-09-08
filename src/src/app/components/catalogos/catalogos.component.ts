@@ -39,9 +39,7 @@ import { PermissionService } from '../../services/permission.service';
                         <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
                         <span>Niveles de Acceso</span>
                     </button>
-                    <button (click)="setTab('plataformas')" [ngClass]="activeTab === 'plataformas' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">cloud_done</span> Plataformas
-                    </button>
+
                 </div>
 
                 <div class="p-6">
@@ -117,7 +115,6 @@ import { PermissionService } from '../../services/permission.service';
                     <table class="ucc-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre del {{ getTabName() }}</th>
                                 @if(activeTab === 'tiposLicencia') {
                                     <th class="text-center">CANT. CONTRATADA</th>
@@ -132,7 +129,6 @@ import { PermissionService } from '../../services/permission.service';
                             @if(listaActual.length > 0) {
                                 @for(item of listaActual; track item.id) {
                                     <tr>
-                                        <td class="font-bold text-ucc-neutral-variant">{{item.id}}</td>
                                         <td class="font-semibold">{{item.nombre}}</td>
                                         @if(activeTab === 'tiposLicencia') {
                                             <td class="text-center font-medium">{{ item.cantidadContratada || 0 }}</td>
@@ -217,31 +213,8 @@ import { PermissionService } from '../../services/permission.service';
                         </div>
                         <span class="text-xl font-bold text-ucc-secondary">{{ tiposHardwareList.length || 0 }}</span>
                     </div>
-                    <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformas')">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">cloud_done</span>
-                            <span class="font-body-md text-ucc-neutral-variant font-semibold">Plataformas</span>
-                        </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ plataformasList.length || 0 }}</span>
                     </div>
-
-                    <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformasNombres')">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">cloud</span>
-                            <span class="font-body-md text-ucc-neutral-variant font-semibold">Nombres de Plataformas</span>
-                        </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ plataformasNombresList.length || 0 }}</span>
-                    </div>
-
-                    <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('tiposLicencia')">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">key</span>
-                            <span class="font-body-md text-ucc-neutral-variant font-semibold">Tipos de Licencia</span>
-                        </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ tiposLicenciaList.length || 0 }}</span>
-                    </div>
-                </div>
-            </div>
+</div>
 
             <!-- Historial de Cambios Recientes -->
             <div class="ucc-card">
@@ -272,13 +245,12 @@ export class CatalogosComponent implements OnInit {
     return new Date(dateString).getTime() < new Date().setHours(0,0,0,0);
   }
 
-  activeTab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' | 'plataformasNombres' | 'tiposLicencia' = 'ambientes';
+  activeTab: 'ambientes' | 'sitios' | 'tiposHardware' | 'nivelesAcceso' | 'plataformasNombres' | 'tiposLicencia' = 'ambientes';
 
   ambientesList: Catalogo[] = [];
   tiposHardwareList: Catalogo[] = [];
   nivelesAccesoList: any[] = [];
   sitiosList: Catalogo[] = [];
-  plataformasList: Catalogo[] = [];
   plataformasNombresList: Catalogo[] = [];
   tiposLicenciaList: Catalogo[] = [];
 
@@ -302,7 +274,6 @@ export class CatalogosComponent implements OnInit {
   get listaActual(): Catalogo[] {
     if (this.activeTab === 'ambientes') return this.ambientesList;
     if (this.activeTab === 'sitios') return this.sitiosList;
-    if (this.activeTab === 'plataformas') return this.plataformasList;
     if (this.activeTab === 'tiposHardware') return this.tiposHardwareList;
     if (this.activeTab === 'nivelesAcceso') return this.nivelesAccesoList;
     if (this.activeTab === 'plataformasNombres') return this.plataformasNombresList;
@@ -314,7 +285,7 @@ export class CatalogosComponent implements OnInit {
     this.loadAllData();
   }
 
-  setTab(tab: 'ambientes' | 'sitios' | 'plataformas' | 'tiposHardware' | 'nivelesAcceso' | 'plataformasNombres' | 'tiposLicencia') {
+  setTab(tab: 'ambientes' | 'sitios' | 'tiposHardware' | 'nivelesAcceso' | 'plataformasNombres' | 'tiposLicencia') {
     this.activeTab = tab;
     this.catForm.reset();
     this.editingId = null;
@@ -327,7 +298,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'nivelesAcceso') return 'Nivel de Acceso';
     if (this.activeTab === 'plataformasNombres') return 'Nombre de Plataforma';
     if (this.activeTab === 'tiposLicencia') return 'Tipo de Licencia';
-    return 'Plataforma';
+    return '';
   }
 
   getTabNamePlural(): string {
@@ -337,7 +308,7 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'nivelesAcceso') return 'Niveles de Acceso';
     if (this.activeTab === 'plataformasNombres') return 'Nombres de Plataformas';
     if (this.activeTab === 'tiposLicencia') return 'Tipos de Licencia';
-    return 'Plataformas';
+    return '';
   }
 
   getPlaceholder(): string {
@@ -347,13 +318,12 @@ export class CatalogosComponent implements OnInit {
     if (this.activeTab === 'nivelesAcceso') return 'Ej: Administrador, Solo Lectura...';
     if (this.activeTab === 'plataformasNombres') return 'Ej: Oracle, SAP...';
     if (this.activeTab === 'tiposLicencia') return 'Ej: Freemium, Premium...';
-    return 'Ej: Moodle, O365, AWS...';
+    return '';
   }
 
   loadAllData() {
     this.api.getAmbientes().subscribe(res => this.ambientesList = res);
     this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
-    this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
     this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     this.api.getTiposHardware().subscribe(res => this.tiposHardwareList = res);
     this.api.getPlataformasNombres().subscribe(res => this.plataformasNombresList = res);
@@ -365,8 +335,6 @@ export class CatalogosComponent implements OnInit {
       this.api.getAmbientes().subscribe(res => this.ambientesList = res);
     } else if (this.activeTab === 'sitios') {
       this.api.getSitiosCat().subscribe(res => this.sitiosList = res);
-    } else if (this.activeTab === 'plataformas') {
-      this.api.getPlataformasCat().subscribe(res => this.plataformasList = res);
     } else if (this.activeTab === 'nivelesAcceso') {
       this.api.getNivelesAcceso().subscribe(res => this.nivelesAccesoList = res);
     } else if (this.activeTab === 'tiposHardware') {
@@ -392,8 +360,7 @@ export class CatalogosComponent implements OnInit {
                      this.activeTab === 'sitios' ? this.api.getSitioCat(item.id) :
                      this.activeTab === 'tiposHardware' ? this.api.getTipoHardware(item.id) :
                      this.activeTab === 'plataformasNombres' ? this.api.getPlataformaNombre(item.id) :
-                     this.activeTab === 'tiposLicencia' ? this.api.getTipoLicencia(item.id) :
-                     this.api.getPlataformaCat(item.id);
+                     this.api.getTipoLicencia(item.id);
 
     request$.subscribe({
       next: (data) => {
@@ -433,15 +400,13 @@ export class CatalogosComponent implements OnInit {
          this.activeTab === 'tiposHardware' ? this.api.updateTipoHardware(this.editingId, data) :
          this.activeTab === 'nivelesAcceso' ? this.api.updateNivelAcceso(this.editingId, data) :
          this.activeTab === 'plataformasNombres' ? this.api.updatePlataformaNombre(this.editingId, data) :
-         this.activeTab === 'tiposLicencia' ? this.api.updateTipoLicencia(this.editingId, data) :
-         this.api.updatePlataformaCat(this.editingId, data))
+         this.api.updateTipoLicencia(this.editingId, data))
       : (this.activeTab === 'ambientes' ? this.api.createAmbiente(data) :
          this.activeTab === 'sitios' ? this.api.createSitioCat(data) :
          this.activeTab === 'tiposHardware' ? this.api.createTipoHardware(data) :
          this.activeTab === 'nivelesAcceso' ? this.api.createNivelAcceso(data) :
          this.activeTab === 'plataformasNombres' ? this.api.createPlataformaNombre(data) :
-         this.activeTab === 'tiposLicencia' ? this.api.createTipoLicencia(data) :
-         this.api.createPlataformaCat(data));
+         this.api.createTipoLicencia(data));
 
     request$.subscribe({
       next: () => {
@@ -475,8 +440,7 @@ export class CatalogosComponent implements OnInit {
                        this.activeTab === 'tiposHardware' ? this.api.deleteTipoHardware(id) :
                        this.activeTab === 'nivelesAcceso' ? this.api.deleteNivelAcceso(id) :
                        this.activeTab === 'plataformasNombres' ? this.api.deletePlataformaNombre(id) :
-                       this.activeTab === 'tiposLicencia' ? this.api.deleteTipoLicencia(id) :
-                       this.api.deletePlataformaCat(id);
+                       this.api.deleteTipoLicencia(id);
 
       request$.subscribe({
         next: () => {
