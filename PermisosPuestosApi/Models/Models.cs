@@ -275,6 +275,12 @@ public class PermisosSitio
     }
 
 
+    public class DashboardLicenciasResponse
+    {
+        public List<Cat_TiposLicencia> LicenciasActivas { get; set; } = new();
+        public List<Cat_TiposLicencia> LicenciasInactivasOVencidas { get; set; } = new();
+    }
+
     public class ReporteBaseDto
     {
         public string Puesto { get; set; } = string.Empty;

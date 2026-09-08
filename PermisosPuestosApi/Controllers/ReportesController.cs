@@ -30,6 +30,35 @@ namespace PermisosPuestosApi.Controllers
             return Ok(reporte);
         }
 
+        [HttpGet("dashboard-licencias")]
+        public async Task<IActionResult> GetDashboardLicencias()
+        {
+            try
+            {
+                var licencias = await _context.Cat_TiposLicencias
+                    .FromSqlRaw("SELECT * FROM v_GestionarTiposLicencia")
+                    .ToListAsync();
+
+                var activas = licencias
+                    .Where(l => l.Activo && (!l.FechaVencimiento.HasValue || l.FechaVencimiento.Value.Date >= DateTime.Now.Date))
+                    .ToList();
+
+                var inactivasOVencidas = licencias
+                    .Where(l => !l.Activo || (l.FechaVencimiento.HasValue && l.FechaVencimiento.Value.Date < DateTime.Now.Date))
+                    .ToList();
+
+                return Ok(new DashboardLicenciasResponse
+                {
+                    LicenciasActivas = activas,
+                    LicenciasInactivasOVencidas = inactivasOVencidas
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al obtener datos del dashboard de licencias: {ex.Message}");
+            }
+        }
+
 
         [AllowAnonymous]
         [HttpGet("ejecutar-sql")]
