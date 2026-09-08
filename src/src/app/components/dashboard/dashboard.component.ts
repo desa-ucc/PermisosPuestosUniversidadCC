@@ -102,6 +102,22 @@ export class DashboardComponent implements OnInit {
     this.chartType = type;
   }
 
+  // Helper Methods para cálculos seguros
+  getContratadas(lic: any): number {
+    return Number(lic?.cantidadContratada ?? lic?.CantidadContratada ?? 0) || 0;
+  }
+
+  getDisponibles(lic: any): number {
+    return Number(lic?.disponibles ?? lic?.Disponibles ?? 0) || 0;
+  }
+
+  getAsignadas(lic: any): number {
+    const contratadas = this.getContratadas(lic);
+    const disponibles = this.getDisponibles(lic);
+    const asignadas = contratadas - disponibles;
+    return isNaN(asignadas) ? 0 : asignadas;
+  }
+
   exportToExcel() {
     // Summary Data
     const summaryData = [

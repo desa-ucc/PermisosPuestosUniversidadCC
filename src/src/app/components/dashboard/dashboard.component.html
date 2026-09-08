@@ -196,11 +196,11 @@
           @for (lic of licenciasActivas; track lic.id) {
           <tr class="border-b border-ucc-surface-container-highest hover:bg-ucc-surface-container-low transition-colors">
             <td class="p-3 text-body-md font-bold text-ucc-neutral-text">{{ lic.nombre || lic.Nombre }}</td>
-            <td class="p-3 text-body-md text-center">{{ lic.cantidadContratada || lic.CantidadContratada }}</td>
-            <td class="p-3 text-body-md text-center">{{ (lic.cantidadContratada || lic.CantidadContratada) - (lic.disponibles || lic.Disponibles) }}</td>
+            <td class="p-3 text-body-md text-center">{{ getContratadas(lic) }}</td>
+            <td class="p-3 text-body-md text-center">{{ getAsignadas(lic) }}</td>
             <td class="p-3 text-body-md text-center">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" [ngClass]="(lic.disponibles || lic.Disponibles) > 5 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'">
-                {{ lic.disponibles || lic.Disponibles }}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold" [ngClass]="getDisponibles(lic) > 5 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'">
+                {{ getDisponibles(lic) }}
               </span>
             </td>
           </tr>
@@ -234,7 +234,7 @@
           <span class="material-symbols-outlined text-[16px]">calendar_today</span>
           <span>Vencimiento: <strong class="text-ucc-error">{{ (lic.fechaVencimiento || lic.FechaVencimiento) ? ((lic.fechaVencimiento || lic.FechaVencimiento) | date:'dd/MM/yyyy') : 'N/A' }}</strong></span>
         </div>
-        <div class="text-xs text-ucc-neutral-variant">Disponibles en inventario: {{ lic.disponibles || lic.Disponibles }} / {{ lic.cantidadContratada || lic.CantidadContratada }}</div>
+        <div class="text-xs text-ucc-neutral-variant">Disponibles en inventario: {{ getDisponibles(lic) }} / {{ getContratadas(lic) }}</div>
       </div>
       } @empty {
       <div class="flex flex-col items-center justify-center text-ucc-neutral-variant h-full opacity-75 min-h-[250px]">
