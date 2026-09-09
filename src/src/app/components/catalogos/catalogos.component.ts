@@ -39,9 +39,6 @@ import { PermissionService } from '../../services/permission.service';
                         <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
                         <span>Niveles de Acceso</span>
                     </button>
-                    <button (click)="setTab('plataformas')" [ngClass]="activeTab === 'plataformas' ? 'bg-ucc-surface text-ucc-secondary font-bold border-b-2 border-ucc-primary-container' : 'text-ucc-neutral-variant hover:bg-ucc-neutral-outline/10'" class="px-6 py-3 rounded-t-lg transition-all text-body-md flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">cloud_done</span> Plataformas
-                    </button>
                 </div>
 
                 <div class="p-6">
@@ -117,7 +114,6 @@ import { PermissionService } from '../../services/permission.service';
                     <table class="ucc-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre del {{ getTabName() }}</th>
                                 @if(activeTab === 'tiposLicencia') {
                                     <th class="text-center">CANT. CONTRATADA</th>
@@ -132,7 +128,6 @@ import { PermissionService } from '../../services/permission.service';
                             @if(listaActual.length > 0) {
                                 @for(item of listaActual; track item.id) {
                                     <tr>
-                                        <td class="font-bold text-ucc-neutral-variant">{{item.id}}</td>
                                         <td class="font-semibold">{{item.nombre}}</td>
                                         @if(activeTab === 'tiposLicencia') {
                                             <td class="text-center font-medium">{{ item.cantidadContratada || 0 }}</td>
@@ -216,13 +211,6 @@ import { PermissionService } from '../../services/permission.service';
                             <span class="font-body-md text-ucc-neutral-variant font-semibold">Tipo de Hardware</span>
                         </div>
                         <span class="text-xl font-bold text-ucc-secondary">{{ tiposHardwareList.length || 0 }}</span>
-                    </div>
-                    <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformas')">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-ucc-secondary bg-ucc-secondary/10 p-2 rounded-lg">cloud_done</span>
-                            <span class="font-body-md text-ucc-neutral-variant font-semibold">Plataformas</span>
-                        </div>
-                        <span class="text-xl font-bold text-ucc-secondary">{{ plataformasList.length || 0 }}</span>
                     </div>
 
                     <div class="p-4 rounded-lg bg-ucc-neutral-outline/10 border border-ucc-neutral-outline/20 flex justify-between items-center cursor-pointer hover:border-ucc-primary-container transition-colors" (click)="setTab('plataformasNombres')">
