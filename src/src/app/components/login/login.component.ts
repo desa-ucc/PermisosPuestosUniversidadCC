@@ -27,7 +27,7 @@ import { MsalService } from '@azure/msal-angular';
         <p class="text-sm text-slate-300 mb-8">Perfiles Tecnológicos</p>
 
         <!-- Microsoft SSO Option (Opción 1) -->
-        <button type="button" (click)="loginMicrosoft()" [disabled]="isIframeInProgress" [class.opacity-50]="isIframeInProgress" [class.cursor-not-allowed]="isIframeInProgress" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" (click)="loginPopup()" [disabled]="isIframeInProgress" [class.opacity-50]="isIframeInProgress" [class.cursor-not-allowed]="isIframeInProgress" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9h-9z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg>
           Ingresar con Microsoft
         </button>
@@ -87,8 +87,10 @@ export class LoginComponent {
   }
 
 
-  loginMicrosoft() {
+  loginPopup() {
+    console.log('Ejecutando loginPopup...');
     if (this.isIframeInProgress) {
+      console.warn('Login bloqueado porque ya hay una interacción en progreso');
       return;
     }
 
@@ -105,6 +107,7 @@ export class LoginComponent {
                 if (res.permisos) {
                   this.permissionService.setPermisos(res.permisos);
                 }
+                this.isIframeInProgress = false;
                 this.router.navigate(['/dashboard']);
               },
               error: (err: any) => {
@@ -114,16 +117,17 @@ export class LoginComponent {
               }
             });
           } else {
-            this.isIframeInProgress = false;
+             this.isIframeInProgress = false;
           }
         },
         error: (error: any) => {
-          console.warn('MSAL Login error/cancelled:', error);
+          console.error(error);
           this.isIframeInProgress = false;
         }
       });
-    } catch (e) {
-      console.error('Unexpected MSAL interaction error:', e);
+    } catch (error) {
+      console.error(error);
+    } finally {
       this.isIframeInProgress = false;
     }
   }

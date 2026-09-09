@@ -1,2 +1,2 @@
 Score: 10/10
-- Implemented `isIframeInProgress` flag in login component to prevent duplicate MSAL login popup interactions that cause `BrowserAuthError: interaction_in_progress`. Verified UI visual cues and functional toggles work correctly via headless Playwright check.
+- Fully addressed MSAL silent failures. Bound UI to `loginPopup()` correctly, added traceability logs (`Ejecutando loginPopup...`, `Login bloqueado porque...`), and ensured strict `try-catch-finally` state release logic.
