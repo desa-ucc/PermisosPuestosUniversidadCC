@@ -60,15 +60,20 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email)) return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Cedula))
+                return BadRequest(new { message = "El correo y la cédula son requeridos." });
 
             var pEmailValidar = new SqlParameter("@Email", request.Email);
-            var emailExistsQuery = await _context.Database.SqlQueryRaw<int>("SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email", pEmailValidar).ToListAsync();
+            var pCedulaValidar = new SqlParameter("@Cedula", request.Cedula);
 
-            if (emailExistsQuery.FirstOrDefault() == 0)
+            // Validar que el correo y la cédula coincidan en pt_Usuarios
+            var userExistsQuery = await _context.Database.SqlQueryRaw<int>(
+                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND CodigoEmpleado = @Cedula",
+                pEmailValidar, pCedulaValidar).ToListAsync();
+
+            if (userExistsQuery.FirstOrDefault() == 0)
             {
-                 // Si no existe, simulamos éxito para evitar enumeración.
-                 return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
+                 return BadRequest(new { message = "Los datos proporcionados no coinciden con ningún usuario registrado." });
             }
 
             var tokenBytes = RandomNumberGenerator.GetBytes(32);
@@ -84,55 +89,8 @@ namespace PermisosPuestosApi.Controllers
                 pEmail, pToken, pExpiration
             );
 
-            try {
-                await EnviarCorreoRecuperacionAsync(request.Email, token);
-            } catch (Exception ex) {
-                // Registrar log del error en producción
-                Console.WriteLine(ex.Message);
-            }
-
-            return Ok(new { message = "Si el correo está registrado, hemos enviado las instrucciones." });
-        }
-
-        private async Task EnviarCorreoRecuperacionAsync(string email, string token)
-        {
-            var host = _configuration["SMTP_HOST"];
-            var portStr = _configuration["SMTP_PORT"];
-            var user = _configuration["SMTP_USER"];
-            var pass = _configuration["SMTP_PASS"];
-
-            if(string.IsNullOrEmpty(host)) return; // Si no hay SMTP configurado, sale silente
-
-            int port = int.TryParse(portStr, out var p) ? p : 587;
-            var frontUrl = _configuration["FRONTEND_URL"] ?? "http://localhost:4200";
-
-            var resetLink = $"{frontUrl}/reset-password?token={token}";
-
-            var message = new MimeKit.MimeMessage();
-            message.From.Add(new MimeKit.MailboxAddress("Soporte Tecnológico UCC", user));
-            message.To.Add(new MimeKit.MailboxAddress("", email));
-            message.Subject = "Restablecimiento de Contraseña - Perfiles Tecnológicos";
-
-            var bodyBuilder = new MimeKit.BodyBuilder
-            {
-                HtmlBody = $@"
-                    <h2>Recuperación de Contraseña</h2>
-                    <p>Usted ha solicitado restablecer su contraseña.</p>
-                    <p>Por favor haga clic en el siguiente enlace para continuar:</p>
-                    <a href='{resetLink}'>Restablecer Contraseña</a>
-                    <br><br>
-                    <p>Este enlace es válido por 15 minutos.</p>
-                    <p>Si no ha solicitado esto, puede ignorar el mensaje de forma segura.</p>
-                "
-            };
-
-            message.Body = bodyBuilder.ToMessageBody();
-
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(user, pass);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            // Devolvemos el token en el body
+            return Ok(new { token = token, message = "Validación exitosa." });
         }
 
         [HttpPost("reset-password")]
@@ -203,6 +161,7 @@ namespace PermisosPuestosApi.Controllers
     public class ForgotPasswordRequest
     {
         public string Email { get; set; } = string.Empty;
+        public string Cedula { get; set; } = string.Empty;
     }
 
     public class ResetPasswordRequest
