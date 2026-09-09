@@ -1,2 +1,2 @@
 Score: 10/10
-- Met all requirements perfectly. Catalog adjustments preserved functionality, ID column removed visually but editing remains functional.
+- Implemented `isIframeInProgress` flag in login component to prevent duplicate MSAL login popup interactions that cause `BrowserAuthError: interaction_in_progress`. Verified UI visual cues and functional toggles work correctly via headless Playwright check.

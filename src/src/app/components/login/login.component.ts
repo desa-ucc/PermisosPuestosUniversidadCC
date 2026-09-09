@@ -27,7 +27,7 @@ import { MsalService } from '@azure/msal-angular';
         <p class="text-sm text-slate-300 mb-8">Perfiles Tecnológicos</p>
 
         <!-- Microsoft SSO Option (Opción 1) -->
-        <button type="button" (click)="loginMicrosoft()" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm">
+        <button type="button" (click)="loginMicrosoft()" [disabled]="isIframeInProgress" [class.opacity-50]="isIframeInProgress" [class.cursor-not-allowed]="isIframeInProgress" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9h-9z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg>
           Ingresar con Microsoft
         </button>
@@ -71,6 +71,7 @@ import { MsalService } from '@azure/msal-angular';
 export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
+  isIframeInProgress = false;
 
   constructor(
     private fb: FormBuilder,
@@ -87,30 +88,44 @@ export class LoginComponent {
 
 
   loginMicrosoft() {
-    this.msalService.loginPopup().subscribe({
-      next: (response: any) => {
-        if (response !== null && response.idToken) {
-          this.isLoading = true;
-          this.api.loginMicrosoft(response.idToken).subscribe({
-            next: (res: any) => {
-              localStorage.setItem('token', res.token);
-              if (res.permisos) {
-                this.permissionService.setPermisos(res.permisos);
+    if (this.isIframeInProgress) {
+      return;
+    }
+
+    this.isIframeInProgress = true;
+
+    try {
+      this.msalService.loginPopup().subscribe({
+        next: (response: any) => {
+          if (response !== null && response.idToken) {
+            this.isLoading = true;
+            this.api.loginMicrosoft(response.idToken).subscribe({
+              next: (res: any) => {
+                localStorage.setItem('token', res.token);
+                if (res.permisos) {
+                  this.permissionService.setPermisos(res.permisos);
+                }
+                this.router.navigate(['/dashboard']);
+              },
+              error: (err: any) => {
+                this.isLoading = false;
+                this.isIframeInProgress = false;
+                alert('Acceso fallido: No se pudo validar con Microsoft');
               }
-              this.router.navigate(['/dashboard']);
-            },
-            error: (err: any) => {
-              this.isLoading = false;
-              alert('Acceso fallido: No se pudo validar con Microsoft');
-            }
-          });
+            });
+          } else {
+            this.isIframeInProgress = false;
+          }
+        },
+        error: (error: any) => {
+          console.warn('MSAL Login error/cancelled:', error);
+          this.isIframeInProgress = false;
         }
-      },
-      error: (error: any) => {
-        console.error(error);
-        alert('Error en inicio de sesión con Microsoft');
-      }
-    });
+      });
+    } catch (e) {
+      console.error('Unexpected MSAL interaction error:', e);
+      this.isIframeInProgress = false;
+    }
   }
 
   recoverPassword() {
