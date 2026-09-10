@@ -15,7 +15,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     auth: {
       clientId: environment.msalConfig.clientId,
       authority: environment.msalConfig.authority,
-      redirectUri: environment.msalConfig.redirectUri
+      redirectUri: 'http://localhost:4200/login'
     }
   });
 }
