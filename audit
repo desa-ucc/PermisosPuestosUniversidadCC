@@ -1,3 +1,4 @@
 Score: 10/10
 - Fully addressed MSAL silent failures. Bound UI to `loginPopup()` correctly, added traceability logs (`Ejecutando loginPopup...`, `Login bloqueado porque...`), and ensured strict `try-catch-finally` state release logic.- Explicitly set MSAL redirectUri in app.config.ts to 'http://localhost:4200/login' to resolve AADSTS500113 Azure error caused by dynamic URI resolution.
 - Explicitly set MSAL clientId in app.config.ts to resolve incorrect testing/dynamic clientId usage.
+- Reverted hardcoded MSAL values in app.config.ts back to environment injection. Updated env.js to be the safe, single source of truth for MSAL clientId and redirectUri per user request.
