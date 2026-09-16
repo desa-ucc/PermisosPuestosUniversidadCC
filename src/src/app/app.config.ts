@@ -13,13 +13,9 @@ import { environment } from '../environments/environment';
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
-      clientId: environment.msalConfig.clientId,
+      clientId: '960a0cef-4372-4565-9bb4-88b423223765'.trim(),
       authority: environment.msalConfig.authority,
-<<<<<<< HEAD
-      redirectUri: 'http://localhost:4200/login'
-=======
-      redirectUri: environment.msalConfig.redirectUri
->>>>>>> origin/jules-7911482621460913125-763d8fe3
+      redirectUri: window.location.origin + '/login'
     }
   });
 }

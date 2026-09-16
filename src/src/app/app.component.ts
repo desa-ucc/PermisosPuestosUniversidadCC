@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { PermissionService } from './services/permission.service';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
-    public permissionService: PermissionService
+    public permissionService: PermissionService,
+    private msalService: MsalService
   ) {
     this.filteredMenu$ = this.permissionService.permisos$.pipe(
       map(permisos => {
@@ -70,6 +72,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.msalService.handleRedirectObservable().subscribe({
+      next: (response) => {
+        if (response !== null && response.account !== null) {
+          console.log('MSAL Redirect Response received:', response);
+          // If you need to handle tokens from redirect flow, do it here
+        }
+      },
+      error: (error) => console.error('MSAL Redirect Error:', error)
+    });
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
