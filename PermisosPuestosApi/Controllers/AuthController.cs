@@ -57,6 +57,62 @@ namespace PermisosPuestosApi.Controllers
             });
         }
 
+
+        [HttpPost("entra-login")]
+        public async Task<IActionResult> EntraLogin([FromBody] EntraLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email))
+                return BadRequest(new { message = "El correo es requerido." });
+
+            var emailParam = new SqlParameter("@Email", request.Email);
+
+            // We need to fetch the user matching the Email. We can't use sp_Login because that requires a password.
+            // We must use a direct query or a new SP. The instruction says:
+            // "Buscará el Email en dbo.pt_Usuarios. Rechazo: Si el correo no existe o Activo es false, devuelve un 401... Éxito: Si existe y está activo, reutiliza la misma lógica del login normal..."
+
+            // Note: EF Core from SqlQueryRaw requires mapping to a model. We have UsuarioDto, but it needs NombreRol.
+            // Let's do a JOIN with pt_Roles to get the same data as sp_Login.
+            var query = @"
+                SELECT
+                    u.Id,
+                    u.NombreUsuario,
+                    u.PasswordHash,
+                    u.Email,
+                    u.Activo,
+                    u.RolId,
+                    u.CodigoEmpleado,
+                    r.Nombre AS NombreRol
+                FROM pt_Usuarios u
+                INNER JOIN pt_Roles r ON u.RolId = r.Id
+                WHERE u.Email = @Email AND u.Activo = 1";
+
+            var usuarios = await _context.UsuariosDto
+                .FromSqlRaw(query, emailParam)
+                .ToListAsync();
+
+            var user = usuarios.FirstOrDefault();
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Usuario no registrado en la base de datos o inactivo" });
+            }
+
+            var token = GenerateJwtToken(user);
+
+            var roleIdParam = new SqlParameter("@RoleId", user.RolId);
+            var permisos = await _context.Set<PermisoDto>()
+                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                token = token,
+                username = user.NombreUsuario,
+                role = user.NombreRol,
+                permisos = permisos
+            });
+        }
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
@@ -156,6 +212,12 @@ namespace PermisosPuestosApi.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+    }
+
+
+    public class EntraLoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
     }
 
     public class ForgotPasswordRequest

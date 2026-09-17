@@ -99,9 +99,21 @@ export class LoginComponent {
     try {
       this.msalService.loginPopup().subscribe({
         next: (response: any) => {
-          if (response !== null && response.idToken) {
+          if (response !== null && response.account) {
             this.isLoading = true;
-            this.api.loginMicrosoft(response.idToken).subscribe({
+            // Extract the email
+            const email = response.account.username ||
+                          (response.idTokenClaims && (response.idTokenClaims.preferred_username || response.idTokenClaims.email));
+
+            if (!email) {
+              this.isLoading = false;
+              this.isIframeInProgress = false;
+              alert('Error: No se pudo obtener el correo de Microsoft.');
+              this.msalService.logoutPopup();
+              return;
+            }
+
+            this.api.loginEntra(email).subscribe({
               next: (res: any) => {
                 localStorage.setItem('token', res.token);
                 if (res.permisos) {
@@ -113,7 +125,8 @@ export class LoginComponent {
               error: (err: any) => {
                 this.isLoading = false;
                 this.isIframeInProgress = false;
-                alert('Acceso fallido: No se pudo validar con Microsoft');
+                alert('No estás registrado en la base de datos o tu cuenta está inactiva.');
+                this.msalService.logoutPopup();
               }
             });
           } else {

@@ -18,6 +18,10 @@ export class ApiService {
 
   // --- Auth ---
   // --- Auth ---
+  loginEntra(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Auth/entra-login`, { email });
+  }
+
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/Auth/login`, credentials);
   }
