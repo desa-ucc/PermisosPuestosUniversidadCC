@@ -70,23 +70,26 @@ import { MsalService } from '@azure/msal-angular';
 })
 export class LoginComponent implements OnInit {
 
-  ngOnInit() {
-    // Si esta instancia del componente se carga dentro de la ventana emergente (popup)
-    // con el hash de respuesta de Microsoft, le decimos a MSAL que lo procese.
-    this.msalService.handleRedirectObservable().subscribe({
-      next: (response: any) => {
-        if (response !== null && response.account) {
-           this.procesarRespuestaEntra(response);
-           // Si estamos en un popup (identificado porque window.opener existe y no es nosotros mismos)
-           if (window.opener && window.opener !== window) {
-               window.close();
-           }
+  async ngOnInit() {
+    try {
+      await this.msalService.instance.initialize();
+
+      this.msalService.handleRedirectObservable().subscribe({
+        next: (response: any) => {
+          if (response !== null && response.account) {
+             this.procesarRespuestaEntra(response);
+             if (window.opener && window.opener !== window) {
+                 window.close();
+             }
+          }
+        },
+        error: (error) => {
+          console.error('Error procesando el hash de MSAL en el login:', error);
         }
-      },
-      error: (error) => {
-        console.error('Error procesando el hash de MSAL en el login:', error);
-      }
-    });
+      });
+    } catch (e) {
+      console.error('Error initializing MSAL:', e);
+    }
   }
 
   procesarRespuestaEntra(response: any) {
