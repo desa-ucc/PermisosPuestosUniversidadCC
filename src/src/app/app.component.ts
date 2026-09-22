@@ -118,14 +118,24 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
+    // 1. Limpiamos la sesión local
     localStorage.removeItem('token');
     localStorage.removeItem('permisos');
     localStorage.removeItem('nombreUsuario');
     this.isLoggedIn = false;
     this.isMobileMenuOpen = false;
 
-    this.msalService.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin + '/login'
-    });
+    // 2. Verificamos el origen de la sesión
+    const msalAccounts = this.msalService.instance.getAllAccounts();
+
+    if (msalAccounts.length > 0) {
+      // Usuario de Microsoft Entra ID
+      this.msalService.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin + '/login'
+      });
+    } else {
+      // Usuario de Credenciales Locales
+      this.router.navigate(['/login']);
+    }
   }
 }
