@@ -123,6 +123,9 @@ export class AppComponent implements OnInit {
     localStorage.removeItem('nombreUsuario');
     this.isLoggedIn = false;
     this.isMobileMenuOpen = false;
-    this.router.navigate(['/login']);
+
+    this.msalService.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin + '/login'
+    });
   }
 }
