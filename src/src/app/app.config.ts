@@ -16,6 +16,9 @@ export function MSALInstanceFactory(): IPublicClientApplication {
       clientId: '960a0cef-4372-4565-9bb4-88b423223765'.trim(),
       authority: environment.msalConfig.authority,
       redirectUri: window.location.origin + '/login'
+    },
+    cache: {
+      cacheLocation: 'localStorage'
     }
   });
 }

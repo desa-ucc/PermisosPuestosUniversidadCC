@@ -86,7 +86,7 @@ export class LoginComponent {
     });
   }
 
-  loginPopup() {
+  async loginPopup() {
     console.log('Ejecutando loginPopup...');
     if (this.isIframeInProgress) {
       console.warn('Login bloqueado porque ya hay una interacción en progreso');
@@ -96,6 +96,7 @@ export class LoginComponent {
     this.isIframeInProgress = true;
 
     try {
+      await this.msalService.instance.initialize();
       this.msalService.loginPopup().subscribe({
         next: (response: any) => {
           if (response !== null && response.account) {
