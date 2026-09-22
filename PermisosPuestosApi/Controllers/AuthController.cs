@@ -77,10 +77,7 @@ namespace PermisosPuestosApi.Controllers
                     u.Id,
                     u.NombreUsuario,
                     u.PasswordHash,
-                    u.Email,
-                    u.Activo,
                     u.RolId,
-                    u.CodigoEmpleado,
                     r.Nombre AS NombreRol
                 FROM pt_Usuarios u
                 INNER JOIN pt_Roles r ON u.RolId = r.Id
