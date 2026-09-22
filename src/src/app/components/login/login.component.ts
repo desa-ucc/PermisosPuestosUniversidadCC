@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -27,7 +27,7 @@ import { MsalService } from '@azure/msal-angular';
         <p class="text-sm text-slate-300 mb-8">Perfiles Tecnológicos</p>
 
         <!-- Microsoft SSO Option (Opción 1) -->
-        <button type="button" (click)="loginPopup()" [disabled]="isIframeInProgress" [class.opacity-50]="isIframeInProgress" [class.cursor-not-allowed]="isIframeInProgress" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" (click)="iniciarLoginMicrosoft()" [disabled]="isIframeInProgress" [class.opacity-50]="isIframeInProgress" [class.cursor-not-allowed]="isIframeInProgress" class="w-full flex items-center justify-center gap-3 bg-white text-slate-800 hover:bg-slate-100 font-semibold py-3 px-4 rounded-lg transition-colors mb-6 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z"/><path fill="#00a4ef" d="M1 11h9v9H1z"/><path fill="#7fba00" d="M11 1h9v9h-9z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg>
           Ingresar con Microsoft
         </button>
@@ -68,7 +68,7 @@ import { MsalService } from '@azure/msal-angular';
     </div>
   `
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   isIframeInProgress = false;
@@ -86,60 +86,73 @@ export class LoginComponent {
     });
   }
 
-  async loginPopup() {
-    console.log('Ejecutando loginPopup...');
+  async ngOnInit() {
+    try {
+      this.isIframeInProgress = true;
+      await this.msalService.instance.initialize();
+
+      this.msalService.handleRedirectObservable().subscribe({
+        next: (response: any) => {
+          if (response !== null && response.account) {
+            this.procesarRespuestaEntra(response);
+          } else {
+             this.isIframeInProgress = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error procesando redirección de MSAL:', error);
+          this.isIframeInProgress = false;
+        }
+      });
+    } catch (e) {
+      console.error('Error inicializando MSAL:', e);
+      this.isIframeInProgress = false;
+    }
+  }
+
+  procesarRespuestaEntra(response: any) {
+    this.isLoading = true;
+    const email = response.account.username ||
+                  (response.idTokenClaims && (response.idTokenClaims.preferred_username || response.idTokenClaims.email));
+
+    if (!email) {
+      this.isLoading = false;
+      this.isIframeInProgress = false;
+      alert('Error: No se pudo obtener el correo de Microsoft.');
+      this.msalService.logoutRedirect();
+      return;
+    }
+
+    this.api.loginEntra(email).subscribe({
+      next: (res: any) => {
+        localStorage.setItem('token', res.token);
+        if (res.permisos) {
+          this.permissionService.setPermisos(res.permisos);
+        }
+        this.isIframeInProgress = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        this.isIframeInProgress = false;
+        alert('Usuario no registrado en el sistema');
+        this.msalService.logoutRedirect(); // Usar logoutRedirect para flujo persistente
+      }
+    });
+  }
+
+  async iniciarLoginMicrosoft() {
+    console.log('Iniciando redirección a Microsoft...');
     if (this.isIframeInProgress) {
       console.warn('Login bloqueado porque ya hay una interacción en progreso');
       return;
     }
 
     this.isIframeInProgress = true;
-
     try {
-      await this.msalService.instance.initialize();
-      this.msalService.loginPopup().subscribe({
-        next: (response: any) => {
-          if (response !== null && response.account) {
-            this.isLoading = true;
-            // Extract the email
-            const email = response.account.username ||
-                          (response.idTokenClaims && (response.idTokenClaims.preferred_username || response.idTokenClaims.email));
-
-            if (!email) {
-              this.isLoading = false;
-              this.isIframeInProgress = false;
-              alert('Error: No se pudo obtener el correo de Microsoft.');
-              this.msalService.logoutPopup();
-              return;
-            }
-
-            this.api.loginEntra(email).subscribe({
-              next: (res: any) => {
-                localStorage.setItem('token', res.token);
-                if (res.permisos) {
-                  this.permissionService.setPermisos(res.permisos);
-                }
-                this.isIframeInProgress = false;
-                this.router.navigate(['/dashboard']);
-              },
-              error: (err: any) => {
-                this.isLoading = false;
-                this.isIframeInProgress = false;
-                alert('Usuario no registrado en el sistema');
-                this.msalService.logoutPopup();
-              }
-            });
-          } else {
-             this.isIframeInProgress = false;
-          }
-        },
-        error: (error: any) => {
-          console.error(error);
-          this.isIframeInProgress = false;
-        }
-      });
+      await this.msalService.loginRedirect();
     } catch (error) {
-      console.error(error);
+      console.error('Error al intentar redireccionar a Microsoft:', error);
       this.isIframeInProgress = false;
     }
   }

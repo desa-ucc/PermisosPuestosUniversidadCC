@@ -71,21 +71,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  async ngOnInit() {
-    try {
-      await this.msalService.instance.initialize();
-      this.msalService.handleRedirectObservable().subscribe({
-        next: (response) => {
-          if (response !== null && response.account !== null) {
-            console.log('MSAL Redirect Response received in root:', response);
-          }
-        },
-        error: (error) => console.error('MSAL Redirect Error in root:', error)
-      });
-    } catch (e) {
-      console.error('Error initializing MSAL in root:', e);
-    }
-
+    ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
