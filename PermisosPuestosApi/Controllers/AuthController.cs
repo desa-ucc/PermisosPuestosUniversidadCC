@@ -113,16 +113,15 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Cedula))
-                return BadRequest(new { message = "El correo y la cédula son requeridos." });
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NombreUsuario))
+                return BadRequest(new { message = "El correo y el nombre de usuario son requeridos." });
 
             var pEmailValidar = new SqlParameter("@Email", request.Email);
-            var pCedulaValidar = new SqlParameter("@Cedula", request.Cedula);
+            var pUsuarioValidar = new SqlParameter("@NombreUsuario", request.NombreUsuario);
 
-            // Validar que el correo y la cédula coincidan en pt_Usuarios
             var userExistsQuery = await _context.Database.SqlQueryRaw<int>(
-                "SELECT COUNT(1) AS Value FROM pt_Usuarios u INNER JOIN pt_Empleados e ON u.Email = e.CorreoInstitucional WHERE u.Email = @Email AND e.CodigoEmpleado = @Cedula AND u.Activo = 1",
-                pEmailValidar, pCedulaValidar).ToListAsync();
+                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND NombreUsuario = @NombreUsuario AND Activo = 1",
+                pEmailValidar, pUsuarioValidar).ToListAsync();
 
             if (userExistsQuery.FirstOrDefault() == 0)
             {
@@ -218,7 +217,7 @@ namespace PermisosPuestosApi.Controllers
     public class ForgotPasswordRequest
     {
         public string Email { get; set; } = string.Empty;
-        public string Cedula { get; set; } = string.Empty;
+        public string NombreUsuario { get; set; } = string.Empty;
     }
 
     public class ResetPasswordRequest

@@ -61,7 +61,7 @@ import { ApiService } from '../../services/api.service';
             </button>
           </form>
         } @else {
-          <p class="text-sm text-slate-300 mb-8 text-center">Ingrese su correo electrónico y número de cédula para validar su identidad.</p>
+          <p class="text-sm text-slate-300 mb-8 text-center">Ingrese su correo electrónico y nombre de usuario para validar su identidad.</p>
           <form [formGroup]="forgotForm" (ngSubmit)="onForgotSubmit()" class="w-full">
             <div class="mb-4 w-full">
               <label class="ucc-label !text-white">Correo Electrónico</label>
@@ -72,10 +72,10 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div class="mb-6 w-full">
-              <label class="ucc-label !text-white">Número de Cédula</label>
-              <input type="text" formControlName="cedula" class="ucc-input bg-white/90" placeholder="Ej: 101110111">
-              @if(forgotForm.get('cedula')?.touched && forgotForm.get('cedula')?.invalid) {
-                <span class="text-red-400 text-xs mt-1 block">La cédula es requerida.</span>
+              <label class="ucc-label !text-white">Nombre de Usuario</label>
+              <input type="text" formControlName="nombreUsuario" class="ucc-input bg-white/90" placeholder="Ej: jsmith">
+              @if(forgotForm.get('nombreUsuario')?.touched && forgotForm.get('nombreUsuario')?.invalid) {
+                <span class="text-red-400 text-xs mt-1 block">El nombre de usuario es requerido.</span>
               }
             </div>
 
@@ -116,7 +116,7 @@ export class ForgotPasswordComponent {
   ) {
     this.forgotForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      cedula: ['', [Validators.required]]
+      nombreUsuario: ['', [Validators.required]]
     });
 
     this.resetForm = this.fb.group({
@@ -135,7 +135,7 @@ export class ForgotPasswordComponent {
       this.isLoading = true;
       this.errorMessage = null;
 
-      this.api.forgotPassword(this.forgotForm.value.email, this.forgotForm.value.cedula).subscribe({
+      this.api.forgotPassword(this.forgotForm.value.email, this.forgotForm.value.nombreUsuario).subscribe({
         next: (res: any) => {
           this.isLoading = false;
           if (res.token) {

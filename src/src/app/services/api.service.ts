@@ -30,8 +30,8 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/Auth/msal-login`, { idToken });
   }
 
-  forgotPassword(email: string, cedula: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/Auth/forgot-password`, { email, cedula });
+  forgotPassword(email: string, nombreUsuario: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/Auth/forgot-password`, { email, nombreUsuario });
   }
 
   resetPassword(token: string, newPassword: string): Observable<any> {
