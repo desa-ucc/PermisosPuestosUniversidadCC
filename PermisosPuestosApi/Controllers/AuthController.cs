@@ -146,23 +146,24 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
+            if (string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword))
+                return BadRequest(new { message = "El token y la nueva contraseña son requeridos." });
+
             var pToken = new SqlParameter("@Token", request.Token);
-            var pNewPasswordHash = new SqlParameter("@NewPasswordHash", request.NewPassword);
+            var pNewPasswordHash = new SqlParameter("@NewPasswordHash", ComputeSha256Hash(request.NewPassword));
 
-            var resultParam = new SqlParameter
-            {
-                ParameterName = "@EsValido",
-                SqlDbType = System.Data.SqlDbType.Int,
-                Direction = System.Data.ParameterDirection.Output
-            };
+            // Execute an UPDATE statement directly
+            // If the token matches and hasn't expired, update the password and clear the token fields.
+            var sqlUpdate = @"
+                UPDATE pt_Usuarios
+                SET PasswordHash = @NewPasswordHash,
+                    TokenRecuperacion = NULL,
+                    ExpiracionToken = NULL
+                WHERE TokenRecuperacion = @Token AND ExpiracionToken > GETUTCDATE()";
 
-            // Ejecutamos el SP
-            var spSql = "EXEC sp_RestablecerPassword @Token, @NewPasswordHash";
-            var resultQuery = await _context.Database.SqlQueryRaw<int>(spSql, pToken, pNewPasswordHash).ToListAsync();
+            var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sqlUpdate, pNewPasswordHash, pToken);
 
-            var isValid = resultQuery.FirstOrDefault() == 1;
-
-            if (isValid)
+            if (rowsAffected > 0)
             {
                 return Ok(new { message = "Contraseña restablecida con éxito." });
             }
