@@ -57,40 +57,90 @@ namespace PermisosPuestosApi.Controllers
             });
         }
 
+
+        [HttpPost("entra-login")]
+        public async Task<IActionResult> EntraLogin([FromBody] EntraLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email))
+                return BadRequest(new { message = "El correo es requerido." });
+
+            var emailParam = new SqlParameter("@Email", request.Email);
+
+            // We need to fetch the user matching the Email. We can't use sp_Login because that requires a password.
+            // We must use a direct query or a new SP. The instruction says:
+            // "Buscará el Email en dbo.pt_Usuarios. Rechazo: Si el correo no existe o Activo es false, devuelve un 401... Éxito: Si existe y está activo, reutiliza la misma lógica del login normal..."
+
+            // Note: EF Core from SqlQueryRaw requires mapping to a model. We have UsuarioDto, but it needs NombreRol.
+            // Let's do a JOIN with pt_Roles to get the same data as sp_Login.
+            var query = @"
+                SELECT
+                    u.Id,
+                    u.NombreUsuario,
+                    u.PasswordHash,
+                    u.RolId,
+                    r.Nombre AS NombreRol
+                FROM pt_Usuarios u
+                INNER JOIN pt_Roles r ON u.RolId = r.Id
+                WHERE u.Email = @Email AND u.Activo = 1";
+
+            var usuarios = await _context.UsuariosDto
+                .FromSqlRaw(query, emailParam)
+                .ToListAsync();
+
+            var user = usuarios.FirstOrDefault();
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Usuario no registrado en la base de datos o inactivo" });
+            }
+
+            var token = GenerateJwtToken(user);
+
+            var roleIdParam = new SqlParameter("@RoleId", user.RolId);
+            var permisos = await _context.Set<PermisoDto>()
+                .FromSqlRaw("EXEC sp_ObtenerPermisosPorRol @RoleId", roleIdParam)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                token = token,
+                username = user.NombreUsuario,
+                role = user.NombreRol,
+                permisos = permisos
+            });
+        }
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Cedula))
-                return BadRequest(new { message = "El correo y la cédula son requeridos." });
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NombreUsuario))
+                return BadRequest(new { message = "El correo y el nombre de usuario son requeridos." });
 
             var pEmailValidar = new SqlParameter("@Email", request.Email);
-            var pCedulaValidar = new SqlParameter("@Cedula", request.Cedula);
+            var pUsuarioValidar = new SqlParameter("@NombreUsuario", request.NombreUsuario);
 
-            // Validar que el correo y la cédula coincidan en pt_Usuarios
             var userExistsQuery = await _context.Database.SqlQueryRaw<int>(
-                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND CodigoEmpleado = @Cedula",
-                pEmailValidar, pCedulaValidar).ToListAsync();
+                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND NombreUsuario = @NombreUsuario AND Activo = 1",
+                pEmailValidar, pUsuarioValidar).ToListAsync();
 
             if (userExistsQuery.FirstOrDefault() == 0)
             {
                  return BadRequest(new { message = "Los datos proporcionados no coinciden con ningún usuario registrado." });
             }
 
-            var tokenBytes = RandomNumberGenerator.GetBytes(32);
-            var token = Convert.ToBase64String(tokenBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
-            var expiration = DateTime.UtcNow.AddMinutes(15);
+            var token = Guid.NewGuid().ToString();
+            var expiration = DateTime.UtcNow.AddHours(1);
 
-            var pEmail = new SqlParameter("@Email", request.Email);
-            var pToken = new SqlParameter("@Token", token);
-            var pExpiration = new SqlParameter("@Expiration", expiration);
+            var updateEmailParam = new SqlParameter("@UpdateEmail", request.Email);
+            var updateTokenParam = new SqlParameter("@Token", token);
+            var updateExpParam = new SqlParameter("@ExpiracionToken", expiration);
 
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GenerarTokenRecuperacion @Email, @Token, @Expiration",
-                pEmail, pToken, pExpiration
+                "UPDATE pt_Usuarios SET TokenRecuperacion = @Token, ExpiracionToken = @ExpiracionToken WHERE Email = @UpdateEmail",
+                updateTokenParam, updateExpParam, updateEmailParam
             );
 
-            // Devolvemos el token en el body
-            return Ok(new { token = token, message = "Validación exitosa." });
+            return Ok(new { success = true, token = token });
         }
 
         [HttpPost("reset-password")]
@@ -158,10 +208,16 @@ namespace PermisosPuestosApi.Controllers
         }
     }
 
+
+    public class EntraLoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
     public class ForgotPasswordRequest
     {
         public string Email { get; set; } = string.Empty;
-        public string Cedula { get; set; } = string.Empty;
+        public string NombreUsuario { get; set; } = string.Empty;
     }
 
     public class ResetPasswordRequest

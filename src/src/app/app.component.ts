@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { PermissionService } from './services/permission.service';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private router: Router,
-    public permissionService: PermissionService
+    public permissionService: PermissionService,
+    private msalService: MsalService
   ) {
     this.filteredMenu$ = this.permissionService.permisos$.pipe(
       map(permisos => {
@@ -69,7 +71,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  ngOnInit() {
+    ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
@@ -116,11 +118,24 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
+    // 1. Limpiamos la sesión local
     localStorage.removeItem('token');
     localStorage.removeItem('permisos');
     localStorage.removeItem('nombreUsuario');
     this.isLoggedIn = false;
     this.isMobileMenuOpen = false;
-    this.router.navigate(['/login']);
+
+    // 2. Verificamos el origen de la sesión
+    const msalAccounts = this.msalService.instance.getAllAccounts();
+
+    if (msalAccounts.length > 0) {
+      // Usuario de Microsoft Entra ID
+      this.msalService.logoutRedirect({
+        postLogoutRedirectUri: window.location.origin + '/login'
+      });
+    } else {
+      // Usuario de Credenciales Locales
+      this.router.navigate(['/login']);
+    }
   }
 }
