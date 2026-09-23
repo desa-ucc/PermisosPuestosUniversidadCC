@@ -121,7 +121,7 @@ namespace PermisosPuestosApi.Controllers
 
             // Validar que el correo y la cédula coincidan en pt_Usuarios
             var userExistsQuery = await _context.Database.SqlQueryRaw<int>(
-                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND CodigoEmpleado = @Cedula",
+                "SELECT COUNT(1) AS Value FROM pt_Usuarios u INNER JOIN pt_Empleados e ON u.Email = e.CorreoInstitucional WHERE u.Email = @Email AND e.CodigoEmpleado = @Cedula AND u.Activo = 1",
                 pEmailValidar, pCedulaValidar).ToListAsync();
 
             if (userExistsQuery.FirstOrDefault() == 0)
