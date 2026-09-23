@@ -139,7 +139,8 @@ export class ForgotPasswordComponent {
         next: (res: any) => {
           this.isLoading = false;
           if (res.token) {
-            this.recoveryToken = res.token;
+            // Guardamos el token en memoria localmente si queremos, pero la instrucción dice usar el Router:
+            this.router.navigate(['/reset-password'], { queryParams: { token: res.token } });
           } else {
              this.errorMessage = "Error al generar el token de recuperación.";
           }

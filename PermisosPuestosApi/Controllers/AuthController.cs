@@ -129,21 +129,19 @@ namespace PermisosPuestosApi.Controllers
                  return BadRequest(new { message = "Los datos proporcionados no coinciden con ningún usuario registrado." });
             }
 
-            var tokenBytes = RandomNumberGenerator.GetBytes(32);
-            var token = Convert.ToBase64String(tokenBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
-            var expiration = DateTime.UtcNow.AddMinutes(15);
+            var token = Guid.NewGuid().ToString();
+            var expiration = DateTime.UtcNow.AddHours(1);
 
-            var pEmail = new SqlParameter("@Email", request.Email);
-            var pToken = new SqlParameter("@Token", token);
-            var pExpiration = new SqlParameter("@Expiration", expiration);
+            var updateEmailParam = new SqlParameter("@UpdateEmail", request.Email);
+            var updateTokenParam = new SqlParameter("@Token", token);
+            var updateExpParam = new SqlParameter("@ExpiracionToken", expiration);
 
             await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_GenerarTokenRecuperacion @Email, @Token, @Expiration",
-                pEmail, pToken, pExpiration
+                "UPDATE pt_Usuarios SET TokenRecuperacion = @Token, ExpiracionToken = @ExpiracionToken WHERE Email = @UpdateEmail",
+                updateTokenParam, updateExpParam, updateEmailParam
             );
 
-            // Devolvemos el token en el body
-            return Ok(new { token = token, message = "Validación exitosa." });
+            return Ok(new { success = true, token = token });
         }
 
         [HttpPost("reset-password")]
