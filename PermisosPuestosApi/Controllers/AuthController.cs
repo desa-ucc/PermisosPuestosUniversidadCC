@@ -27,11 +27,23 @@ namespace PermisosPuestosApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            var passwordHash = ComputeSha256Hash(request.Password);
             var usernameParam = new SqlParameter("@NombreUsuario", request.Username);
-            var passwordParam = new SqlParameter("@Password", request.Password);
+            var passwordHashParam = new SqlParameter("@PasswordHash", passwordHash);
+
+            var query = @"
+                SELECT
+                    u.Id,
+                    u.NombreUsuario,
+                    u.PasswordHash,
+                    u.RolId,
+                    r.Nombre AS NombreRol
+                FROM pt_Usuarios u
+                INNER JOIN pt_Roles r ON u.RolId = r.Id
+                WHERE u.NombreUsuario = @NombreUsuario AND u.PasswordHash = @PasswordHash AND u.Activo = 1";
 
             var usuarios = await _context.UsuariosDto
-                .FromSqlRaw("EXEC sp_Login @NombreUsuario, @Password", usernameParam, passwordParam)
+                .FromSqlRaw(query, usernameParam, passwordHashParam)
                 .ToListAsync();
 
             var user = usuarios.FirstOrDefault();
