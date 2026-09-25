@@ -33,14 +33,13 @@ namespace PermisosPuestosApi.Controllers
 
             var query = @"
                 SELECT
-                    u.Id,
-                    u.NombreUsuario,
-                    u.PasswordHash,
-                    u.RolId,
-                    r.Nombre AS NombreRol
-                FROM pt_Usuarios u
-                INNER JOIN pt_Roles r ON u.RolId = r.Id
-                WHERE u.NombreUsuario = @NombreUsuario AND u.PasswordHash = @PasswordHash AND u.Activo = 1";
+                    Id,
+                    NombreUsuario,
+                    PasswordHash,
+                    RolId,
+                    NombreRol
+                FROM v_AuthUsuarios
+                WHERE NombreUsuario = @NombreUsuario AND PasswordHash = @PasswordHash AND Activo = 1";
 
             var usuarios = await _context.UsuariosDto
                 .FromSqlRaw(query, usernameParam, passwordHashParam)
@@ -78,22 +77,15 @@ namespace PermisosPuestosApi.Controllers
 
             var emailParam = new SqlParameter("@Email", request.Email);
 
-            // We need to fetch the user matching the Email. We can't use sp_Login because that requires a password.
-            // We must use a direct query or a new SP. The instruction says:
-            // "Buscará el Email en dbo.pt_Usuarios. Rechazo: Si el correo no existe o Activo es false, devuelve un 401... Éxito: Si existe y está activo, reutiliza la misma lógica del login normal..."
-
-            // Note: EF Core from SqlQueryRaw requires mapping to a model. We have UsuarioDto, but it needs NombreRol.
-            // Let's do a JOIN with pt_Roles to get the same data as sp_Login.
             var query = @"
                 SELECT
-                    u.Id,
-                    u.NombreUsuario,
-                    u.PasswordHash,
-                    u.RolId,
-                    r.Nombre AS NombreRol
-                FROM pt_Usuarios u
-                INNER JOIN pt_Roles r ON u.RolId = r.Id
-                WHERE u.Email = @Email AND u.Activo = 1";
+                    Id,
+                    NombreUsuario,
+                    PasswordHash,
+                    RolId,
+                    NombreRol
+                FROM v_AuthUsuarios
+                WHERE Email = @Email AND Activo = 1";
 
             var usuarios = await _context.UsuariosDto
                 .FromSqlRaw(query, emailParam)
@@ -132,7 +124,7 @@ namespace PermisosPuestosApi.Controllers
             var pUsuarioValidar = new SqlParameter("@NombreUsuario", request.NombreUsuario);
 
             var userExistsQuery = await _context.Database.SqlQueryRaw<int>(
-                "SELECT COUNT(1) AS Value FROM pt_Usuarios WHERE Email = @Email AND NombreUsuario = @NombreUsuario AND Activo = 1",
+                "SELECT COUNT(1) AS Value FROM v_ValidacionUsuarioRecuperacion WHERE Email = @Email AND NombreUsuario = @NombreUsuario AND Activo = 1",
                 pEmailValidar, pUsuarioValidar).ToListAsync();
 
             if (userExistsQuery.FirstOrDefault() == 0)
@@ -143,13 +135,13 @@ namespace PermisosPuestosApi.Controllers
             var token = Guid.NewGuid().ToString();
             var expiration = DateTime.UtcNow.AddHours(1);
 
-            var updateEmailParam = new SqlParameter("@UpdateEmail", request.Email);
+            var updateEmailParam = new SqlParameter("@Email", request.Email);
             var updateTokenParam = new SqlParameter("@Token", token);
             var updateExpParam = new SqlParameter("@ExpiracionToken", expiration);
 
             await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE pt_Usuarios SET TokenRecuperacion = @Token, ExpiracionToken = @ExpiracionToken WHERE Email = @UpdateEmail",
-                updateTokenParam, updateExpParam, updateEmailParam
+                "EXEC sp_GenerarTokenRecuperacion @Email, @Token, @ExpiracionToken",
+                updateEmailParam, updateTokenParam, updateExpParam
             );
 
             return Ok(new { success = true, token = token });
@@ -164,16 +156,11 @@ namespace PermisosPuestosApi.Controllers
             var pToken = new SqlParameter("@Token", request.Token);
             var pNewPasswordHash = new SqlParameter("@NewPasswordHash", ComputeSha256Hash(request.NewPassword));
 
-            // Execute an UPDATE statement directly
-            // If the token matches and hasn't expired, update the password and clear the token fields.
-            var sqlUpdate = @"
-                UPDATE pt_Usuarios
-                SET PasswordHash = @NewPasswordHash,
-                    TokenRecuperacion = NULL,
-                    ExpiracionToken = NULL
-                WHERE TokenRecuperacion = @Token AND ExpiracionToken > GETUTCDATE()";
+            var result = await _context.Database.SqlQueryRaw<int>(
+                "EXEC sp_RestablecerPassword @Token, @NewPasswordHash",
+                pToken, pNewPasswordHash).ToListAsync();
 
-            var rowsAffected = await _context.Database.ExecuteSqlRawAsync(sqlUpdate, pNewPasswordHash, pToken);
+            var rowsAffected = result.FirstOrDefault();
 
             if (rowsAffected > 0)
             {
